@@ -1,5 +1,86 @@
 // http://ionicframework.com/docs/theming/
+.alertCustomCss {
+  .alert-message{color: #dadada;
+    font-family: 'Montserrat';
+    font-weight: 400;
+  font-size: 14px}
+  .alert-wrapper {
+    border: 1px solid ;
+    border-color: #409aca;;
+    background-image: linear-gradient(60deg, #2b2b2b, #3c3c3c);
+  }
+  button {
+    color: #48c0ff;
+  }
+}
 
+
+.loaderCustomCss{
+  .loading-wrapper {
+    background: transparent;
+    box-shadow: none;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .spinner-crescent circle {
+    stroke-width: 4px;
+  }
+  ion-spinner {
+    width: 60px;
+    height: 60px;
+}
+}
+
+ion-header ion-icon.back-button-icon.icon {
+  color: #48c0ff;
+}
+
+.back-button.show-back-button {
+  position: absolute;
+  z-index: 9999;
+}
+
+ion-footer {
+  font-size: 12px
+}
+
+.round-button {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 10px;
+  color: #0092df;
+  border-color: #0092df;
+  &:active {
+    background-color: #0092df
+  }
+}
+
+.round-button {
+  display: block;
+  width: 40px;
+  height: 40px;
+  line-height:38px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 10px;
+  border: 1px solid #409aca;
+  color: #f5f5f5;
+  background: transparent;
+  color: #409aca;
+  font-weight: 800;
+  margin: 15px 5px
+}
+
+.round-button:hover {
+  background-color: #409aca;
+  color: #262626;
+}
 
 // App Global Sass
 // --------------------------------------------------
@@ -14,3 +95,25 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
+.header-md::after,
+  {
+  display: none;
+}
+
+.toolbar-background-md {
+  border: none;
+  background: none;
+}
+
+.toolbar-title {
+  text-align: center;
+  color: #48c0ff;
+  font-family: 'Montserrat';
+  font-weight: 800;
+  font-style: italic
+}
+
+.highcharts-credits{
+  display: none;
+}
+

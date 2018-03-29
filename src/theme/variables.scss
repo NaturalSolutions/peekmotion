@@ -70,8 +70,8 @@ $colors: (
 // so that the above variables are used and Ionic's
 // default are overridden.
 
-@import "ionic.theme.default";
-
+//@import "ionic.theme.default";
+@import "ionic.theme.dark";
 
 // Ionicons
 // --------------------------------------------------
@@ -84,5 +84,9 @@ $colors: (
 // Fonts
 // --------------------------------------------------
 
+@import "peekmotion_fonts";
+
 @import "roboto";
 @import "noto-sans";
+
+@import "peekmotion_theme";

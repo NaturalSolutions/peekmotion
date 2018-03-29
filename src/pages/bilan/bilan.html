@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title class=title>
+        <p>Votre séance</p>
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <div ion-fixed class="seanceInfo">
+    <div>
+      <p class="timmLabel">durée</p>
+      <p class="time">{{timeSeance}}</p>
+    </div>
+    <div>
+      <p class="timmLabel">exercices</p>
+      <p class="time">{{nbExercices}}</p>
+    </div>
+  </div>
+  <div ion-fixed class="muscles">
+
+    <div class="muscle" *ngFor="let muscle of muscles" [style.height]="muscle.Pourcent+'%'">
+      <div class="square" [style.background]="muscle.color">
+        <span>{{ muscle.Pourcent }}%</span>
+      </div>
+      <p [style.color]="muscle.color">{{muscle.Mac_GrpMuscu_Libelle}}</p>
+    </div>
+  </div>
+</ion-content>

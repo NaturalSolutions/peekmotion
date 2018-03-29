@@ -1,0 +1,58 @@
+<ion-header>
+  <div class="title">
+    <ion-navbar>
+      <ion-title>{{profilTitle}}</ion-title>
+    </ion-navbar>
+  </div>
+</ion-header>
+
+<ion-content>
+  <div >
+    <form *ngIf="formloaded" [formGroup]="profilForm" (submit)="submit(profilForm)">
+      <ion-item padding class="firstName" formControlName="Prenom">
+        <ion-label floating>Prénom*</ion-label>
+        <ion-input type="text"></ion-input>
+      </ion-item>
+      <ion-label class="checkboxLabel" >Sexe*</ion-label>
+      <ion-list class="my-checkbox" radio-group no-lines formControlName="Sex_Id">
+        <div class="my-checkbox">
+          <ion-label text-uppercase>Homme</ion-label>
+          <ion-radio value= 1 ></ion-radio>
+        </div>
+        <div class="my-checkbox">
+          <ion-label  text-uppercase>Femme</ion-label>
+          <ion-radio value= 2></ion-radio>
+        </div>
+      </ion-list>
+      <ion-item padding >
+          <ion-label>Date de naissance*</ion-label>
+          <ion-datetime formControlName="DateNaissance" displayFormat="DD/MM/YYYY" ></ion-datetime>
+        </ion-item>
+      <div class="twoItem">
+        <ion-item>
+          <ion-label>Taille*</ion-label>
+          <ion-multi-picker  formControlName="Taille_cm" item-content [multiPickerColumns]="height"></ion-multi-picker>
+        </ion-item>
+        <ion-item>
+          <ion-label >Poids*</ion-label>
+          <ion-multi-picker item-content formControlName="Poids_kg" [multiPickerColumns]="weight"></ion-multi-picker>
+        </ion-item>
+      </div>
+      <ion-item padding >
+        <ion-label>Objectif*</ion-label>
+        <ion-select formControlName="Adh_Obj_Id" interface="popover">
+          <ion-option *ngFor="let objectif of objectifs"  [value]="objectif.Adh_Obj_Id">{{objectif.Adh_Obj_Libelle}}</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item padding >
+        <ion-label>Expérience*</ion-label>
+        <ion-select  formControlName="NivMuscu_Id" interface="popover">
+          <ion-option *ngFor="let level of levels" [value]="level.Test_Niv_Id">{{level.Test_Niv_Libelle}}</ion-option>
+        </ion-select>
+      </ion-item>
+      <div padding>
+        <button ion-button block type="submit">{{profilButton}}</button>
+      </div>
+    </form>
+  </div>
+</ion-content>

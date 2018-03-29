@@ -1,0 +1,40 @@
+<ion-content>
+  <div ion-fixed class="inner">
+    <div class="innerCounter">
+      <h2 class="counter" [style.color]="serieColor">{{repetionNumber}}</h2>
+      <h2 class="serie">Série</h2>
+      <h2 class="serie num">{{serieNumber}}</h2>
+    </div>
+    <chart [options]="options" (load)="saveInstance($event.context)"></chart>
+
+    <div class="infos">
+      <div class="picto">
+        <div class="innerPicto">
+          <div class="repetition">
+            <p class="pictoText">{{repetition}}</p>
+          </div>
+        </div>
+        <div class="innerPicto">
+          <div class="weight">
+            <p class="pictoText">{{weightSelected}} Kg</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="amplitudeTitle">amplitude du mouvement</p>
+    <div class="amplitude">
+      <div>
+        <div class="circle bleu"></div>
+        <p>correct</p>
+      </div>
+      <div>
+        <div class="circle orange"></div>
+        <p>imparfait</p>
+      </div>
+      <div>
+        <div class="circle red"></div>
+        <p>incorrect</p>
+      </div>
+    </div>
+  </div>
+</ion-content>

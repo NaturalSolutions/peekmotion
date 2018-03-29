@@ -1,0 +1,98 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title  *ngIf="serieLoaded" [style.color]="titleColor">{{exerciceName}}</ion-title>
+  </ion-navbar>
+</ion-header>
+<ion-content>
+  <div ion-fixed  class="inner">
+    <div  class="slides-outer">
+      <ion-slides pager (ionSlideDidChange)="slideChanged($event)">
+        <ion-slide *ngIf="timeRest" class="recommandations startTimer">
+          <div class="innerCounter">
+            <h2 class="counter">{{countDown | async | formatTime}}</h2>
+            <h2 class="serie">Série</h2>
+            <h2 class="serie num">{{serieNumber}}</h2>
+          </div>
+          <round-progress *ngIf="serieLoaded" [current]="counter" [max]="recupTime_sec" [rounded]="true"
+           [color]="'#EBD01F'" [background]="'#1d1d1d'" [stroke]="8"  [duration]="800"
+            [responsive]="true"></round-progress>
+        </ion-slide>
+        <ion-slide>
+          <p style=" color : #EBD01F ; margin-top:0">les réglages de la machine</p>
+          <ion-grid *ngIf="serieLoaded" >
+            <ion-row *ngFor="let row of gridSettings">
+              <ion-col *ngFor="let imgSetting of row">
+                <img class="img-circle" [style.background-image]= "imgSetting[0]" [style.width]="imgWidh" [style.height]="imgHeight">
+                <p  class= "regLabel" >{{imgSetting[1]}}</p>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-slide>
+        <ion-slide class="recommandations">
+          <div>
+            <button ion-button class="play" (click)="playVideo()" round>Voir la vidéo de l'exercice
+              <img src='./assets/imgs/picto_play.png'>
+            </button>
+          </div>
+          <div style=" height: 100%; margin-top: 10px; position: relative;" *ngIf="playClicked">
+            <iframe width="100%" height="100%" [src]="videoUrl ? videoUrl : null" (load)="videoUrl ? handleIFrameLoadEvent() : null"
+              frameborder="0" allowfullscreen></iframe>
+            <button class="closeButton" ion-button icon-only clear (click)="closeVideo()">
+              <ion-icon name="close-circle"></ion-icon>
+            </button>
+          </div>
+          <p style=" color : #EBD01F" *ngIf="!playClicked">zones travaillées</p>
+          <div class="imgs">
+            <div class="conteneur">
+              <img class="pic1" src="{{ imgModelBack }}">
+              <div *ngIf="!imgGroupMuscu.isFront">
+                <img class="pic2" src="{{ imgGroupMuscu.img }}">
+              </div>
+              <!-- <div *ngFor="let imgg of grpMuscu_back" >
+                <img  class="pic2" src= {{imgg}}>
+              </div> -->
+            </div>
+            <div class="conteneur">
+              <img class="pic1" src="{{ imgModelFront }}">
+              <div *ngIf="imgGroupMuscu.isFront" >
+                <img  class="pic2" src="{{ imgGroupMuscu.img }}">
+              </div>
+            </div>
+          </div>
+        </ion-slide>
+      </ion-slides>
+    </div>
+    <div class="infos">
+      <p class="infoText">nos recommandations pour la serie d'après</p>
+      <div class="picto">
+        <div class="innerPicto">
+          <p class="pictoTitle">répétitions</p>
+          <div class="repetition">
+            <p class="pictoText">{{repetition}}</p>
+          </div>
+        </div>
+        <div class="innerPicto">
+          <p class="pictoTitle">charge</p>
+          <div class="weight">
+            <p class="pictoText">{{weight}} Kg</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="weight-buttons">
+      <!--
+      <button (click)="addWeight($event.target.value)" value=0 class="round-button">+0KG</button>
+      <button (click)="addWeight($event.target.value)" value=1 class="round-button">+1KG</button>
+      <button (click)="addWeight($event.target.value)" value=2 class="round-button">+2KG</button>
+      <button (click)="addWeight($event.target.value)" value=3 class="round-button">+3KG</button>
+      !-->
+      <div class="innerweightSelected">
+        <p class="pictoTitle">charge sélectionnée</p>
+        <p class="weightSelected">{{weightSelected}} Kg</p>
+      </div>
+    </div>
+  </div>
+</ion-content>
+<ion-footer padding>
+  Pour commencer l'exercice, activez la machine !
+</ion-footer>

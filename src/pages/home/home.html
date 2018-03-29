@@ -1,14 +1,11 @@
-<ion-header>
-  <ion-navbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-navbar>
-</ion-header>
-
-<ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+<ion-content>
+  <div ion-fixed class="inner">
+    <button ion-button class="full-circle" (click)="profil()">
+      <ion-icon md="md-person"></ion-icon>
+    </button>
+    <p class="homeText">Placez votre téléphone sur le socle pour démarrer une séance</p>
+  </div>
 </ion-content>
+<ion-footer  *ngIf="bilanButton" padding no-border>
+  <button ion-button block color="secondary" (click)="bilan()">terminer la séance</button>
+</ion-footer>

@@ -1,0 +1,23 @@
+<ion-content>
+    <div padding class="infoText">
+      <p>Plusieurs exercices sont realisables sur cette appareil</p>
+      <p>Sélectionnez l'exercice que vous souhaitez realiser</p>
+    </div>
+    <ion-list no-lines>
+      <div class="exerciceList" *ngFor="let exo of exoList" (click)="selectExercice(exo)" >
+          <ion-item>
+              <ion-thumbnail item-right>
+                  <div class="conteneur">
+                      <img class="pic1" src={{exo.modelImg}}>
+                      <img class="pic2" src={{exo.muscleImg}}>
+                    </div>
+              </ion-thumbnail>
+              <h2 class="select-text">{{ exo.Exer_Libelle }}</h2>
+            </ion-item>
+      </div>
+    </ion-list>
+  </ion-content>
+ 
+  
+
+

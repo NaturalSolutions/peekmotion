@@ -1,0 +1,118 @@
+page-repetition {
+  .scroll-content {
+    display: none;
+  }
+  .inner {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .content {
+    background: url("../assets/imgs/fond.jpg") no-repeat;
+    background-size: cover;
+  }
+  chart {
+    display: inline-block;
+    width: 100% !important;
+  }
+  p {
+    font-size: 12px;
+    text-align: center;
+    font-family: 'Montserrat';
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+  .infos {
+    border-bottom: 1px solid;
+    border-color: #8e8d8d;
+    .pictoText {
+      text-align: center;
+      display: table-cell;
+      vertical-align: middle;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .picto {
+      display: flex;
+      justify-content: center;
+      .repetition {
+        display: table;
+        background: url("../assets/imgs/picto_repet.png") no-repeat;
+        background-size: cover;
+        height: 70px;
+        width: 70px;
+        margin: 12px 40px;
+        margin-top: 0px;
+      }
+      .weight {
+        display: table;
+        background: url("../assets/imgs/picto_weight.png") no-repeat;
+        background-size: contain;
+        height: 70px;
+        margin: 12px 40px;
+        margin-top: 0px;
+      }
+    }
+  }
+  .innerCounter {
+    position: absolute;
+    text-align: center;
+    left: 50%;
+    bottom: 75%;
+    transform: translate(-50%, 70%);
+    .counter {
+      color: #EBD01F;
+      font-family: 'Montserrat';
+      font-weight: 400;
+      font-size: 60px
+    }
+    .serie {
+      color: #dadada;
+      font-family: 'Montserrat';
+      font-weight: 400;
+      font-size: 30px;
+      text-transform: uppercase;
+      &.num {
+        font-size: 40px;
+        font-weight: 600;
+        margin-top: 0;
+        color: white
+      }
+    }
+  }
+  .amplitudeTitle {
+    color: #dadada;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14px;
+    margin-bottom: 0
+  }
+  .amplitude {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    p {
+      display: inline-block;
+      vertical-align: super;
+      color: #dadada;
+    }
+  }
+  .circle {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    &.red {
+      background: red;
+    }
+    ;
+    &.bleu {
+      background: #409aca;
+    }
+    &.orange {
+      background: #eb771f;
+    }
+  }
+}
