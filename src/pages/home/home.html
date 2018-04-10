@@ -3,7 +3,12 @@
     <button ion-button class="full-circle" (click)="profil()">
       <ion-icon md="md-person"></ion-icon>
     </button>
-    <p class="homeText">Placez votre téléphone sur le socle pour démarrer une séance</p>
+    <div class="homeText">
+      <p >Placez</p>
+      <p >votre téléphone sur le socle</p>
+      <p >pour {{homeText}} une séance</p>
+    </div>
+   
   </div>
 </ion-content>
 <ion-footer  *ngIf="bilanButton" padding no-border>

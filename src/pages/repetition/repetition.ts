@@ -4,10 +4,20 @@ import { NfcProvider } from '../../providers/nfc';
 import { RecommendationPage } from '../Recommendation/Recommendation';
 import { MachinesProvider } from '../../providers/machines';
 import { BLE } from '@ionic-native/ble';
+import { trigger,state,style,transition,animate,keyframes } from '@angular/animations';
 
 @Component({
   selector: 'page-repetition',
   templateUrl: 'repetition.html',
+  animations: [
+
+    trigger('zoomAnimation', [
+      transition('small <=> large', animate('600ms ease-out', keyframes([
+        style({ transform: 'scale(0.5)',  offset: 0}),
+        style({ transform: 'scale(1)',offset: 1.0})
+      ]))),
+  ]),
+   ]
 })
 export class RepetitionPage {
   private chart;
@@ -27,7 +37,7 @@ export class RepetitionPage {
   public serieNumber;
   private repetionNumber = 0;
   private firstRepetion;
-
+  private state: string = 'small';
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
@@ -96,48 +106,45 @@ export class RepetitionPage {
 
     console.log('ionViewDidLoad RepetitionPage');
     this.repetionNumber = 0;
+    this.serieNumber = this.serie.NumSerie;
     this.onRepetition(this.firstRepetion);
     this.nfcProvider.canDisconnect = false;
 
-
-   this.ble.startNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-    .subscribe((notify) => {
+    this.ble.startNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
+      .subscribe((notify) => {
+       
         let data = (Array.prototype.slice.call(new Uint8Array(notify)));
         console.log("data", data);
         if (data[2] == 32) {
           this.onRepetition(data);
         }
-        if (data[2] == 33 && this.navCtrl.getActive().name == "RepetitionPage") {
+        if (data[2] == 33) {
           console.log("this.serieToPost", this.serieToPost);
-          if (this.repetionNumber < 5) {
-            this.navCtrl.setRoot(RecommendationPage, { timeRest: true, serie: this.serie, exercice: this.exercice, machine: this.machine })
-            return;
+          if (this.repetionNumber < 4)
+            this.navCtrl.setRoot(RecommendationPage, { timeRest: false, serie: this.serie, exercice: this.exercice, machine: this.machine })
+          else {
+            let loadingPostSerie = this.loadingCtrl.create({
+              spinner: 'crescent',
+              cssClass: 'loaderCustomCss',
+            });
+            loadingPostSerie.present();
+            this.machinesProvider.postSerie(this.serieToPost, this.nfcProvider.bleId, this.exoID)
+              .subscribe(() => {
+                loadingPostSerie.dismiss();
+                this.navCtrl.setRoot(RecommendationPage, { timeRest: true, serie: this.serie, exercice: this.exercice, machine: this.machine })
+              })
           }
-          let loadingPostSerie = this.loadingCtrl.create(  {
-            spinner: 'crescent',
-            cssClass: 'loaderCustomCss',
-          });
-          loadingPostSerie.present();
-          this.machinesProvider.postSerie(this.serieToPost, this.nfcProvider.bleId, this.exoID)
-            .subscribe(() => {
-              loadingPostSerie.dismiss();
-              this.ble.stopNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-                        .then(() =>
-                        this.navCtrl.setRoot(RecommendationPage, { timeRest: true, serie: this.serie, exercice: this.exercice, machine: this.machine })
-                )
-              
-            })
-        }},
-        (error) => {
-            console.log("error_bleRep", error);
         }
-    );
+      },
+        (error) => {
+          console.log("error_bleRep", error);
+        }
+      );
 
-
-    this.serieNumber = this.serie.NumSerie;
   }
 
   onRepetition(data): void {
+    this.state = (this.state === 'small' ? 'large' : 'small');
     this.serieToPost.dPeekRepetition_Liste.push({
       Ordre: this.repetionNumber,
       Periode_ms: parseInt("" + data[6] + data[7], 16),
@@ -171,7 +178,9 @@ export class RepetitionPage {
 
     this.zone.run(() => {
       this.repetionNumber++;
+    
     });
+
   }
 
   saveInstance(chartInstance) {

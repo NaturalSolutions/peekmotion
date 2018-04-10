@@ -1,7 +1,7 @@
 <ion-content>
   <div ion-fixed class="inner">
     <div class="innerCounter">
-      <h2 class="counter" [style.color]="serieColor">{{repetionNumber}}</h2>
+      <h2 class="counter" [@zoomAnimation]='state' [style.color]="serieColor">{{repetionNumber}}</h2>
       <h2 class="serie">Série</h2>
       <h2 class="serie num">{{serieNumber}}</h2>
     </div>

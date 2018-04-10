@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { MachinesProvider } from '../../providers/machines';
 import * as _ from "lodash";
+import { SeancesProvider } from '../../providers/seances';
 
 @Component({
   selector: 'page-bilan',
@@ -32,12 +33,14 @@ export class BilanPage {
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private machinesProvider: MachinesProvider,
+    private seancesProvider :SeancesProvider,
     public loadingCtrl: LoadingController) {
 
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad BilanPage');
+    this.seancesProvider.setBilanStatus(false,"démarrer");
     let loadingGetBilan = this.loadingCtrl.create(
       {
         spinner: 'crescent',

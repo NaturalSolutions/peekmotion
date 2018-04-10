@@ -1,6 +1,6 @@
 <ion-header>
   <ion-navbar>
-    <ion-title  *ngIf="serieLoaded" [style.color]="titleColor">{{exerciceName}}</ion-title>
+    <ion-title  *ngIf="serieLoaded"  [style.color]="titleColor">{{exerciceName}}</ion-title>
   </ion-navbar>
 </ion-header>
 <ion-content>
@@ -14,7 +14,7 @@
             <h2 class="serie num">{{serieNumber}}</h2>
           </div>
           <round-progress *ngIf="serieLoaded" [current]="counter" [max]="recupTime_sec" [rounded]="true"
-           [color]="'#EBD01F'" [background]="'#1d1d1d'" [stroke]="8"  [duration]="800"
+           [color]="'#EBD01F'" [background]="'#1d1d1d'" [stroke]="8"  [duration]="1000" [animation]="'linearEase'"
             [responsive]="true"></round-progress>
         </ion-slide>
         <ion-slide>
@@ -30,16 +30,16 @@
         </ion-slide>
         <ion-slide class="recommandations">
           <div>
-            <button ion-button class="play" (click)="playVideo()" round>Voir la vidéo de l'exercice
-              <img src='./assets/imgs/picto_play.png'>
+            <button ion-button class="play" (click)="playVideo()" *ngIf="!playClicked" round>
+              <div class="videoBtn"> <p>Voir la vidéo de l'exercice </p><img src='./assets/imgs/picto_play.png'></div>  
+            </button>
+            <button ion-button class="play" (click)="closeVideo()" *ngIf="playClicked" round>
+               <div class="videoBtn"><p>Quitter la vidéo </p><ion-icon name="close-circle"></ion-icon></div> 
             </button>
           </div>
           <div style=" height: 100%; margin-top: 10px; position: relative;" *ngIf="playClicked">
             <iframe width="100%" height="100%" [src]="videoUrl ? videoUrl : null" (load)="videoUrl ? handleIFrameLoadEvent() : null"
               frameborder="0" allowfullscreen></iframe>
-            <button class="closeButton" ion-button icon-only clear (click)="closeVideo()">
-              <ion-icon name="close-circle"></ion-icon>
-            </button>
           </div>
           <p style=" color : #EBD01F" *ngIf="!playClicked">zones travaillées</p>
           <div class="imgs">

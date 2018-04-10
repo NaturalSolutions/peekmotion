@@ -7,9 +7,9 @@
 </ion-header>
 
 <ion-content>
-  <div >
+  <div   >
     <form *ngIf="formloaded" [formGroup]="profilForm" (submit)="submit(profilForm)">
-      <ion-item padding class="firstName" formControlName="Prenom">
+      <ion-item  class="firstName" formControlName="Prenom">
         <ion-label floating>Prénom*</ion-label>
         <ion-input type="text"></ion-input>
       </ion-item>
@@ -24,7 +24,7 @@
           <ion-radio value= 2></ion-radio>
         </div>
       </ion-list>
-      <ion-item padding >
+      <ion-item  >
           <ion-label>Date de naissance*</ion-label>
           <ion-datetime formControlName="DateNaissance" displayFormat="DD/MM/YYYY" ></ion-datetime>
         </ion-item>
@@ -38,13 +38,13 @@
           <ion-multi-picker item-content formControlName="Poids_kg" [multiPickerColumns]="weight"></ion-multi-picker>
         </ion-item>
       </div>
-      <ion-item padding >
+      <ion-item  >
         <ion-label>Objectif*</ion-label>
         <ion-select formControlName="Adh_Obj_Id" interface="popover">
           <ion-option *ngFor="let objectif of objectifs"  [value]="objectif.Adh_Obj_Id">{{objectif.Adh_Obj_Libelle}}</ion-option>
         </ion-select>
       </ion-item>
-      <ion-item padding >
+      <ion-item  >
         <ion-label>Expérience*</ion-label>
         <ion-select  formControlName="NivMuscu_Id" interface="popover">
           <ion-option *ngFor="let level of levels" [value]="level.Test_Niv_Id">{{level.Test_Niv_Libelle}}</ion-option>

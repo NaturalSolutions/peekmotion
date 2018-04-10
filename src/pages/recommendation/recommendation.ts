@@ -2,6 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { NavParams, Slides, Loading, LoadingController, NavController } from 'ionic-angular';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { NfcProvider } from '../../providers/nfc';
+import { SeancesProvider } from '../../providers/seances';
 import { HomePage } from '../home/home';
 import { RepetitionPage } from '../repetition/repetition';
 import 'rxjs/add/operator/first';
@@ -12,13 +13,17 @@ import 'rxjs/add/operator/take';
 import * as _ from "lodash";
 import { BLE } from '@ionic-native/ble';
 import { MachinesProvider } from '../../providers/machines';
+import { ChronoProvider } from '../../providers/chrono';
 @Component({
     selector: 'page-recommendation',
     templateUrl: 'recommendation.html',
 })
 export class RecommendationPage {
+
     private exercice;
+    private bleID;
     private exoID;
+    private serieID;
     private tagSubscribe;
     @ViewChild(Slides) slides: Slides;
     public countDown;
@@ -31,7 +36,6 @@ export class RecommendationPage {
     public weight;
     private weightSelected;
     public repetition;
-    bilanButton = false;
     private imgSrc: string = "./assets/imgs/";
     public imgModelFront;
     public imgModelBack;
@@ -48,7 +52,8 @@ export class RecommendationPage {
     public gridSettings = [];
     private settings = [];
     private settingsUrl = "https://api.connectplus.fr/GCenterWCFOverHttps/getFichier/";
-    private timeRest: boolean = true;
+    private timeRest = false;
+    private newTime;
     public exerciceName: string;
     public imgGroupMuscu: any = {};
 
@@ -58,20 +63,22 @@ export class RecommendationPage {
         public loadingCtrl: LoadingController,
         private navCtrl: NavController,
         private machinesProvider: MachinesProvider,
+        private seancesProvider: SeancesProvider,
         private nfcService: NfcProvider,
+        private chronoProvider: ChronoProvider,
         private ble: BLE
     ) {
-        this.timeRest = this.navParams.get("timeRest");
         this.exercice = this.navParams.get("exercice");
         this.machine = this.navParams.get("machine");
         this.nfcService.canDisconnect = true;
+        this.bleID = this.nfcService.bleId;
     }
 
-    ionViewDidLoad() {
+    ionViewWillEnter() {
         console.log('ionViewDidLoad RecommendationPage');
+        console.log("this.bleID", this.bleID);
+        this.newTime = new Date().getTime() / 1000;
 
-        if (this.serieNumber > 1)
-            this.bilanButton = true;
 
         if (this.exercice)
             this.exoID = this.exercice.Mac_L_ExoUsag_Id;
@@ -84,15 +91,29 @@ export class RecommendationPage {
             }
         );
         loadingGetSerie.present();
-        this.machinesProvider.getSerie(this.nfcService.bleId, this.exoID)
+        this.machinesProvider.getSerie(this.bleID, this.exoID)
             .subscribe(
                 (serie) => {
                     this.serie = serie;
+                    console.log("this.serie", serie);
                 },
                 error => {
                     console.log("error_getSerie", error);
                 },
                 () => {
+                    this.recupTime_sec = this.serie.Adh_ExerciceConseil.Recup_sec;
+                    this.counter = this.recupTime_sec;
+                    this.timeRest = this.navParams.get("timeRest");
+                    if (!this.timeRest) {
+                        let lastSeance = this.seancesProvider.getBilanStatus();
+                        if (lastSeance.serieID == this.serie.Mac_Exer_Id && lastSeance.stopedTime != 0) {
+                            if (lastSeance.lastCounter - (this.newTime - lastSeance.stopedTime) > 0)
+                                this.counter = lastSeance.lastCounter - (this.newTime - lastSeance.stopedTime);
+                            else
+                                this.counter = 0;
+                            this.timeRest = true;
+                        }
+                    }
                     loadingGetSerie.dismiss();
                     if (this.serie.Adherent.Sex_Id == 1)
                         this.imgSrc = this.imgSrc + 'men/';
@@ -117,10 +138,10 @@ export class RecommendationPage {
                         img: this.imgSrc + firstGrpMuscu['Image' + firstGrpMuscu.FrontBack]
                     };
                     this.exerciceName = this.serie.Exer_Libelle;
+                    this.serieID = this.serie.Mac_Exer_Id;
                     this.repetition = this.serie.Adh_ExerciceConseil.NbRep;
                     this.weight = this.serie.Adh_ExerciceConseil.IntensitePossible_kg;
                     this.serieNumber = this.serie.NumSerie;
-                    this.recupTime_sec = this.serie.Adh_ExerciceConseil.Recup_sec;
                     this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.serie.LienVideo);
                     _.map(this.serie.ReglageConseil_Liste, (value) => {
                         this.settings.push(["url(" + this.settingsUrl + value.FichierImage + ")", value.Conseil])
@@ -133,38 +154,35 @@ export class RecommendationPage {
                         this.imgHeight = "150px";
                     }
                     this.serieLoaded = true;
-                    this.counter = this.recupTime_sec;
                     this.startTimer();
+
                     this.tagSubscribe = this.nfcService.getTagStatus().first(status => (status == "tag_disconnected")).subscribe(tagStatus => {
-                        if (this.serieNumber > 1)
-                            this.bilanButton = true
+                        if (this.serieNumber > 1) {
+                            let stopedTime = new Date().getTime() / 1000;
+                            this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
+                        }
                         if (tagStatus === "tag_disconnected")
-                            this.navCtrl.setRoot(HomePage, { bilanButton: this.bilanButton })
+                            this.navCtrl.setRoot(HomePage)
                     })
                 }
             );
 
-        console.log("this.nfcService.bleId", this.nfcService.bleId);
-
         this.readWeight();
-        this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
+        this.ble.startNotification(this.bleID, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
             .subscribe((data) => {
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
-                if (this.firstRepetion[2] == 32 && this.navCtrl.getActive().name == "RecommendationPage") {
-                    this.ble.stopNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-                        .then(() =>
-                            this.navCtrl.setRoot(RepetitionPage, {
-                                firstRepetion: this.firstRepetion,
-                                weightSelected: this.weightSelected,
-                                serie: this.serie,
-                                exercice: this.exercice,
-                                machine: this.machine
-                            })
-                        )
+                if (this.firstRepetion[2] == 32) {
+                    this.navCtrl.setRoot(RepetitionPage, {
+                        firstRepetion: this.firstRepetion,
+                        weightSelected: this.weightSelected,
+                        serie: this.serie,
+                        exercice: this.exercice,
+                        machine: this.machine
+                    })
                 }
             },
                 (error) => {
-                    console.log("error_bleRep", error);
+                    console.log("error_bleRepRecomandation", error);
                 }
             );
 
@@ -201,20 +219,21 @@ export class RecommendationPage {
     closeVideo() {
         this.playClicked = false;
     }
-    startTimer() {
-        this.countDown = Observable.timer(0, 1000)
-            .takeWhile(() => this.counter != 0)
-            .map(() => --this.counter)
-    };
+
     /* addWeight(event) {
          console.log("weight", event)
          // this.weightSelected=this.weightSelected+event
      };*/
+    startTimer() {
+        this.countDown = Observable.timer(0, 1000)
+            .takeWhile(() => this.counter >= 1)
+            .map(() => --this.counter)
+    };
 
     readWeight() {
         this.readPooling = setInterval(() => {
-            this.ble.isConnected(this.nfcService.bleId).then(() => {
-                this.ble.read(this.nfcService.bleId, "f000da7a-0451-4000-b000-000000000000", "f000bfff-0451-4000-b000-000000000000")
+            this.ble.isConnected(this.bleID).then(() => {
+                this.ble.read(this.bleID, "f000da7a-0451-4000-b000-000000000000", "f000bfff-0451-4000-b000-000000000000")
                     .then((data) => {
                         let color = Array.prototype.slice.call(new Uint8Array(data));
                         let colorSelect = _.chunk(color, 3);
@@ -268,4 +287,3 @@ export class RecommendationPage {
         }, 2000)
     }
 }
-

@@ -5,6 +5,7 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { MyApp } from './app.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 //ionic native
 import { NFC, Ndef } from '@ionic-native/nfc';  
 import { BLE } from '@ionic-native/ble';
@@ -28,11 +29,14 @@ import { MachinesProvider } from '../providers/machines';
 import { NfcProvider } from '../providers/nfc';
 import { AuthInterceptor } from '../providers/authinterceptor';
 import { LoginProvider } from '../providers/loginService';
+import { SeancesProvider } from '../providers/seances';
+
 //extraModule
 import {RoundProgressModule} from 'angular-svg-round-progressbar';
 import { MultiPickerModule } from 'ion-multi-picker';
 import { ChartModule } from 'angular2-highcharts';
 import { HighchartsStatic } from 'angular2-highcharts/dist/HighchartsService';
+
 declare var require: any;
 export function highchartsFactory() {
   var hc = require('highcharts');
@@ -55,7 +59,8 @@ export function highchartsFactory() {
     CreatAccountPage,
     ForgotPasswordPage,
     BilanPage,
-    FormatTimePipe
+    FormatTimePipe,
+   
 
   ],
   imports: [
@@ -64,7 +69,8 @@ export function highchartsFactory() {
     IonicModule.forRoot(MyApp),
     ChartModule,
     RoundProgressModule,
-    MultiPickerModule
+    MultiPickerModule,
+    BrowserAnimationsModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -101,7 +107,9 @@ export function highchartsFactory() {
     },
     MachinesProvider,
     AuthInterceptor,
-    LoginProvider
+    LoginProvider,
+    SeancesProvider,
+
   ]
 })
 export class AppModule {}

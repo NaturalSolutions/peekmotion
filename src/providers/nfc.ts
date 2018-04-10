@@ -3,7 +3,7 @@ import { NFC } from '@ionic-native/nfc';
 import { LoadingController } from 'ionic-angular';
 import { Observable, BehaviorSubject, Subscription } from 'rxjs';
 import { BLE } from '@ionic-native/ble';
-import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/gyroscope';
+//import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/gyroscope';
 import { Platform } from 'ionic-angular';
 import 'rxjs/add/operator/retry';
 
@@ -12,7 +12,7 @@ export class NfcProvider {
 
   public bleId: string;
   private tagStatus: BehaviorSubject<any> = new BehaviorSubject('');
-  private accSubscribe: Subscription;
+  //private accSubscribe: Subscription;
   private sub: Subscription
   public canDisconnect: boolean = true;
 
@@ -20,7 +20,7 @@ export class NfcProvider {
     private ble: BLE,
     private loadingCtrl: LoadingController,
     private platform: Platform,
-    private gyroscope: Gyroscope
+    // private gyroscope: Gyroscope
   ) {
     console.log('Hello NfcProvider Provider');
   }
@@ -36,19 +36,27 @@ export class NfcProvider {
           })
         });
       }
-
+      console.log("this.bleId init",this.bleId);
       this.ble.isConnected(this.bleId)
-        .then(() => {
-          console.log(' ble isConnected true', this.bleId);
-          setTimeout(() => {
-            this.ble.disconnect(this.bleId).then(() => {
-              console.log('disc ok');
-              this.nfcListener().then(() => { resolve(this.bleId) })
-            }, error => {
-              console.log('disco error', error);
-            });
-          }, 500)
-        }, () => { this.nfcListener().then(() => { resolve(this.bleId) }) });
+        .then(
+          () => {
+            console.log(' ble isConnected true', this.bleId);
+            //setTimeout(() => {
+            this.ble.disconnect(this.bleId).then(
+              () => {
+                console.log('disc ok');
+                this.nfcListener().then(() => { resolve(this.bleId) })
+              },
+              (error) => {
+                console.log('disco error', error);
+              });
+            // }, 500)
+          },
+          () => {
+            this.nfcListener().then(
+              () => resolve(this.bleId))
+          }
+        )
     });
   }
 
@@ -86,7 +94,7 @@ export class NfcProvider {
           }
         }
       );
-    },500)
+    }, 500)
 
   }
 
@@ -115,30 +123,30 @@ export class NfcProvider {
             }
           );
           loadingNfcConnect.present();
-          setTimeout(() => {
-            this.ble.startScan([])
-              .subscribe(device => {
-                console.log('ble found', device);
-                if (device.id == this.bleId) {
-                  this.ble.stopScan().then(() => {
-                    console.log('scan stopped');
-                    setTimeout(() => {
-                      this.ble.connect(this.bleId).retry(5).subscribe(deviceData => {
-                        console.log('ble connected', deviceData);
-                        loadingNfcConnect.dismiss();
-                        this.startWatch();
-                        this.tagStatus.next('tag_connected');
-                        resolve(this.bleId);
-                      }, error => {
-                        console.log('ble connect error', error);
-                      });
-                    }, 500);
+          // setTimeout(() => {
+          this.ble.startScan([])
+            .subscribe(device => {
+              console.log('ble found', device);
+              if (device.id == this.bleId) {
+                this.ble.stopScan().then(() => {
+                  console.log('scan stopped');
+                  //  setTimeout(() => {
+                  this.ble.connect(this.bleId).retry(6).subscribe(deviceData => {
+                    console.log('ble connected', deviceData);
+                    loadingNfcConnect.dismiss();
+                    this.startWatch();
+                    this.tagStatus.next('tag_connected');
+                    resolve(this.bleId);
+                  }, error => {
+                    console.log('ble connect error', error);
                   });
-                }
-              }, error => {
-                console.log('startScan error', error);
-              });
-          }, 500);
+                  //      }, 500);
+                });
+              }
+            }, error => {
+              console.log('startScan error', error);
+            });
+          // }, 500);
           this.sub.unsubscribe();
         },
           error => {

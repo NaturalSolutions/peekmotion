@@ -98,18 +98,23 @@ page-recommendation {
       background-color: #373737;
     }
     .button-inner {
-      justify-content: space-around;
+    display: block;
       font-family: 'Montserrat';
       font-weight: 400;
       color: #dadada;
       font-size: 12px
     }
   }
+  .videoBtn{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    ion-icon{
+      font-size: 20px;
+    }
+  }
   .closeButton {
-    position: absolute;
-    color:  #a8a8a8;
-    right: -10px;
-    top: -47px;
+    color:  #dadada;
   }
   ion-footer {
     background-color: #2b87b8;
@@ -165,7 +170,7 @@ page-recommendation {
   .pictoTitle {
     text-align: center;
     margin: 0;
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 400;
     color: #409aca;
     margin-bottom: -5px;

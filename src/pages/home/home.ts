@@ -11,15 +11,18 @@ import { LoginProvider } from '../../providers/loginService';
 import { BilanPage } from '../bilan/bilan';
 import { NFC } from '@ionic-native/nfc';
 import { BLE } from '@ionic-native/ble';
+import { SeancesProvider } from '../../providers/seances';
 
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
 })
-export class HomePage {
+export class HomePage  {
 
   private machine;
-  public bilanButton = false;
+  public bilanButton :boolean;
+  public homeText:string;
+  private  seaance;
   private currentUser;
 
   constructor(
@@ -32,14 +35,17 @@ export class HomePage {
     private nfc: NFC,
     private ble: BLE,
     private alertCtrl: AlertController,
-    public loadingCtrl: LoadingController) {
+    public loadingCtrl: LoadingController,
+    private seancesProvider :SeancesProvider) {
   }
 
+  
   ionViewWillEnter() {
-    this.bilanButton = this.navParams.get("bilanButton");
-    let previousPage = this.navCtrl.last();
-    if (previousPage.name == "BilanPage")
-      this.bilanButton = false;
+    
+    this.seaance=this.seancesProvider.getBilanStatus();
+    this.bilanButton=this.seaance.bilanStatus;
+    this.homeText=this.seaance.homeText;
+    
     this.ble.enable()
       .then(
         (status) => { this.activeNFC() },
@@ -57,7 +63,6 @@ export class HomePage {
   }
 
   private activeNFC() {
-
     this.nfc.enabled()
       .then((status) => {
         console.log("nfc active? : ", status);
@@ -66,7 +71,6 @@ export class HomePage {
         console.log("nfc active? : ", error);
         this.openDisabledNfc();
       })
-
   }
 
   private nfcInit() {
@@ -98,28 +102,28 @@ export class HomePage {
 
   private openDisabledNfc() {
     let alert: Alert = this.alertCtrl.create({
-      message: "Veuillez activez le NFC",
+      message: "<img src='./assets/imgs/picto_nfc.png'><br> Merci d'activer le NFC ",
       enableBackdropDismiss: false,
       cssClass: 'alertCustomCss',
       buttons: [{
         text: 'OK',
         handler: () => {
-              this.nfc.showSettings()
-                .then(result => {
-                  console.log('showNFCSettings result', result);
-                  let isEnnabled =setInterval(() => {
-                    this.nfc.enabled()
-                    .then(() => {
-                      this.nfcInit();
-                      alert.dismiss();
-                      clearInterval(isEnnabled)
-                    })
-                  },400)
-                })
-                .catch(error => {
-                  console.log('showNFCSettings error', error);
-                });
-          
+          this.nfc.showSettings()
+            .then(result => {
+              console.log('showNFCSettings result', result);
+              let isEnnabled = setInterval(() => {
+                this.nfc.enabled()
+                  .then(() => {
+                    this.nfcInit();
+                    alert.dismiss();
+                    clearInterval(isEnnabled)
+                  })
+              }, 400)
+            })
+            .catch(error => {
+              console.log('showNFCSettings error', error);
+            });
+
           return false;
         }
       }]
