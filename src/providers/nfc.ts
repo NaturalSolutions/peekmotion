@@ -3,16 +3,17 @@ import { NFC } from '@ionic-native/nfc';
 import { LoadingController } from 'ionic-angular';
 import { Observable, BehaviorSubject, Subscription } from 'rxjs';
 import { BLE } from '@ionic-native/ble';
-//import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/gyroscope';
+import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/gyroscope';
 import { Platform } from 'ionic-angular';
 import 'rxjs/add/operator/retry';
+import * as _ from 'lodash';
 
 @Injectable()
 export class NfcProvider {
 
   public bleId: string;
   private tagStatus: BehaviorSubject<any> = new BehaviorSubject('');
-  //private accSubscribe: Subscription;
+  private accSubscribe: Subscription;
   private sub: Subscription
   public canDisconnect: boolean = true;
 
@@ -20,7 +21,7 @@ export class NfcProvider {
     private ble: BLE,
     private loadingCtrl: LoadingController,
     private platform: Platform,
-    // private gyroscope: Gyroscope
+    private gyroscope: Gyroscope
   ) {
     console.log('Hello NfcProvider Provider');
   }
@@ -29,14 +30,14 @@ export class NfcProvider {
   public nfcInit(): Promise<string> {
     console.log('nfcInit');
     return new Promise((resolve, reject) => {
-      if (this.platform.is("ios")) {
+      /* if (this.platform.is("ios")) {
         this.nfc.beginSession().subscribe(() => {
           this.nfc.addNdefListener((data) => {
             console.log("IOS: ", data) // You will not see this, at this point the app will crash
           })
         });
-      }
-      console.log("this.bleId init",this.bleId);
+      } */
+      console.log("this.bleId init", this.bleId);
       this.ble.isConnected(this.bleId)
         .then(
           () => {
@@ -45,7 +46,16 @@ export class NfcProvider {
             this.ble.disconnect(this.bleId).then(
               () => {
                 console.log('disc ok');
-                this.nfcListener().then(() => { resolve(this.bleId) })
+                if (!this.platform.is('ios'))
+                  this.nfcListener().then(() => { resolve(this.bleId) });
+                else
+                  this.nfc.beginSession().subscribe(() => {
+                    this.nfcListener()
+                      .then(() => {
+                        console.log('connected');
+                        resolve(this.bleId)
+                      });
+                  });
               },
               (error) => {
                 console.log('disco error', error);
@@ -53,14 +63,21 @@ export class NfcProvider {
             // }, 500)
           },
           () => {
-            this.nfcListener().then(
-              () => resolve(this.bleId))
+            if (!this.platform.is('ios'))
+              this.nfcListener().then(() => { resolve(this.bleId) });
+            else
+              this.nfc.beginSession().subscribe(() => {
+                this.nfcListener().then(() => {
+                  console.log('connected');
+                  resolve(this.bleId);
+                });
+              });
           }
         )
     });
   }
 
-  /*private startWatch() {
+  private startWatch() {
     let options: GyroscopeOptions = {
       frequency: 20
     };
@@ -81,8 +98,8 @@ export class NfcProvider {
           nb = 0;
         }
       });
-  }*/
-  private startWatch() {
+  }
+  /* private startWatch() {
     let isconnected = setInterval(() => {
       this.nfc.tagIsConnected().then(
         (status) => console.log("tagIsConnected scc: ", status),
@@ -96,7 +113,7 @@ export class NfcProvider {
       );
     }, 500)
 
-  }
+  } */
 
   getTagStatus(): Observable<any> {
     return this.tagStatus.asObservable();
@@ -122,31 +139,40 @@ export class NfcProvider {
               cssClass: 'loaderCustomCss',
             }
           );
-          loadingNfcConnect.present();
-          // setTimeout(() => {
-          this.ble.startScan([])
-            .subscribe(device => {
-              console.log('ble found', device);
-              if (device.id == this.bleId) {
-                this.ble.stopScan().then(() => {
-                  console.log('scan stopped');
-                  //  setTimeout(() => {
-                  this.ble.connect(this.bleId).retry(6).subscribe(deviceData => {
-                    console.log('ble connected', deviceData);
-                    loadingNfcConnect.dismiss();
-                    this.startWatch();
-                    this.tagStatus.next('tag_connected');
-                    resolve(this.bleId);
-                  }, error => {
-                    console.log('ble connect error', error);
-                  });
-                  //      }, 500);
+          loadingNfcConnect.present()
+            .then(() => {
+              // setTimeout(() => {
+              this.ble.startScan([])
+                .subscribe(device => {
+                  if (_.get(device, 'name') == 'Peekmotionv2')
+                    console.log('ble peek found', device);
+                  if (_.get(device, 'advertising.kCBAdvDataLocalName') == this.bleId || device.id == this.bleId) {
+                    console.log('ble found', device);
+                    this.ble.stopScan().then(() => {
+                      console.log('scan stopped');
+                      //  setTimeout(() => {
+                      this.ble.connect(device.id)
+                        .retry(10)
+                        .subscribe(deviceData => {
+                          console.log('ble connected retry', deviceData);
+                          if (!deviceData)
+                            return;
+                          loadingNfcConnect.dismiss().then(() => {
+                            this.startWatch();
+                            this.tagStatus.next('tag_connected');
+                            resolve(this.bleId);
+                          });
+                        }, error => {
+                          console.log('ble connect error', error);
+                        });
+                      //      }, 500);
+                    });
+                  }
+                }, error => {
+                  console.log('startScan error', error);
                 });
-              }
-            }, error => {
-              console.log('startScan error', error);
+              // }, 500);
             });
-          // }, 500);
           this.sub.unsubscribe();
         },
           error => {

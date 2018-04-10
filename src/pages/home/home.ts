@@ -17,12 +17,12 @@ import { SeancesProvider } from '../../providers/seances';
   selector: 'page-home',
   templateUrl: 'home.html'
 })
-export class HomePage  {
+export class HomePage {
 
   private machine;
-  public bilanButton :boolean;
-  public homeText:string;
-  private  seaance;
+  public bilanButton: boolean;
+  public homeText: string;
+  private seaance;
   private currentUser;
 
   constructor(
@@ -36,21 +36,28 @@ export class HomePage  {
     private ble: BLE,
     private alertCtrl: AlertController,
     public loadingCtrl: LoadingController,
-    private seancesProvider :SeancesProvider) {
+    private seancesProvider: SeancesProvider) {
   }
 
-  
+
   ionViewWillEnter() {
-    
-    this.seaance=this.seancesProvider.getBilanStatus();
-    this.bilanButton=this.seaance.bilanStatus;
-    this.homeText=this.seaance.homeText;
-    
-    this.ble.enable()
-      .then(
-        (status) => { this.activeNFC() },
-        (error) => this.openDisabledBle()
-      )
+
+    this.seaance = this.seancesProvider.getBilanStatus();
+    this.bilanButton = this.seaance.bilanStatus;
+    this.homeText = this.seaance.homeText;
+
+    if (this.plt.is('android'))
+      this.ble.enable()
+        .then(
+          (status) => { this.activeNFC() },
+          (error) => this.openDisabledBle()
+        )
+    else if (this.plt.is('ios'))
+      this.ble.isEnabled()
+        .then(
+          (status) => { this.activeNFC() },
+          (error) => this.openDisabledBle()
+        )
 
     this.loginProvider.getUser()
       .subscribe((user) => {
@@ -87,12 +94,14 @@ export class HomePage  {
           res => this.machine = res,
           (error) => console.log("error_getMachine", error),
           () => {
-            loadingGetMachineByID.dismiss();
-            let exoList = this.machine.Modele.ExoUsage_Liste;
-            if (exoList.length > 1)
-              this.navCtrl.setRoot(ExercicesListPage, { infoMachine: this.machine, exoList: exoList, Sex_Id: this.currentUser.Sex_Id });
-            else
-              this.navCtrl.setRoot(RecommendationPage, { machine: this.machine, Sex_Id: this.currentUser.Sex_Id });
+            loadingGetMachineByID.dismiss()
+              .then(() => {
+                let exoList = this.machine.Modele.ExoUsage_Liste;
+                if (exoList.length > 1)
+                  this.navCtrl.setRoot(ExercicesListPage, { infoMachine: this.machine, exoList: exoList, Sex_Id: this.currentUser.Sex_Id });
+                else
+                  this.navCtrl.setRoot(RecommendationPage, { machine: this.machine, Sex_Id: this.currentUser.Sex_Id });
+              });
           }
         );
     }, err => {
@@ -133,27 +142,32 @@ export class HomePage  {
 
   private openDisabledBle() {
     let alert: Alert = this.alertCtrl.create({
-      message: "Veuillez activez le bluetooth",
+      message: "Veuillez activez le bluetooth.",
       enableBackdropDismiss: false,
       cssClass: 'alertCustomCss',
       buttons: [{
         text: 'OK',
         handler: () => {
-          this.ble.enable()
-            .then(() => {
-              this.activeNFC();
-              alert.dismiss()
-            })
-            .catch(error => {
-              this.ble.showBluetoothSettings()
-                .then(result => {
-                  console.log('showNFCSettings result', result);
-                })
-                .catch(error => {
-                  console.log('showNFCSettings error', error);
-                });
-            })
-          return false;
+          setTimeout(() => {
+            this.ble.isEnabled()
+              .then(() => {
+                this.activeNFC();
+                alert.dismiss()
+              }, error => {
+                if (this.plt.is('ios'))
+                  this.openDisabledBle();
+                else if (this.plt.is('android'))
+                  this.ble.showBluetoothSettings()
+                    .then(result => {
+                      console.log('showNFCSettings result', result);
+                      this.openDisabledBle();
+                    })
+                    .catch(error => {
+                      console.log('showNFCSettings error', error);
+                      this.openDisabledBle();
+                    });
+              });
+          }, 100);
         }
       }]
     });

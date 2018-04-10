@@ -13,7 +13,7 @@ import 'rxjs/add/operator/take';
 import * as _ from "lodash";
 import { BLE } from '@ionic-native/ble';
 import { MachinesProvider } from '../../providers/machines';
-import { ChronoProvider } from '../../providers/chrono';
+
 @Component({
     selector: 'page-recommendation',
     templateUrl: 'recommendation.html',
@@ -65,7 +65,6 @@ export class RecommendationPage {
         private machinesProvider: MachinesProvider,
         private seancesProvider: SeancesProvider,
         private nfcService: NfcProvider,
-        private chronoProvider: ChronoProvider,
         private ble: BLE
     ) {
         this.exercice = this.navParams.get("exercice");
