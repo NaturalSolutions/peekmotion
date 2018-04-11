@@ -24,6 +24,7 @@ export class HomePage {
   public homeText: string;
   private seaance;
   private currentUser;
+  private bleStatus: string;
 
   constructor(
     public navCtrl: NavController,
@@ -49,13 +50,13 @@ export class HomePage {
     if (this.plt.is('android'))
       this.ble.enable()
         .then(
-          (status) => { this.activeNFC() },
+          (status) => { this.bleReady() },
           (error) => this.openDisabledBle()
         )
     else if (this.plt.is('ios'))
       this.ble.isEnabled()
         .then(
-          (status) => { this.activeNFC() },
+          (status) => { this.bleReady() },
           (error) => this.openDisabledBle()
         )
 
@@ -69,6 +70,46 @@ export class HomePage {
     );
   }
 
+  private openDisabledBle() {
+    let alert: Alert = this.alertCtrl.create({
+      message: "Veuillez activez le bluetooth.",
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: [{
+        text: 'OK',
+        handler: () => {
+          setTimeout(() => {
+            this.ble.isEnabled()
+              .then(() => {
+                this.bleReady();
+                alert.dismiss()
+              }, error => {
+                if (this.plt.is('ios'))
+                  this.openDisabledBle();
+                else if (this.plt.is('android'))
+                  this.ble.showBluetoothSettings()
+                    .then(result => {
+                      console.log('showNFCSettings result', result);
+                      this.openDisabledBle();
+                    })
+                    .catch(error => {
+                      console.log('showNFCSettings error', error);
+                      this.openDisabledBle();
+                    });
+              });
+          }, 100);
+        }
+      }]
+    });
+    alert.present();
+  }
+
+  private bleReady() {
+    this.bleStatus = 'ready';
+    if (this.plt.is('android'))
+      this.activeNFC();
+  }
+
   private activeNFC() {
     this.nfc.enabled()
       .then((status) => {
@@ -78,35 +119,6 @@ export class HomePage {
         console.log("nfc active? : ", error);
         this.openDisabledNfc();
       })
-  }
-
-  private nfcInit() {
-    this.nfcService.nfcInit().then(bleId => {
-      let loadingGetMachineByID = this.loadingCtrl.create(
-        {
-          spinner: 'crescent',
-          cssClass: 'loaderCustomCss',
-        }
-      );
-      loadingGetMachineByID.present();
-      this.machinesProvider.getMachineByID(bleId)
-        .subscribe(
-          res => this.machine = res,
-          (error) => console.log("error_getMachine", error),
-          () => {
-            loadingGetMachineByID.dismiss()
-              .then(() => {
-                let exoList = this.machine.Modele.ExoUsage_Liste;
-                if (exoList.length > 1)
-                  this.navCtrl.setRoot(ExercicesListPage, { infoMachine: this.machine, exoList: exoList, Sex_Id: this.currentUser.Sex_Id });
-                else
-                  this.navCtrl.setRoot(RecommendationPage, { machine: this.machine, Sex_Id: this.currentUser.Sex_Id });
-              });
-          }
-        );
-    }, err => {
-      console.log("NFCdisabled", err);
-    })
   }
 
   private openDisabledNfc() {
@@ -140,38 +152,33 @@ export class HomePage {
     alert.present();
   }
 
-  private openDisabledBle() {
-    let alert: Alert = this.alertCtrl.create({
-      message: "Veuillez activez le bluetooth.",
-      enableBackdropDismiss: false,
-      cssClass: 'alertCustomCss',
-      buttons: [{
-        text: 'OK',
-        handler: () => {
-          setTimeout(() => {
-            this.ble.isEnabled()
-              .then(() => {
-                this.activeNFC();
-                alert.dismiss()
-              }, error => {
-                if (this.plt.is('ios'))
-                  this.openDisabledBle();
-                else if (this.plt.is('android'))
-                  this.ble.showBluetoothSettings()
-                    .then(result => {
-                      console.log('showNFCSettings result', result);
-                      this.openDisabledBle();
-                    })
-                    .catch(error => {
-                      console.log('showNFCSettings error', error);
-                      this.openDisabledBle();
-                    });
-              });
-          }, 100);
+  private nfcInit() {
+    this.nfcService.nfcInit().then(() => {
+      let loadingGetMachineByID = this.loadingCtrl.create(
+        {
+          spinner: 'crescent',
+          cssClass: 'loaderCustomCss',
         }
-      }]
-    });
-    alert.present();
+      );
+      loadingGetMachineByID.present();
+      this.machinesProvider.getMachineByID(this.nfcService.bleName)
+        .subscribe(
+          res => this.machine = res,
+          (error) => console.log("error_getMachine", error),
+          () => {
+            loadingGetMachineByID.dismiss()
+              .then(() => {
+                let exoList = this.machine.Modele.ExoUsage_Liste;
+                if (exoList.length > 1)
+                  this.navCtrl.setRoot(ExercicesListPage, { infoMachine: this.machine, exoList: exoList, Sex_Id: this.currentUser.Sex_Id });
+                else
+                  this.navCtrl.setRoot(RecommendationPage, { machine: this.machine, Sex_Id: this.currentUser.Sex_Id });
+              });
+          }
+        );
+    }, err => {
+      console.log("NFCdisabled", err);
+    })
   }
 
   public profil() {

@@ -66,7 +66,9 @@ export function highchartsFactory() {
   imports: [
     BrowserModule,
     HttpClientModule,
-    IonicModule.forRoot(MyApp),
+    IonicModule.forRoot(MyApp, {
+      mode: 'md'
+    }),
     ChartModule,
     RoundProgressModule,
     MultiPickerModule,

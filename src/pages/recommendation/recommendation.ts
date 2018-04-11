@@ -21,7 +21,6 @@ import { MachinesProvider } from '../../providers/machines';
 export class RecommendationPage {
 
     private exercice;
-    private bleID;
     private exoID;
     private serieID;
     private tagSubscribe;
@@ -70,12 +69,11 @@ export class RecommendationPage {
         this.exercice = this.navParams.get("exercice");
         this.machine = this.navParams.get("machine");
         this.nfcService.canDisconnect = true;
-        this.bleID = this.nfcService.bleId;
     }
 
     ionViewWillEnter() {
         console.log('ionViewDidLoad RecommendationPage');
-        console.log("this.bleID", this.bleID);
+        console.log("this.bleName", this.nfcService.bleName);
         this.newTime = new Date().getTime() / 1000;
 
 
@@ -90,7 +88,7 @@ export class RecommendationPage {
             }
         );
         loadingGetSerie.present();
-        this.machinesProvider.getSerie(this.bleID, this.exoID)
+        this.machinesProvider.getSerie(this.nfcService.bleName, this.exoID)
             .subscribe(
                 (serie) => {
                     this.serie = serie;
@@ -167,7 +165,7 @@ export class RecommendationPage {
             );
 
         this.readWeight();
-        this.ble.startNotification(this.bleID, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
+        this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
             .subscribe((data) => {
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
                 if (this.firstRepetion[2] == 32) {
@@ -231,8 +229,8 @@ export class RecommendationPage {
 
     readWeight() {
         this.readPooling = setInterval(() => {
-            this.ble.isConnected(this.bleID).then(() => {
-                this.ble.read(this.bleID, "f000da7a-0451-4000-b000-000000000000", "f000bfff-0451-4000-b000-000000000000")
+            this.ble.isConnected(this.nfcService.bleId).then(() => {
+                this.ble.read(this.nfcService.bleId, "f000da7a-0451-4000-b000-000000000000", "f000bfff-0451-4000-b000-000000000000")
                     .then((data) => {
                         let color = Array.prototype.slice.call(new Uint8Array(data));
                         let colorSelect = _.chunk(color, 3);

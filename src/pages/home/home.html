@@ -3,14 +3,20 @@
     <button ion-button class="full-circle" (click)="profil()">
       <ion-icon md="md-person"></ion-icon>
     </button>
-    <div class="homeText">
-      <p >Placez</p>
-      <p >votre téléphone sur le socle</p>
-      <p >pour {{homeText}} une séance</p>
+    <div class="homeText" showWhen="android">
+      <p>Placez</p>
+      <p>votre téléphone sur le socle</p>
+      <p>pour {{ homeText }} une séance</p>
     </div>
-   
+    <div class="homeText" showWhen="ios">
+      <p>Placez votre téléphone sur</p>
+      <p>le socle puis appuyez sur SCANNER</p>
+      <p>pour {{ homeText }} une séance</p>
+    </div>
+
   </div>
 </ion-content>
-<ion-footer  *ngIf="bilanButton" padding no-border>
-  <button ion-button block color="secondary" (click)="bilan()">terminer la séance</button>
+<ion-footer padding no-border>
+  <button ion-button block large color="primary" (click)="activeNFC()" showWhen="ios" *ngIf="bleStatus == 'ready'">SCANNER</button>
+  <button ion-button block color="secondary" (click)="bilan()" *ngIf="bilanButton">terminer la séance</button>
 </ion-footer>

@@ -128,7 +128,7 @@ export class RepetitionPage {
               cssClass: 'loaderCustomCss',
             });
             loadingPostSerie.present();
-            this.machinesProvider.postSerie(this.serieToPost, this.nfcProvider.bleId, this.exoID)
+            this.machinesProvider.postSerie(this.serieToPost, this.nfcProvider.bleName, this.exoID)
               .subscribe(() => {
                 loadingPostSerie.dismiss();
                 this.navCtrl.setRoot(RecommendationPage, { timeRest: true, serie: this.serie, exercice: this.exercice, machine: this.machine })

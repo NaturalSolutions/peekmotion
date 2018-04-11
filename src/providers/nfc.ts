@@ -12,6 +12,7 @@ import * as _ from 'lodash';
 export class NfcProvider {
 
   public bleId: string;
+  public bleName: string;
   private tagStatus: BehaviorSubject<any> = new BehaviorSubject('');
   private accSubscribe: Subscription;
   private sub: Subscription
@@ -47,15 +48,18 @@ export class NfcProvider {
               () => {
                 console.log('disc ok');
                 if (!this.platform.is('ios'))
-                  this.nfcListener().then(() => { resolve(this.bleId) });
+                  this.nfcListener().then(() => { resolve() });
                 else
-                  this.nfc.beginSession().subscribe(() => {
-                    this.nfcListener()
-                      .then(() => {
-                        console.log('connected');
-                        resolve(this.bleId)
-                      });
-                  });
+                  this.nfc.beginSession()
+                    .subscribe(() => {
+                      this.nfcListener()
+                        .then(() => {
+                          console.log('connected');
+                          resolve()
+                        });
+                    }, error => {
+                      console.log(error);
+                    });
               },
               (error) => {
                 console.log('disco error', error);
@@ -64,13 +68,15 @@ export class NfcProvider {
           },
           () => {
             if (!this.platform.is('ios'))
-              this.nfcListener().then(() => { resolve(this.bleId) });
+              this.nfcListener().then(() => { resolve() });
             else
               this.nfc.beginSession().subscribe(() => {
                 this.nfcListener().then(() => {
                   console.log('connected');
-                  resolve(this.bleId);
+                  resolve();
                 });
+              }, error => {
+                console.log(error);
               });
           }
         )
@@ -130,9 +136,9 @@ export class NfcProvider {
       })
         .subscribe(event => {
           console.log("nfcListener in : ", event);
-          let bleIdBytes = event.tag.ndefMessage[0]["payload"];
-          this.bleId = this.nfc.bytesToString(bleIdBytes.slice(3));
-          console.log('tag read success', this.bleId);
+          let tagBytes = event.tag.ndefMessage[0]["payload"];
+          this.bleName = this.nfc.bytesToString(tagBytes.slice(3));
+          console.log('tag read success', this.bleName);
           let loadingNfcConnect = this.loadingCtrl.create(
             {
               spinner: 'crescent',
@@ -146,11 +152,12 @@ export class NfcProvider {
                 .subscribe(device => {
                   if (_.get(device, 'name') == 'Peekmotionv2')
                     console.log('ble peek found', device);
-                  if (_.get(device, 'advertising.kCBAdvDataLocalName') == this.bleId || device.id == this.bleId) {
+                  if (_.get(device, 'advertising.kCBAdvDataLocalName') == this.bleName || device.id == this.bleName) {
                     console.log('ble found', device);
                     this.ble.stopScan().then(() => {
                       console.log('scan stopped');
                       //  setTimeout(() => {
+                      this.bleId = device.id;
                       this.ble.connect(device.id)
                         .retry(10)
                         .subscribe(deviceData => {
@@ -160,7 +167,7 @@ export class NfcProvider {
                           loadingNfcConnect.dismiss().then(() => {
                             this.startWatch();
                             this.tagStatus.next('tag_connected');
-                            resolve(this.bleId);
+                            resolve();
                           });
                         }, error => {
                           console.log('ble connect error', error);

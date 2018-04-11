@@ -14,12 +14,12 @@ export class MachinesProvider {
     return this.http.get<any[]>(Conf.apiBaseUrl + 'machine/macPhysiqueBtId/' + id);
 
   }
-  getSerie(bleID,exerciceID) {
-    return this.http.get<any[]>(Conf.apiBaseUrl + '/adherent/serie/macPhysiqueBtId/'+bleID+'/exerciceUsageId/'+exerciceID);
+  getSerie(bleName, exerciceID) {
+    return this.http.get<any[]>(Conf.apiBaseUrl + '/adherent/serie/macPhysiqueBtId/' + bleName + '/exerciceUsageId/' + exerciceID);
   }
 
-  postSerie(serie,bleID,exerciceID) {
-    return this.http.post<any[]>(Conf.apiBaseUrl + '/adherent/serie/macPhysiqueBtId/'+bleID+'/exerciceUsageId/'+exerciceID,serie);
+  postSerie(serie, bleName, exerciceID) {
+    return this.http.post<any[]>(Conf.apiBaseUrl + '/adherent/serie/macPhysiqueBtId/' + bleName + '/exerciceUsageId/' + exerciceID, serie);
   }
 
   getBilan() {
