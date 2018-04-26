@@ -12,6 +12,7 @@ import { BLE } from '@ionic-native/ble';
 import { Gyroscope } from '@ionic-native/gyroscope';
 import { Insomnia } from '@ionic-native/insomnia';
 import { AndroidPermissions } from '@ionic-native/android-permissions';
+import { DeviceMotion } from '@ionic-native/device-motion';
 //pages
 import { HomePage } from '../pages/home/home';
 import { LoginPage } from '../pages/login/login';
@@ -95,6 +96,7 @@ export function highchartsFactory() {
     Gyroscope,
     Insomnia,
     AndroidPermissions,
+    DeviceMotion,
     BLE,
     NfcProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler},

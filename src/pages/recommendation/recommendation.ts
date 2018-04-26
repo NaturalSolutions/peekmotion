@@ -74,9 +74,7 @@ export class RecommendationPage {
     ionViewWillEnter() {
         console.log('ionViewDidLoad RecommendationPage');
         console.log("this.bleName", this.nfcService.bleName);
-        this.newTime = new Date().getTime() / 1000;
-
-
+        this.newTime = Math.ceil(new Date().getTime() / 1000);
         if (this.exercice)
             this.exoID = this.exercice.Mac_L_ExoUsag_Id;
         else
@@ -101,16 +99,24 @@ export class RecommendationPage {
                     this.recupTime_sec = this.serie.Adh_ExerciceConseil.Recup_sec;
                     this.counter = this.recupTime_sec;
                     this.timeRest = this.navParams.get("timeRest");
+                    console.log("this.timeRest", this.timeRest);
+
                     if (!this.timeRest) {
+                        console.log("time false undefined");
                         let lastSeance = this.seancesProvider.getBilanStatus();
                         if (lastSeance.serieID == this.serie.Mac_Exer_Id && lastSeance.stopedTime != 0) {
-                            if (lastSeance.lastCounter - (this.newTime - lastSeance.stopedTime) > 0)
+                            if (lastSeance.lastCounter - (this.newTime - lastSeance.stopedTime) > 0) {
+
                                 this.counter = lastSeance.lastCounter - (this.newTime - lastSeance.stopedTime);
+                                this.timeRest = true;
+                                this.startTimer();
+                            }
                             else
                                 this.counter = 0;
-                            this.timeRest = true;
                         }
                     }
+                    else
+                        this.startTimer();
                     loadingGetSerie.dismiss();
                     if (this.serie.Adherent.Sex_Id == 1)
                         this.imgSrc = this.imgSrc + 'men/';
@@ -151,11 +157,11 @@ export class RecommendationPage {
                         this.imgHeight = "150px";
                     }
                     this.serieLoaded = true;
-                    this.startTimer();
 
                     this.tagSubscribe = this.nfcService.getTagStatus().first(status => (status == "tag_disconnected")).subscribe(tagStatus => {
                         if (this.serieNumber > 1) {
-                            let stopedTime = new Date().getTime() / 1000;
+
+                            let stopedTime = Math.ceil(new Date().getTime() / 1000);
                             this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
                         }
                         if (tagStatus === "tag_disconnected")
@@ -169,6 +175,11 @@ export class RecommendationPage {
             .subscribe((data) => {
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
                 if (this.firstRepetion[2] == 32) {
+                    if (this.serieNumber > 1) {
+
+                        let stopedTime = Math.ceil(new Date().getTime() / 1000);
+                        this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
+                    }
                     this.navCtrl.setRoot(RepetitionPage, {
                         firstRepetion: this.firstRepetion,
                         weightSelected: this.weightSelected,
@@ -281,6 +292,6 @@ export class RecommendationPage {
 
             }, () => console.log(" recomandation ble disconnected")
             )
-        }, 2000)
+        }, 1000)
     }
 }

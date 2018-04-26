@@ -22,7 +22,7 @@ export class SeancesProvider {
       lastCounter: this.lastCounter
     }
   }
-  public setBilanStatus(status: boolean, homeText: string,
+  public setBilanStatus(status?: boolean, homeText?: string,
     serieID?, stopedTime?: number, lastCounter?: number) {
     this.bilanStatus = status;
     this.homeText = homeText;

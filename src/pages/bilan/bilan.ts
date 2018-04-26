@@ -9,6 +9,7 @@ import { SeancesProvider } from '../../providers/seances';
   templateUrl: 'bilan.html',
 })
 export class BilanPage {
+  exoText: string= "exercice";
   private muscles: any[] = [];
   public timeSeance;
   private seance;
@@ -33,14 +34,14 @@ export class BilanPage {
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private machinesProvider: MachinesProvider,
-    private seancesProvider :SeancesProvider,
+    private seancesProvider: SeancesProvider,
     public loadingCtrl: LoadingController) {
 
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad BilanPage');
-    this.seancesProvider.setBilanStatus(false,"démarrer");
+    this.seancesProvider.setBilanStatus(false, "démarrer");
     let loadingGetBilan = this.loadingCtrl.create(
       {
         spinner: 'crescent',
@@ -56,6 +57,8 @@ export class BilanPage {
           loadingGetBilan.dismiss();
           this.timeSeance = this.convertMinsToHrsMins(this.seance.Duree_min);
           this.nbExercices = this.seance.NbExercice;
+          if (this.nbExercices > 1)
+            this.exoText = "exercices";
           console.log("this.seance.GrpMuscu_Liste", this.seance.GrpMuscu_Liste);
           this.muscles = _.map(this.seance.GrpMuscu_Liste, (muscle) => {
             return _.assign(muscle, {

@@ -4,7 +4,7 @@ import { NfcProvider } from '../../providers/nfc';
 import { RecommendationPage } from '../Recommendation/Recommendation';
 import { MachinesProvider } from '../../providers/machines';
 import { BLE } from '@ionic-native/ble';
-import { trigger,state,style,transition,animate,keyframes } from '@angular/animations';
+import { trigger, style, transition, animate, keyframes } from '@angular/animations';
 
 @Component({
   selector: 'page-repetition',
@@ -13,13 +13,15 @@ import { trigger,state,style,transition,animate,keyframes } from '@angular/anima
 
     trigger('zoomAnimation', [
       transition('small <=> large', animate('600ms ease-out', keyframes([
-        style({ transform: 'scale(0.5)',  offset: 0}),
-        style({ transform: 'scale(1)',offset: 1.0})
+        style({ transform: 'scale(0.5)', offset: 0 }),
+        style({ transform: 'scale(1)', offset: 1.0 })
       ]))),
-  ]),
-   ]
+    ]),
+  ]
 })
 export class RepetitionPage {
+  blinkInterval;
+  private flag: boolean = true;
   private chart;
   public options;
   private serie;
@@ -50,12 +52,14 @@ export class RepetitionPage {
 
     this.serie = this.navParams.get("serie");
     this.weightSelected = this.navParams.get("weightSelected");
+    this.serieToPost.MasseReelle_kg = this.weightSelected;
     this.repetition = this.serie.Adh_ExerciceConseil.NbRep;
     let chartData = [];
     for (let index = 0; index < this.repetition; index++) {
       chartData.push({
         y: 505370,
         z: 92.9,
+        sliced: true,
         color: '#393f46'
       })
     };
@@ -83,8 +87,8 @@ export class RepetitionPage {
           dataLabels: {
             enabled: false,
           },
-          borderWidth: 6,
-          borderColor: '#2d2d2d',
+          borderWidth: 0,
+          slicedOffset: 18,
           states: {
             hover: {
               halo: {
@@ -112,7 +116,7 @@ export class RepetitionPage {
 
     this.ble.startNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
       .subscribe((notify) => {
-       
+
         let data = (Array.prototype.slice.call(new Uint8Array(notify)));
         console.log("data", data);
         if (data[2] == 32) {
@@ -144,12 +148,13 @@ export class RepetitionPage {
   }
 
   onRepetition(data): void {
+    clearInterval(this.blinkInterval);
     this.state = (this.state === 'small' ? 'large' : 'small');
     this.serieToPost.dPeekRepetition_Liste.push({
       Ordre: this.repetionNumber,
-      Periode_ms: parseInt("" + data[6] + data[7], 16),
-      Amplitude_cm: parseInt("" + data[8] + data[9], 16),
-      Vitesse_mmparsec: parseInt("" + data[10] + data[11], 16),
+      Periode_ms: (data[6] << 8) & 0x000ff00 | (data[7] << 0) & 0x00000ff,
+      Amplitude_cm: ((data[8] << 8) & 0x000ff00 | (data[9] << 0)) / 10,
+      Vitesse_mmparsec: (data[10] << 8) & 0x000ff00 | (data[11] << 0) & 0x00000ff,
       Qualite: data[12]
     });
     console.log(this.repetionNumber);
@@ -178,8 +183,16 @@ export class RepetitionPage {
 
     this.zone.run(() => {
       this.repetionNumber++;
-    
     });
+
+
+    if ((this.repetionNumber) < this.repetition) {
+
+      this.blinkInterval = setInterval(() => { this.blink(this.repetionNumber) }, 320)
+
+
+
+    }
 
   }
 
@@ -187,4 +200,17 @@ export class RepetitionPage {
     this.chart = chartInstance;
   }
 
+  blink(rep) {
+    if (this.flag)
+      this.chart.series[0].data[rep].update({
+        color: "#393f46"
+      });
+    else
+      this.chart.series[0].data[rep].update({
+        color: "#5b6570"
+      });
+    this.flag = !this.flag
+  }
 }
+
+

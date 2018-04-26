@@ -38,14 +38,6 @@ export class HomePage {
     private alertCtrl: AlertController,
     public loadingCtrl: LoadingController,
     private seancesProvider: SeancesProvider) {
-  }
-
-
-  ionViewWillEnter() {
-
-    this.seaance = this.seancesProvider.getBilanStatus();
-    this.bilanButton = this.seaance.bilanStatus;
-    this.homeText = this.seaance.homeText;
 
     if (this.plt.is('android'))
       this.ble.enable()
@@ -68,6 +60,13 @@ export class HomePage {
           console.log("getUserError");
         },
     );
+
+  }
+
+  ionViewWillEnter() {
+    this.seaance = this.seancesProvider.getBilanStatus();
+    this.bilanButton = this.seaance.bilanStatus;
+    this.homeText = this.seaance.homeText;
   }
 
   private openDisabledBle() {
@@ -144,7 +143,6 @@ export class HomePage {
             .catch(error => {
               console.log('showNFCSettings error', error);
             });
-
           return false;
         }
       }]

@@ -4,6 +4,7 @@ import { LoadingController } from 'ionic-angular';
 import { Observable, BehaviorSubject, Subscription } from 'rxjs';
 import { BLE } from '@ionic-native/ble';
 import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/gyroscope';
+import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion';
 import { Platform } from 'ionic-angular';
 import 'rxjs/add/operator/retry';
 import * as _ from 'lodash';
@@ -22,7 +23,8 @@ export class NfcProvider {
     private ble: BLE,
     private loadingCtrl: LoadingController,
     private platform: Platform,
-    private gyroscope: Gyroscope
+    private gyroscope: Gyroscope,
+    private deviceMotion: DeviceMotion
   ) {
     console.log('Hello NfcProvider Provider');
   }
@@ -85,9 +87,9 @@ export class NfcProvider {
 
   private startWatch() {
     let options: GyroscopeOptions = {
-      frequency: 20
+      frequency: 50
     };
-    let nb: number = 0;
+    /*let nb: number = 0;
     this.accSubscribe = this.gyroscope.watch(options)
       .subscribe((orientation: GyroscopeOrientation) => {
         if (!this.canDisconnect)
@@ -103,7 +105,39 @@ export class NfcProvider {
         } else {
           nb = 0;
         }
-      });
+      });*/
+
+    let accZ;
+    let accZTable = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let curIndex = 0;
+    let lasJerkMean = 0;
+    let motionCounter = 0;
+    this.accSubscribe = this.deviceMotion.watchAcceleration(options).subscribe((acceleration: DeviceMotionAccelerationData) => {
+      if (!this.canDisconnect)
+        return;
+      accZTable[curIndex % 10] = acceleration.z;
+      if (curIndex > 10) {
+        let jerkMean = (acceleration.z - accZTable[(curIndex + 1) % 10]) / 10;
+        if (jerkMean * lasJerkMean <= 0)
+          motionCounter = 0;
+        else if (Math.abs(jerkMean) > 0.1) {
+          motionCounter++
+          if (motionCounter > 3) {
+            console.log('vertically moved canDisconnect', this.canDisconnect);
+            this.accSubscribe.unsubscribe();
+            this.tagStatus.next('tag_disconnected');
+          }
+        }
+        else
+          motionCounter = 0;
+        lasJerkMean = jerkMean
+      }
+      curIndex++;
+      accZ = acceleration.z;
+      console.log("acc", accZ);
+
+    });
+
   }
   /* private startWatch() {
     let isconnected = setInterval(() => {
@@ -120,6 +154,8 @@ export class NfcProvider {
     }, 500)
 
   } */
+
+
 
   getTagStatus(): Observable<any> {
     return this.tagStatus.asObservable();
