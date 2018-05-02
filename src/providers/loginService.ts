@@ -6,23 +6,22 @@ import { Conf } from '../conf';
 export class LoginProvider {
 
   constructor(public http: HttpClient) {
-    console.log('Hello LoginProvider Provider');
   }
 
   login(user) {
-     return this.http.post(Conf.apiBaseUrl + 'adherent/token',user)
+    return this.http.post(Conf.apiBaseUrl + 'adherent/token', user)
   }
- getUser(){
-  return this.http.get(Conf.apiBaseUrl + 'adherent')
- }
- getObjectifs(){
-  return this.http.get(Conf.apiBaseUrl +'adherent/objectifs')
- }
- getLevel(){
-  return this.http.get(Conf.apiBaseUrl +'adherent/testNiveaux')
- }
+  getUser() {
+    return this.http.get(Conf.apiBaseUrl + 'adherent')
+  }
+  getObjectifs() {
+    return this.http.get(Conf.apiBaseUrl + 'adherent/objectifs')
+  }
+  getLevel() {
+    return this.http.get(Conf.apiBaseUrl + 'adherent/testNiveaux')
+  }
 
- updateProfil(user){
-  return this.http.put(Conf.apiBaseUrl +'adherent',user)
- }
+  updateProfil(user) {
+    return this.http.put(Conf.apiBaseUrl + 'adherent', user)
+  }
 }

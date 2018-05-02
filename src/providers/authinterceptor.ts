@@ -2,13 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from "@angular/common/http";
 import { Observable } from 'rxjs';
 
-
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = JSON.parse(localStorage.getItem("peekmotionCurrentUser"));
-    if (token && req.withCredentials !== true) {  
+    if (token && req.withCredentials !== true) {
       const cloned = req.clone({
         headers: req.headers.set('Authorization', 'Bearer' + token)
       });
@@ -17,7 +15,7 @@ export class AuthInterceptor implements HttpInterceptor {
           return this.errorHandler(error, caught);
         });
     }
-    else { 
+    else {
       return next.handle(req)
         .catch((error, caught) => {
           return this.errorHandler(error, caught);

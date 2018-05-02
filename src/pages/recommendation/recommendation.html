@@ -79,10 +79,9 @@
         </div>
       </div>
     </div>
-    <div class="weight-buttons">
-      
-      <button *ngFor="let item of masseAppoint" (click)="addWeight($event.target.value)" value={{item.Masse_kg}} class="round-button">+{{item.Masse_kg}}KG</button>
-      
+    <div class="weight-buttons">   
+      <button *ngFor="let item of masseAppoint" (click)="addWeight($event.target.value)" value={{item.Masse_kg}} 
+        [ngClass]="item.class"  >+{{item.Masse_kg}} KG</button>
       <div class="innerweightSelected">
         <p class="pictoTitle">charge sélectionnée</p>
         <p class="weightSelected">{{weightSelected}} Kg</p>

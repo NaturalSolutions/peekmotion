@@ -78,6 +78,14 @@ export class RecommendationPage {
         console.log("this.bleName", this.nfcService.bleName);
         this.newTime = Math.ceil(new Date().getTime() / 1000);
         this.masseAppoint = this.machine.Modele.Masse_Appoint.MasseDetail_Liste;
+        _.map(this.masseAppoint, (value) => {
+            if (value.Masse_kg == 0)
+                value.class = "round-button active"
+            else
+                value.class = "round-button"
+            return value
+        });
+
         if (this.exercice)
             this.exoID = this.exercice.Mac_L_ExoUsag_Id;
         else
@@ -236,6 +244,13 @@ export class RecommendationPage {
 
     addWeight(event) {
         this.addMasse = event;
+        _.map(this.masseAppoint, (value) => {
+            if (value.Masse_kg == event)
+                value.class = "round-button active"
+            else
+                value.class = "round-button"
+            return value
+        });
     };
 
     startTimer() {

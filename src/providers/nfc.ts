@@ -31,13 +31,7 @@ export class NfcProvider {
   public nfcInit(): Promise<string> {
     console.log('nfcInit');
     return new Promise((resolve, reject) => {
-      /* if (this.platform.is("ios")) {
-        this.nfc.beginSession().subscribe(() => {
-          this.nfc.addNdefListener((data) => {
-            console.log("IOS: ", data) // You will not see this, at this point the app will crash
-          })
-        });
-      } */
+    
       console.log("this.bleId init", this.bleId);
       this.ble.isConnected(this.bleId)
         .then(
@@ -123,23 +117,6 @@ export class NfcProvider {
       curIndex++;
     });
   }
-  /* private startWatch() {
-    let isconnected = setInterval(() => {
-      this.nfc.tagIsConnected().then(
-        (status) => console.log("tagIsConnected scc: ", status),
-        (error) => {
-          console.log("tagIsConnected err : ", error);
-          if (error == "tag_deconnected") {
-            this.tagStatus.next('tag_disconnected');
-            clearInterval(isconnected)
-          }
-        }
-      );
-    }, 500)
-
-  } */
-
-
 
   getTagStatus(): Observable<any> {
     return this.tagStatus.asObservable();

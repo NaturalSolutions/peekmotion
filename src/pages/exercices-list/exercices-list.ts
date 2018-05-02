@@ -23,14 +23,10 @@ export class ExercicesListPage {
     public navParams: NavParams,
     private nfcService: NfcProvider,
     private loginProvider: LoginProvider
-
   ) {
-
     this.machine = this.navParams.get("infoMachine");
     this.exoList = this.navParams.get("exoList");
-    console.log('ExercicesListPage constructor');
   }
-
 
   ionViewWillEnter() {
     this.tagSubscribe = this.nfcService.getTagStatus().first(status => (status == "tag_disconnected")).subscribe(tagStatus => {
@@ -43,7 +39,6 @@ export class ExercicesListPage {
   ionViewDidLoad() {
     console.log('ionViewDidLoad ExercicesListPage');
     this.nfcService.canDisconnect = true;
-
     this.loginProvider.getUser()
       .subscribe((user) => {
         this.currentUser = user;
@@ -71,17 +66,13 @@ export class ExercicesListPage {
           });
         }
       );
-
-
     console.log("exoList", this.exoList);
   }
 
   ionViewWillUnload() {
-
     if (this.tagSubscribe) {
       this.tagSubscribe.unsubscribe();
     }
-
   }
 
   selectExercice(exercice) {
