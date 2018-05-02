@@ -51,12 +51,6 @@ export class HomePage {
               (status) => { this.bleReady() },
               (error) => this.openDisabledBle()
             )
-        else if (this.plt.is('ios'))
-          this.ble.isEnabled()
-            .then(
-              (status) => { this.bleReady() },
-              (error) => this.openDisabledBle()
-            )
       }
     }
   }
@@ -65,6 +59,15 @@ export class HomePage {
     this.seaance = this.seancesProvider.getBilanStatus();
     this.bilanButton = this.seaance.bilanStatus;
     this.homeText = this.seaance.homeText;
+  }
+
+  ionViewDidEnter() {
+    if (this.plt.is('ios'))
+      this.ble.isEnabled()
+        .then(
+          (status) => { this.bleReady() },
+          (error) => this.openDisabledBle()
+        )
   }
 
   private openDisabledBle() {
@@ -94,7 +97,7 @@ export class HomePage {
                       this.openDisabledBle();
                     });
               });
-          },100);
+          }, 100);
         }
       }]
     });
@@ -136,7 +139,7 @@ export class HomePage {
                     alert.dismiss();
                     clearInterval(isEnnabled)
                   })
-              },400)
+              }, 400)
             })
             .catch(error => {
               console.log('showNFCSettings error', error);
