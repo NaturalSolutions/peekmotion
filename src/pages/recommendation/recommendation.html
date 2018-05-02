@@ -20,10 +20,10 @@
         <ion-slide>
           <p style=" color : #EBD01F ; margin-top:0">les réglages de la machine</p>
           <ion-grid *ngIf="serieLoaded" >
-            <ion-row *ngFor="let row of gridSettings">
+            <ion-row class="gridRow" *ngFor="let row of gridSettings">
               <ion-col *ngFor="let imgSetting of row">
                 <img class="img-circle" [style.background-image]= "imgSetting[0]" [style.width]="imgWidh" [style.height]="imgHeight">
-                <p  class= "regLabel" >{{imgSetting[1]}}</p>
+                <p   [ngClass]="imgSetting[2]" >{{imgSetting[1]}}</p>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -80,12 +80,9 @@
       </div>
     </div>
     <div class="weight-buttons">
-      <!--
-      <button (click)="addWeight($event.target.value)" value=0 class="round-button">+0KG</button>
-      <button (click)="addWeight($event.target.value)" value=1 class="round-button">+1KG</button>
-      <button (click)="addWeight($event.target.value)" value=2 class="round-button">+2KG</button>
-      <button (click)="addWeight($event.target.value)" value=3 class="round-button">+3KG</button>
-      !-->
+      
+      <button *ngFor="let item of masseAppoint" (click)="addWeight($event.target.value)" value={{item.Masse_kg}} class="round-button">+{{item.Masse_kg}}KG</button>
+      
       <div class="innerweightSelected">
         <p class="pictoTitle">charge sélectionnée</p>
         <p class="weightSelected">{{weightSelected}} Kg</p>

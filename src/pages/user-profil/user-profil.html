@@ -26,16 +26,16 @@
       </ion-list>
       <ion-item  >
           <ion-label>Date de naissance*</ion-label>
-          <ion-datetime formControlName="DateNaissance" displayFormat="DD/MM/YYYY" ></ion-datetime>
+          <ion-datetime formControlName="DateNaissance" displayFormat="DD/MM/YYYY" doneText="OK" cancelText="Annuler"></ion-datetime>
         </ion-item>
       <div class="twoItem">
         <ion-item>
           <ion-label>Taille*</ion-label>
-          <ion-multi-picker  formControlName="Taille_cm" item-content [multiPickerColumns]="height"></ion-multi-picker>
+          <ion-multi-picker doneText="OK" cancelText="Annuler" formControlName="Taille_cm" item-content [multiPickerColumns]="height"></ion-multi-picker>
         </ion-item>
         <ion-item>
           <ion-label >Poids*</ion-label>
-          <ion-multi-picker item-content formControlName="Poids_kg" [multiPickerColumns]="weight"></ion-multi-picker>
+          <ion-multi-picker doneText="OK" cancelText="Annuler" item-content formControlName="Poids_kg" [multiPickerColumns]="weight"></ion-multi-picker>
         </ion-item>
       </div>
       <ion-item  >

@@ -180,21 +180,19 @@ export class RepetitionPage {
           color: 'red'
         });
     }
-
     this.zone.run(() => {
       this.repetionNumber++;
     });
 
-
     if ((this.repetionNumber) < this.repetition) {
-
       this.blinkInterval = setInterval(() => { this.blink(this.repetionNumber) }, 320)
-
-
-
     }
-
   }
+
+  ionViewWillUnload() {
+    clearInterval(this.blinkInterval);
+
+}
 
   saveInstance(chartInstance) {
     this.chart = chartInstance;

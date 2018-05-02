@@ -4,6 +4,7 @@ import { RecommendationPage } from '../Recommendation/Recommendation';
 import { HomePage } from '../home/home';
 import { NfcProvider } from '../../providers/nfc';
 import * as _ from 'lodash';
+import { LoginProvider } from '../../providers/loginService';
 
 @Component({
   selector: 'page-exercices-list',
@@ -11,22 +12,21 @@ import * as _ from 'lodash';
 })
 export class ExercicesListPage {
 
+  userConnected: boolean = false;
   private imgSrc: string = "./assets/imgs/";
   private exoList: [any];
   private machine;
+  currentUser;
   private tagSubscribe;
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
     private nfcService: NfcProvider,
+    private loginProvider: LoginProvider
 
   ) {
-    let sex_Id = this.navParams.get("Sex_Id");
+
     this.machine = this.navParams.get("infoMachine");
-    if (sex_Id == 1)
-      this.imgSrc = this.imgSrc + 'men/';
-    if (sex_Id == 2)
-      this.imgSrc = this.imgSrc + 'women/';
     this.exoList = this.navParams.get("exoList");
     console.log('ExercicesListPage constructor');
   }
@@ -43,17 +43,36 @@ export class ExercicesListPage {
   ionViewDidLoad() {
     console.log('ionViewDidLoad ExercicesListPage');
     this.nfcService.canDisconnect = true;
-    _.map(this.exoList, (value) => {
-      if (value.GrpMuscu_Liste[0].FrontBack === "Front") {
-        value.modelImg = this.imgSrc + 'front.png';
-        value.muscleImg = this.imgSrc + value.GrpMuscu_Liste[0].ImageFront;
-      }
-      else {
-        value.modelImg = this.imgSrc + 'back.png';
-        value.muscleImg = this.imgSrc + value.GrpMuscu_Liste[0].ImageBack;
-      }
-      return value
-    });
+
+    this.loginProvider.getUser()
+      .subscribe((user) => {
+        this.currentUser = user;
+      },
+        error => {
+          console.log("getUserError");
+        },
+        () => {
+          let sex_Id = this.currentUser.Sex_Id
+          if (sex_Id == 1)
+            this.imgSrc = this.imgSrc + 'men/';
+          if (sex_Id == 2)
+            this.imgSrc = this.imgSrc + 'women/'
+          this.userConnected = true;
+          _.map(this.exoList, (value) => {
+            if (value.GrpMuscu_Liste[0].FrontBack === "Front") {
+              value.modelImg = this.imgSrc + 'front.png';
+              value.muscleImg = this.imgSrc + value.GrpMuscu_Liste[0].ImageFront;
+            }
+            else {
+              value.modelImg = this.imgSrc + 'back.png';
+              value.muscleImg = this.imgSrc + value.GrpMuscu_Liste[0].ImageBack;
+            }
+            return value
+          });
+        }
+      );
+
+
     console.log("exoList", this.exoList);
   }
 

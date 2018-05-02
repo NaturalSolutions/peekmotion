@@ -19,10 +19,11 @@ import { MachinesProvider } from '../../providers/machines';
     templateUrl: 'recommendation.html',
 })
 export class RecommendationPage {
-
+    private regLabel = "regLabel";
     private exercice;
     private exoID;
     private serieID;
+    private addMasse = 0;
     private tagSubscribe;
     @ViewChild(Slides) slides: Slides;
     public countDown;
@@ -34,14 +35,15 @@ export class RecommendationPage {
     public serieLoaded: boolean = false;
     public weight;
     private weightSelected;
+    public masseAppoint;
     public repetition;
     private imgSrc: string = "./assets/imgs/";
     public imgModelFront;
     public imgModelBack;
     private grpMuscu_front = [];
     private grpMuscu_back = [];
-    public imgWidh = "80px";
-    public imgHeight = "80px";
+    public imgWidh = "82px";
+    public imgHeight = "82px";
     private counter;
     private serieNumber;
     public videoUrl: SafeResourceUrl;
@@ -75,6 +77,7 @@ export class RecommendationPage {
         console.log('ionViewDidLoad RecommendationPage');
         console.log("this.bleName", this.nfcService.bleName);
         this.newTime = Math.ceil(new Date().getTime() / 1000);
+        this.masseAppoint = this.machine.Modele.Masse_Appoint.MasseDetail_Liste;
         if (this.exercice)
             this.exoID = this.exercice.Mac_L_ExoUsag_Id;
         else
@@ -90,7 +93,6 @@ export class RecommendationPage {
             .subscribe(
                 (serie) => {
                     this.serie = serie;
-                    console.log("this.serie", serie);
                 },
                 error => {
                     console.log("error_getSerie", error);
@@ -99,14 +101,10 @@ export class RecommendationPage {
                     this.recupTime_sec = this.serie.Adh_ExerciceConseil.Recup_sec;
                     this.counter = this.recupTime_sec;
                     this.timeRest = this.navParams.get("timeRest");
-                    console.log("this.timeRest", this.timeRest);
-
                     if (!this.timeRest) {
-                        console.log("time false undefined");
                         let lastSeance = this.seancesProvider.getBilanStatus();
                         if (lastSeance.serieID == this.serie.Mac_Exer_Id && lastSeance.stopedTime != 0) {
                             if (lastSeance.lastCounter - (this.newTime - lastSeance.stopedTime) > 0) {
-
                                 this.counter = lastSeance.lastCounter - (this.newTime - lastSeance.stopedTime);
                                 this.timeRest = true;
                                 this.startTimer();
@@ -147,7 +145,11 @@ export class RecommendationPage {
                     this.serieNumber = this.serie.NumSerie;
                     this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.serie.LienVideo);
                     _.map(this.serie.ReglageConseil_Liste, (value) => {
-                        this.settings.push(["url(" + this.settingsUrl + value.FichierImage + ")", value.Conseil])
+                        if (value.Conseil.length > 3)
+                            this.regLabel = "regLabelSmall";
+                        else
+                            this.regLabel = "regLabelLarge";
+                        this.settings.push(["url(" + this.settingsUrl + value.FichierImage + ")", value.Conseil, this.regLabel])
                         return value
                     });
                     this.gridSettings = _.chunk(this.settings, 2);
@@ -156,8 +158,11 @@ export class RecommendationPage {
                         this.imgWidh = "150px";
                         this.imgHeight = "150px";
                     }
+                    if (this.settings.length == 2) {
+                        this.imgWidh = "120px";
+                        this.imgHeight = "120px";
+                    }
                     this.serieLoaded = true;
-
                     this.tagSubscribe = this.nfcService.getTagStatus().first(status => (status == "tag_disconnected")).subscribe(tagStatus => {
                         if (this.serieNumber > 1) {
 
@@ -176,7 +181,6 @@ export class RecommendationPage {
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
                 if (this.firstRepetion[2] == 32) {
                     if (this.serieNumber > 1) {
-
                         let stopedTime = Math.ceil(new Date().getTime() / 1000);
                         this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
                     }
@@ -216,6 +220,7 @@ export class RecommendationPage {
         else
             this.exerciceName = this.serie.Exer_Libelle
     };
+
     playVideo() {
         this.playClicked = true;
         this.loadingVideo = this.loadingCtrl.create({
@@ -224,14 +229,15 @@ export class RecommendationPage {
         })
         this.loadingVideo.present();
     };
+
     closeVideo() {
         this.playClicked = false;
     }
 
-    /* addWeight(event) {
-         console.log("weight", event)
-         // this.weightSelected=this.weightSelected+event
-     };*/
+    addWeight(event) {
+        this.addMasse = event;
+    };
+
     startTimer() {
         this.countDown = Observable.timer(0, 1000)
             .takeWhile(() => this.counter >= 1)
@@ -284,12 +290,11 @@ export class RecommendationPage {
                             }
                         };
                         let masseList = this.machine.Modele.Masse_Principal.MasseDetail_Liste;
-                        this.weightSelected = _.find(masseList, { "Ordre": weightOrdre }).Masse_kg;
+                        this.weightSelected = Number(_.find(masseList, { "Ordre": weightOrdre }).Masse_kg) + Number(this.addMasse);
 
                     }, (error) => {
                         console.log('ble read error', error);
                     });
-
             }, () => console.log(" recomandation ble disconnected")
             )
         }, 1000)

@@ -7,11 +7,11 @@ import { RecommendationPage } from '../Recommendation/Recommendation';
 import { MachinesProvider } from '../../providers/machines';
 import 'rxjs/add/operator/first';
 import { UserProfilPage } from '../user-profil/user-profil';
-import { LoginProvider } from '../../providers/loginService';
 import { BilanPage } from '../bilan/bilan';
 import { NFC } from '@ionic-native/nfc';
 import { BLE } from '@ionic-native/ble';
 import { SeancesProvider } from '../../providers/seances';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Component({
   selector: 'page-home',
@@ -19,11 +19,11 @@ import { SeancesProvider } from '../../providers/seances';
 })
 export class HomePage {
 
+  userConnected: boolean = false;
   private machine;
   public bilanButton: boolean;
   public homeText: string;
   private seaance;
-  private currentUser;
   private bleStatus: string;
 
   constructor(
@@ -31,42 +31,44 @@ export class HomePage {
     public navParams: NavParams,
     private nfcService: NfcProvider,
     private machinesProvider: MachinesProvider,
-    private loginProvider: LoginProvider,
     public plt: Platform,
     private nfc: NFC,
     private ble: BLE,
     private alertCtrl: AlertController,
     public loadingCtrl: LoadingController,
     private seancesProvider: SeancesProvider) {
+    this.nfcService.canDisconnect = false;
 
-    if (this.plt.is('android'))
-      this.ble.enable()
-        .then(
-          (status) => { this.bleReady() },
-          (error) => this.openDisabledBle()
-        )
-    else if (this.plt.is('ios'))
-      this.ble.isEnabled()
-        .then(
-          (status) => { this.bleReady() },
-          (error) => this.openDisabledBle()
-        )
 
-    this.loginProvider.getUser()
-      .subscribe((user) => {
-        this.currentUser = user
-      },
-        error => {
-          console.log("getUserError");
-        },
-    );
+    const token = JSON.parse(localStorage.getItem("peekmotionCurrentUser"));
+    if (token) {
+      let jwtHelperService: JwtHelperService = new JwtHelperService({});
+      if (!jwtHelperService.isTokenExpired(token)) {
+        this.userConnected = true
+        if (this.plt.is('android'))
+          this.ble.enable()
+            .then(
+              (status) => { this.bleReady() },
+              (error) => this.openDisabledBle()
+            )
+        else if (this.plt.is('ios'))
+          this.ble.isEnabled()
+            .then(
+              (status) => { this.bleReady() },
+              (error) => this.openDisabledBle()
+            )
 
+      }
+
+    }
   }
 
   ionViewWillEnter() {
     this.seaance = this.seancesProvider.getBilanStatus();
     this.bilanButton = this.seaance.bilanStatus;
     this.homeText = this.seaance.homeText;
+
+
   }
 
   private openDisabledBle() {
@@ -168,9 +170,9 @@ export class HomePage {
               .then(() => {
                 let exoList = this.machine.Modele.ExoUsage_Liste;
                 if (exoList.length > 1)
-                  this.navCtrl.setRoot(ExercicesListPage, { infoMachine: this.machine, exoList: exoList, Sex_Id: this.currentUser.Sex_Id });
+                  this.navCtrl.setRoot(ExercicesListPage, { infoMachine: this.machine, exoList: exoList });
                 else
-                  this.navCtrl.setRoot(RecommendationPage, { machine: this.machine, Sex_Id: this.currentUser.Sex_Id });
+                  this.navCtrl.setRoot(RecommendationPage, { machine: this.machine });
               });
           }
         );

@@ -3,7 +3,6 @@ import { NFC } from '@ionic-native/nfc';
 import { LoadingController } from 'ionic-angular';
 import { Observable, BehaviorSubject, Subscription } from 'rxjs';
 import { BLE } from '@ionic-native/ble';
-import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/gyroscope';
 import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion';
 import { Platform } from 'ionic-angular';
 import 'rxjs/add/operator/retry';
@@ -23,7 +22,6 @@ export class NfcProvider {
     private ble: BLE,
     private loadingCtrl: LoadingController,
     private platform: Platform,
-    private gyroscope: Gyroscope,
     private deviceMotion: DeviceMotion
   ) {
     console.log('Hello NfcProvider Provider');
@@ -45,7 +43,7 @@ export class NfcProvider {
         .then(
           () => {
             console.log(' ble isConnected true', this.bleId);
-            //setTimeout(() => {
+            setTimeout(() => {
             this.ble.disconnect(this.bleId).then(
               () => {
                 console.log('disc ok');
@@ -66,7 +64,7 @@ export class NfcProvider {
               (error) => {
                 console.log('disco error', error);
               });
-            // }, 500)
+             }, 3000)
           },
           () => {
             if (!this.platform.is('ios'))
@@ -86,28 +84,9 @@ export class NfcProvider {
   }
 
   private startWatch() {
-    let options: GyroscopeOptions = {
+    let options = {
       frequency: 50
     };
-    /*let nb: number = 0;
-    this.accSubscribe = this.gyroscope.watch(options)
-      .subscribe((orientation: GyroscopeOrientation) => {
-        if (!this.canDisconnect)
-          return;
-        if (Math.abs(orientation.x) > 0.2 || Math.abs(orientation.y) > 0.2 || Math.abs(orientation.z) > 0.2) {
-          if (++nb > 50) {
-            console.log('vertically moved canDisconnect', this.canDisconnect);
-            this.accSubscribe.unsubscribe();
-            this.tagStatus.next('tag_disconnected');
-
-            // this.bleService.disconnect().then(() => { console.log("bleService disconnected after acceleration") });
-          }
-        } else {
-          nb = 0;
-        }
-      });*/
-
-    let accZ;
     let accZTable = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let curIndex = 0;
     let lasJerkMean = 0;
@@ -125,7 +104,16 @@ export class NfcProvider {
           if (motionCounter > 3) {
             console.log('vertically moved canDisconnect', this.canDisconnect);
             this.accSubscribe.unsubscribe();
-            this.tagStatus.next('tag_disconnected');
+            setTimeout(() => {
+              this.ble.disconnect(this.bleId).then(
+                () => {
+                  console.log('disc ok watch');
+                  this.tagStatus.next('tag_disconnected');
+                },
+                (error) => {
+                  console.log('disco error', error);
+                });
+            }, 500)
           }
         }
         else
@@ -133,11 +121,7 @@ export class NfcProvider {
         lasJerkMean = jerkMean
       }
       curIndex++;
-      accZ = acceleration.z;
-      console.log("acc", accZ);
-
     });
-
   }
   /* private startWatch() {
     let isconnected = setInterval(() => {
@@ -183,7 +167,7 @@ export class NfcProvider {
           );
           loadingNfcConnect.present()
             .then(() => {
-              // setTimeout(() => {
+               setTimeout(() => {
               this.ble.startScan([])
                 .subscribe(device => {
                   if (_.get(device, 'name') == 'Peekmotionv2')
@@ -192,7 +176,7 @@ export class NfcProvider {
                     console.log('ble found', device);
                     this.ble.stopScan().then(() => {
                       console.log('scan stopped');
-                      //  setTimeout(() => {
+                       setTimeout(() => {
                       this.bleId = device.id;
                       this.ble.connect(device.id)
                         .retry(10)
@@ -208,13 +192,13 @@ export class NfcProvider {
                         }, error => {
                           console.log('ble connect error', error);
                         });
-                      //      }, 500);
+                           }, 3000);
                     });
                   }
                 }, error => {
                   console.log('startScan error', error);
                 });
-              // }, 500);
+               }, 3000);
             });
           this.sub.unsubscribe();
         },

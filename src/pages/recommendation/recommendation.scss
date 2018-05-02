@@ -236,11 +236,19 @@ page-recommendation {
     border: 1px solid;
     border-color: #EBD01F;
   }
-  .regLabel{
+  .regLabelSmall{
     color : #EBD01F;
      margin: 2px 0 ;
-     font-size :12px;
+     font-size :14px;
      text-transform: lowercase;
   }
- 
+  .regLabelLarge{
+    color : #EBD01F;
+     margin: 2px 0 ;
+     font-size :18px;
+     text-transform: lowercase;
+  }
+ .gridRow{
+  margin: 0 10px;
+ }
 }

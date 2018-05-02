@@ -4,13 +4,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController } from 'ionic-angular';
 import { LoginProvider } from '../../providers/loginService';
 import { HomePage } from '../home/home';
-
+import { NfcProvider } from '../../providers/nfc';
 
 @Component({
   selector: 'page-user-profil',
   templateUrl: 'user-profil.html',
 })
 export class UserProfilPage {
+
   profilForm: FormGroup;
   firstConnexion: boolean;
   currentUser;
@@ -28,10 +29,11 @@ export class UserProfilPage {
     private alertCtrl: AlertController,
     private loginProvider: LoginProvider,
     private fb: FormBuilder,
+    private nfcProvider: NfcProvider,
     public loadingCtrl: LoadingController) {
-
+    this.nfcProvider.canDisconnect = false;
     this.firstConnexion = this.navParams.get("firstConnexion");
-    let loadingGetUser = this.loadingCtrl.create(  {
+    let loadingGetUser = this.loadingCtrl.create({
       spinner: 'crescent',
       cssClass: 'loaderCustomCss',
     });
@@ -98,8 +100,8 @@ export class UserProfilPage {
   submit(profilForm) {
     if (profilForm.valid) {
       console.log(profilForm.value);
-      this.loginProvider.updateProfil(profilForm.value).subscribe( ()=> this.navCtrl.setRoot(HomePage))
-   
+      this.loginProvider.updateProfil(profilForm.value).subscribe(() => this.navCtrl.setRoot(HomePage))
+
     }
     else
       this.errorAlert()

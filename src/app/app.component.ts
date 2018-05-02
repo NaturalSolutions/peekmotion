@@ -12,7 +12,7 @@ import { AndroidPermissions } from '@ionic-native/android-permissions';
 })
 export class MyApp {
 
-  rootPage: any;
+  rootPage: any=HomePage;
   constructor(platform: Platform,
     statusBar: StatusBar,
     splashScreen: SplashScreen,
