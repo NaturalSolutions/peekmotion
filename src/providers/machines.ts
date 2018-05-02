@@ -5,9 +5,7 @@ import 'rxjs/add/operator/map';
 
 @Injectable()
 export class MachinesProvider {
-
   constructor(public http: HttpClient) {
-    console.log('Hello MachinesProvider Provider');
   }
 
   getMachineByID(id) {
