@@ -25,6 +25,7 @@ export class HomePage {
   public homeText: string;
   private seaance;
   private bleStatus: string;
+  loadingGetMachineByID;
 
   constructor(
     public navCtrl: NavController,
@@ -94,7 +95,7 @@ export class HomePage {
                       this.openDisabledBle();
                     });
               });
-          },100);
+          }, 100);
         }
       }]
     });
@@ -136,7 +137,7 @@ export class HomePage {
                     alert.dismiss();
                     clearInterval(isEnnabled)
                   })
-              },400)
+              }, 400)
             })
             .catch(error => {
               console.log('showNFCSettings error', error);
@@ -146,23 +147,29 @@ export class HomePage {
       }]
     });
     alert.present();
-  }
+  };
 
   private nfcInit() {
-    this.nfcService.nfcInit().then(() => {
-      let loadingGetMachineByID = this.loadingCtrl.create(
+    this.nfcService.nfcInit().then((status) => {
+      console.log("status", status);
+
+      this.loadingGetMachineByID = this.loadingCtrl.create(
         {
           spinner: 'crescent',
           cssClass: 'loaderCustomCss',
         }
       );
-      loadingGetMachineByID.present();
+      this.loadingGetMachineByID.present();
       this.machinesProvider.getMachineByID(this.nfcService.bleName)
         .subscribe(
           res => this.machine = res,
-          (error) => console.log("error_getMachine", error),
+          (error) => {
+            this.serverError();
+            console.log("error_getMachine", error);
+            this.nfcInit()
+          },
           () => {
-            loadingGetMachineByID.dismiss()
+            this.loadingGetMachineByID.dismiss()
               .then(() => {
                 let exoList = this.machine.Modele.ExoUsage_Liste;
                 if (exoList.length > 1)
@@ -172,15 +179,41 @@ export class HomePage {
               });
           }
         );
-    }, err => {
+    }, (err) => {
       console.log("NFCdisabled", err);
+      this.BleError();
+      this.nfcInit()
     })
+  };
+
+  private serverError() {
+    this.loadingGetMachineByID.dismiss()
+    let alert: Alert = this.alertCtrl.create({
+      title: 'Échec de connexion Internet',
+      subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: ['OK']
+    });
+    alert.present();
   }
+
+  private BleError() {
+    let alert: Alert = this.alertCtrl.create({
+      title: 'Échec de connexion Bluetooth',
+      subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: ['OK']
+    });
+    alert.present();
+  }
+
 
   public profil() {
     this.navCtrl.push(UserProfilPage, { firstConnexion: false })
-  }
+  };
   public bilan() {
     this.navCtrl.push(BilanPage)
-  }
+  };
 }
