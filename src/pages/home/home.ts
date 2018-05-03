@@ -72,7 +72,7 @@ export class HomePage {
 
   private openDisabledBle() {
     let alert: Alert = this.alertCtrl.create({
-      message: "Veuillez activez le bluetooth.",
+      message: "Veuillez activer le bluetooth.",
       enableBackdropDismiss: false,
       cssClass: 'alertCustomCss',
       buttons: [{

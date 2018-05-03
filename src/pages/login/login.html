@@ -7,7 +7,7 @@
 
 
 <ion-content>
-  <div ion-fixed  class="inner">
+  <div class="inner">
       <form [formGroup]="loginForm" (submit)="login(loginForm)">
     <ion-item padding formControlName="Identifiant">
       <ion-label floating>Email*</ion-label>
@@ -23,5 +23,7 @@
     </div>
   </form>
   </div>
-  <button ion-button clear block (click)="creatAccount()" class="creat-account">Comment créer un compte ?</button>
 </ion-content>
+<ion-footer padding>
+    <button ion-button clear block (click)="creatAccount()" class="creat-account">Comment créer un compte ?</button>
+</ion-footer>

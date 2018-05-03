@@ -3,10 +3,16 @@ page-login {
   .content {
     background: url("../assets/imgs/fond.jpg") no-repeat;
     background-size: cover;
-  }
-  .inner {
-    padding-top: 10px;
-    width: 100%;
+    button.button-block {
+      margin: 20px 0;
+      padding: 25px;
+      font-family: 'Montserrat';
+      font-weight: 600;
+    }
+    .inner {
+      padding-top: 10px;
+      width: 100%;
+    }
   }
   .title {
     padding-top: 8px;
@@ -33,15 +39,9 @@ page-login {
   .item-md.item-block .item-inner {
     border-bottom: 1px solid #848484;
   }
-  button.button-block {
-    margin: 20px 0;
-    padding: 25px;
-    font-family: 'Montserrat';
-    font-weight: 600;
+  button {
     &.creat-account {
-      position: absolute;
-      bottom: 0;
-      margin: 0;
+      font-family: 'Montserrat';
       font-weight: 400;
       font-size: 12px;
     }

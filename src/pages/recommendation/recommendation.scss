@@ -178,7 +178,7 @@ page-recommendation {
   .innerweightSelected {
     display: flex;
     flex-direction: column;
-    margin: 15px 10px;
+    margin: 15px 10px 15px 0px;
     .pictoTitle {
       margin-bottom: 0;
     }
@@ -253,8 +253,8 @@ page-recommendation {
   }
   .round-button {
     display: block;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     text-align: center;
     font-size: 10px;
@@ -264,6 +264,7 @@ page-recommendation {
     color: #409aca;
     font-weight: 800;
     margin: 15px 5px;
+    padding: 0;
     &.active {
       background-color: #409aca;
       color: #262626;

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.peekmotion.app" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.peekmotion.app" version="0.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>peekmotion</name>
     <description>An awesome Ionic/Cordova app.</description>
     <author email="hi@ionicframework" href="http://ionicframework.com/">Ionic Framework Team</author>
@@ -88,7 +88,8 @@
     <plugin name="cordova-plugin-ionic-webview" spec="^1.2.1" />
     <plugin name="cordova-plugin-ionic-keyboard" spec="^2.0.5" />
     <plugin name="cordova-plugin-ble-central" spec="^1.1.7">
-        <variable name="BLUETOOTH_USAGE_DESCRIPTION" value=" " />
+        <variable name="BLUETOOTH_USAGE_DESCRIPTION" value="Read data from bodybuilding devices" />
+        <variable name="NSBluetoothPeripheralUsageDescription" value="Read data from bodybuilding devices" />
     </plugin>
     <plugin name="cordova-plugin-gyroscope" spec="^0.1.4" />
     <plugin name="cordova-plugin-insomnia" spec="^4.3.0" />
