@@ -57,6 +57,34 @@
   }
 }
 
+.platform-ios .content:not([no-bounce]) > .scroll-content::after {
+  top: -1px;
+}
+    
+.platform-ios .content:not([no-bounce]) > .scroll-content::before {
+  bottom: -1px;
+}
+    
+.platform-ios .content:not([no-bounce]) > .scroll-content::before,
+.platform-ios .content:not([no-bounce]) > .scroll-content::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  content: "";
+}
+.app-root {
+  &.is-keyboard-open {
+    .hidden-keyboard-open {
+      display: none;
+    }
+  }
+  &:not(.is-keyboard-open) {
+    .visible-keyboard-open {
+      display: none;
+    }
+  }
+}
+
 ion-header ion-icon.back-button-icon.icon {
   color: #48c0ff;
 }

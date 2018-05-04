@@ -11,7 +11,7 @@
       <form [formGroup]="loginForm" (submit)="login(loginForm)">
     <ion-item padding formControlName="Identifiant">
       <ion-label floating>Email*</ion-label>
-      <ion-input type="text" ></ion-input>
+      <ion-input type="email" ></ion-input>
     </ion-item>
     <ion-item padding formControlName="MotDePasse">
       <ion-label floating>Mot de Passe*</ion-label>
@@ -24,6 +24,6 @@
   </form>
   </div>
 </ion-content>
-<ion-footer padding>
-    <button ion-button clear block (click)="creatAccount()" class="creat-account">Comment créer un compte ?</button>
+<ion-footer padding *ngIf="!keyboard.isOpen()">
+    <button ion-button clear block (click)="creatAccount()" class="creat-account hidden-keyboard-open">Comment créer un compte ?</button>
 </ion-footer>

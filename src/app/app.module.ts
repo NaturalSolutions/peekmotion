@@ -4,6 +4,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
+import { Keyboard } from '@ionic-native/keyboard';
 import { MyApp } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 //ionic native
@@ -90,6 +91,7 @@ export function highchartsFactory() {
   ],
   providers: [
     StatusBar,
+    Keyboard,
     SplashScreen,
     NFC,
     Ndef,

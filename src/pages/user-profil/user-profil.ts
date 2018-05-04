@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, LoadingController, Loading } from 'ionic-angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController } from 'ionic-angular';
 import { LoginProvider } from '../../providers/loginService';
@@ -100,7 +100,15 @@ export class UserProfilPage {
   submit(profilForm) {
     if (profilForm.valid) {
       console.log(profilForm.value);
-      this.loginProvider.updateProfil(profilForm.value).subscribe(() => this.navCtrl.setRoot(HomePage))
+      let loading: Loading = this.loadingCtrl.create({
+        spinner: 'crescent',
+        cssClass: 'loaderCustomCss',
+      });
+      loading.present();
+      this.loginProvider.updateProfil(profilForm.value).subscribe(() => {
+        loading.dismiss();
+        this.navCtrl.setRoot(HomePage);
+      })
 
     }
     else

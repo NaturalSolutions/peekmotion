@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { NavController, LoadingController, Loading } from 'ionic-angular';
+import { Keyboard } from 'ionic-angular';
 import { LoginProvider } from '../../providers/loginService';
 import { AlertController } from 'ionic-angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserProfilPage } from '../user-profil/user-profil';
-import { CreatAccountPage} from '../creat-account/creat-account';
-import { ForgotPasswordPage} from '../forgot-password/forgot-password';
+import { CreatAccountPage } from '../creat-account/creat-account';
+import { ForgotPasswordPage } from '../forgot-password/forgot-password';
 
 @Component({
   selector: 'page-login',
@@ -17,7 +18,9 @@ export class LoginPage {
   constructor(public navCtrl: NavController,
     private loginProvider: LoginProvider,
     private alertCtrl: AlertController,
-    private fb: FormBuilder) {
+    private loadingCtrl: LoadingController,
+    private fb: FormBuilder,
+    private keyboard: Keyboard) {
 
     this.loginForm = this.fb.group({
       Identifiant: ['', Validators.required],
@@ -32,12 +35,19 @@ export class LoginPage {
   login(loginForm) {
     console.log(" this.user", loginForm.value);
     this.user = loginForm.value;
+    let loading: Loading = this.loadingCtrl.create({
+      spinner: 'crescent',
+      cssClass: 'loaderCustomCss',
+    });
+    loading.present();
     this.loginProvider.login(this.user)
       .subscribe(
-        (token) => localStorage.setItem('peekmotionCurrentUser', JSON.stringify(token)),
-        error => this.errorAlert(),
-        () => this.navCtrl.setRoot(UserProfilPage,{firstConnexion : true})
-      )
+        (token) => {
+          loading.dismiss();
+          localStorage.setItem('peekmotionCurrentUser', JSON.stringify(token));
+          this.navCtrl.setRoot(UserProfilPage, { firstConnexion: true });
+        },
+        error => this.errorAlert())
   }
 
   errorAlert() {
@@ -48,10 +58,10 @@ export class LoginPage {
     });
     alert.present();
   }
-  creatAccount(){
+  creatAccount() {
     this.navCtrl.push(CreatAccountPage)
   }
-  forgotPassword(){
+  forgotPassword() {
     this.navCtrl.push(ForgotPasswordPage)
   }
 

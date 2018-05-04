@@ -1,5 +1,5 @@
 page-login {
- 
+
   .content {
     background: url("../assets/imgs/fond.jpg") no-repeat;
     background-size: cover;
@@ -44,6 +44,16 @@ page-login {
       font-family: 'Montserrat';
       font-weight: 400;
       font-size: 12px;
+    }
+  }
+}
+
+.app-root {
+  &.is-keyboard-open {
+    page-login {
+      .scroll-content {
+        margin-bottom: 0 !important;
+      }
     }
   }
 }
