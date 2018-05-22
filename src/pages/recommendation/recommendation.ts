@@ -56,6 +56,7 @@ export class RecommendationPage {
     private timeRest = false;
     private newTime;
     public exerciceName: string;
+    public seriesNumberOK: boolean = false;
     public imgGroupMuscu: any = {};
 
     constructor(
@@ -151,6 +152,8 @@ export class RecommendationPage {
                     this.repetition = this.serie.Adh_ExerciceConseil.NbRep;
                     this.weight = this.serie.Adh_ExerciceConseil.IntensitePossible_kg;
                     this.serieNumber = this.serie.NumSerie;
+                    if( this.serieNumber > 4)
+                    this.seriesNumberOK = true
                     this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.serie.LienVideo);
                     _.map(this.serie.ReglageConseil_Liste, (value) => {
                         if (value.Conseil.length > 3)

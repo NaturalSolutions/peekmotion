@@ -89,6 +89,12 @@
     </div>
   </div>
 </ion-content>
-<ion-footer padding>
+<ion-footer padding *ngIf="!seriesNumberOK" >
   Pour commencer l'exercice, activez la machine !
 </ion-footer>
+<ion-footer padding *ngIf="seriesNumberOK" >
+  Vous avez réalisé le bon nombre de séries, vous pouvez changer d'exercice
+</ion-footer>
+
+
+

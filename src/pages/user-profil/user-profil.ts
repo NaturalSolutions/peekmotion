@@ -98,6 +98,8 @@ export class UserProfilPage {
   }
 
   submit(profilForm) {
+    console.log("profilForm", profilForm);
+
     if (profilForm.valid) {
       console.log(profilForm.value);
       let loading: Loading = this.loadingCtrl.create({
@@ -105,11 +107,16 @@ export class UserProfilPage {
         cssClass: 'loaderCustomCss',
       });
       loading.present();
-      this.loginProvider.updateProfil(profilForm.value).subscribe(() => {
-        loading.dismiss();
-        this.navCtrl.setRoot(HomePage);
-      })
-
+      this.loginProvider.updateProfil(profilForm.value)
+        .subscribe(
+          () => {
+            loading.dismiss();
+            this.navCtrl.setRoot(HomePage);
+          },
+          (error) => {
+            loading.dismiss(),
+            this.errorAlert()
+          })
     }
     else
       this.errorAlert()

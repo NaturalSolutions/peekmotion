@@ -24,4 +24,11 @@ export class LoginProvider {
   updateProfil(user) {
     return this.http.put(Conf.apiBaseUrl + 'adherent', user)
   }
+  forgotPassword(user) {
+    return this.http.patch(Conf.apiBaseUrl + 'adherent/nouveauMotDePasseViaEmail', user)
+  }
+
+  updatePassword(newPassword) {
+    return this.http.patch(Conf.apiBaseUrl + 'adherent/motDePasse', newPassword)
+  }
 }

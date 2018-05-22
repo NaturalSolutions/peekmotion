@@ -4,7 +4,6 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
-import { Keyboard } from '@ionic-native/keyboard';
 import { MyApp } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 //ionic native
@@ -24,6 +23,7 @@ import { RepetitionPage} from '../pages/repetition/repetition';
 import { CreatAccountPage} from '../pages/creat-account/creat-account';
 import { ForgotPasswordPage} from '../pages/forgot-password/forgot-password';
 import { BilanPage} from '../pages/bilan/bilan';
+import {NewPasswordPage} from '../pages/new-password/new-password'
 //pipe
 import {FormatTimePipe } from '../pipes/format-time';
 //providers
@@ -61,9 +61,8 @@ export function highchartsFactory() {
     CreatAccountPage,
     ForgotPasswordPage,
     BilanPage,
+    NewPasswordPage,
     FormatTimePipe,
-   
-
   ],
   imports: [
     BrowserModule,
@@ -87,11 +86,11 @@ export function highchartsFactory() {
     UserProfilPage,
     CreatAccountPage,
     ForgotPasswordPage,
-    BilanPage
+    BilanPage,
+    NewPasswordPage
   ],
   providers: [
     StatusBar,
-    Keyboard,
     SplashScreen,
     NFC,
     Ndef,

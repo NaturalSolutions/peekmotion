@@ -1,8 +1,23 @@
-<ion-content *ngIf="userConnected">
+<ion-content >
   <div ion-fixed class="inner">
-    <button ion-button class="full-circle" (click)="profil()">
-      <ion-icon md="md-person"></ion-icon>
-    </button>
+
+    <ion-fab right #fab>
+      <button class="settings-icons" ion-fab mini>
+        <ion-icon name="settings"></ion-icon>
+      </button>
+      <ion-fab-list>
+        <button class="settings-icons" ion-fab (click)="profil(fab)">
+          <ion-icon name="person"></ion-icon>
+        </button>
+        <button class="settings-icons" ion-fab (click)="modifyPassword(fab)">
+          <ion-icon name="key"></ion-icon>
+        </button>
+        <button class="settings-icons" (click)="logOut(fab)" ion-fab>
+          <ion-icon name="log-out"></ion-icon>
+        </button>
+      </ion-fab-list>
+    </ion-fab>
+
     <div class="homeText" showWhen="android">
       <p>Placez</p>
       <p>votre téléphone sur le socle</p>
@@ -13,7 +28,6 @@
       <p>le socle puis appuyez sur SCANNER</p>
       <p>pour {{ homeText }} une séance</p>
     </div>
-
   </div>
 </ion-content>
 <ion-footer padding no-border>

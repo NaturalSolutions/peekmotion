@@ -47,12 +47,15 @@ export class LoginPage {
           localStorage.setItem('peekmotionCurrentUser', JSON.stringify(token));
           this.navCtrl.setRoot(UserProfilPage, { firstConnexion: true });
         },
-        error => this.errorAlert())
+        error => {
+          loading.dismiss();
+          this.errorAlert()
+        })
   }
 
   errorAlert() {
     let alert = this.alertCtrl.create({
-      message: "Email ou mot de passe incorect",
+      message: "Email ou mot de passe incorrect",
       cssClass: 'alertCustomCss',
       buttons: ['OK']
     });
