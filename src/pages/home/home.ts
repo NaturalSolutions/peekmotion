@@ -173,7 +173,8 @@ export class HomePage {
     }, (err) => {
       console.log("NFCdisabled", err);
       this.BleError();
-      this.nfcInit()
+      if (this.plt.is('android'))
+        this.nfcInit()
     })
   };
 
