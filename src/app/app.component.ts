@@ -20,7 +20,7 @@ export class MyApp {
     return this.keyboard.isOpen();
   };
 
-  constructor(platform: Platform,
+  constructor(private platform: Platform,
     statusBar: StatusBar,
     splashScreen: SplashScreen,
     private insomnia: Insomnia,
@@ -37,6 +37,7 @@ export class MyApp {
       statusBar.styleDefault();
       splashScreen.hide();
 
+      if (this.platform.is('android'))
       this.nfc.addNdefListener((e) => {
         console.log('successfully attached ndef listener appp', e);
       }, (err) => {
