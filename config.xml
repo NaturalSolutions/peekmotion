@@ -79,7 +79,6 @@
         <splash height="2048" src="resources/ios/splash/Default-Landscape@~ipadpro.png" width="2732" />
         <splash height="768" src="resources/ios/splash/Default-Landscape~ipad.png" width="1024" />
     </platform>
-    <engine name="ios" spec="4.5.4" />
     <plugin name="phonegap-nfc" spec="^0.7.3">
         <variable name="NFC_USAGE_DESCRIPTION" value="Read NFC Tags" />
     </plugin>
@@ -96,4 +95,5 @@
     <plugin name="cordova-plugin-insomnia" spec="^4.3.0" />
     <plugin name="cordova-plugin-android-permissions" spec="^1.0.0" />
     <plugin name="cordova-plugin-device-motion" spec="^2.0.1" />
+    <engine name="ios" spec="4.5.4" />
 </widget>
