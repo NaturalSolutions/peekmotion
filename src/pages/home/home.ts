@@ -213,7 +213,29 @@ export class HomePage {
     this.navCtrl.setRoot(LoginPage)
   };
   public bilan() {
-    this.navCtrl.push(BilanPage)
+    let alert: Alert = this.alertCtrl.create({
+      subTitle: 'Êtes-vous sûr de vouloir terminer la seance ?',
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: [
+        {
+          text: 'OUI',
+          handler: () => {
+            this.navCtrl.push(BilanPage)
+            alert.dismiss();
+          }
+        },
+        {
+          text: 'NON',
+          handler: () => {
+            alert.dismiss();
+          }
+        }
+      ]
+    });
+    alert.present();
+
+
   };
 
   public modifyPassword(fab: FabContainer) {
