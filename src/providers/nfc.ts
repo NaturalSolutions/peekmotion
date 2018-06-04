@@ -18,6 +18,7 @@ export class NfcProvider {
   private accSubscribe: Subscription;
   private sub: Subscription
   public canDisconnect: boolean = true;
+  private iosNfcListener: number = 0;
   loadingNfcConnect;
 
   constructor(private nfc: NFC,
@@ -34,54 +35,78 @@ export class NfcProvider {
     return new Promise((resolve, reject) => {
 
       console.log("this.bleId init", this.bleId);
-      this.ble.isConnected(this.bleId)
-        .then(
-          () => {
-            console.log(' ble isConnected true', this.bleId);
-            setTimeout(() => {
-              this.ble.disconnect(this.bleId).then(
-                () => {
-                  console.log('disc ok');
-                  if (!this.platform.is('ios'))
+      if (this.bleId)
+        this.ble.isConnected(this.bleId)
+          .then(
+            () => {
+              console.log(' ble isConnected true', this.bleId);
+              setTimeout(() => {
+                this.ble.disconnect(this.bleId).then(
+                  () => {
+                    console.log('disc ok');
+                    if (!this.platform.is('ios'))
+                      this.nfcListener().then(
+                        (success) => resolve(),
+                        (error) => reject()
+                      );
+                    else
+                      this.nfc.beginSession()
+                        .subscribe((success) => {
+                          this.iosNfcListener++;
+                          if (this.iosNfcListener < 2)
+                            this.nfcListener().
+                              then(
+                                (success) => resolve(),
+                                (error) => reject()
+                              );
+                        }, (error) => {
+                          console.log("beginSessionERR", error);
+                        });
+                  },
+                  (error) => {
+                    console.log('disco error', error);
+                  });
+              }, 400)
+            },
+            () => {
+              if (!this.platform.is('ios'))
+                this.nfcListener().
+                  then(
+                    (success) => resolve(),
+                    (error) => reject()
+                  );
+              else
+                this.nfc.beginSession().subscribe((success) => {
+                  this.iosNfcListener++;
+                  if (this.iosNfcListener < 2)
                     this.nfcListener().then(
                       (success) => resolve(),
                       (error) => reject()
                     );
-                  else
-                    this.nfc.beginSession()
-                      .subscribe(() => {
-                        this.nfcListener().
-                          then(
-                            (success) => resolve(),
-                            (error) => reject()
-                          );
-                      }, error => {
-                        console.log(error);
-                      });
-                },
-                (error) => {
-                  console.log('disco error', error);
+                }, (error) => {
+                  console.log("beginSessionERR2", error);
                 });
-            }, 400)
-          },
-          () => {
-            if (!this.platform.is('ios'))
-              this.nfcListener().
-                then(
-                  (success) => resolve(),
-                  (error) => reject()
-                );
-            else
-              this.nfc.beginSession().subscribe(() => {
-                this.nfcListener().then(
-                  (success) => resolve(),
-                  (error) => reject()
-                );
-              }, error => {
-                console.log(error);
-              });
-          }
-        )
+            }
+          )
+      else {
+        if (!this.platform.is('ios'))
+          this.nfcListener().
+            then(
+              (success) => resolve(),
+              (error) => reject()
+            );
+        else
+          this.nfc.beginSession().subscribe((success) => {
+            this.iosNfcListener++;
+            if (this.iosNfcListener < 2)
+              this.nfcListener().then(
+                (success) => resolve(),
+                (error) => reject()
+              );
+          }, (error) => {
+            console.log("beginSessionERR3", error);
+          });
+      }
     });
   }
 
@@ -140,6 +165,7 @@ export class NfcProvider {
         console.log('error attaching ndef listener', err);
       })
         .subscribe(event => {
+          this.iosNfcListener = 0;
           console.log("nfcListener in : ", event);
           let tagBytes = event.tag.ndefMessage[0]["payload"];
           this.bleName = this.nfc.bytesToString(tagBytes.slice(3));
@@ -181,12 +207,15 @@ export class NfcProvider {
                       });
                     }
                   }, error => {
+                    this.sub.unsubscribe();
+                    this.iosNfcListener = 0;
                     console.log('startScan error', error);
                     this.loadingNfcConnect.dismiss();
                     reject(error)
                   });
               }, 400);
             });
+            this.iosNfcListener = 0;
           this.sub.unsubscribe();
         },
           error => {
