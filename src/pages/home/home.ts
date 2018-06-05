@@ -214,7 +214,7 @@ export class HomePage {
   };
   public bilan() {
     let alert: Alert = this.alertCtrl.create({
-      subTitle: 'Êtes-vous sûr de vouloir terminer la seance ?',
+      subTitle: 'Êtes-vous sûr de vouloir terminer la séance ?',
       enableBackdropDismiss: false,
       cssClass: 'alertCustomCss',
       buttons: [
