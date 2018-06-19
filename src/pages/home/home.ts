@@ -12,7 +12,6 @@ import 'rxjs/add/operator/first';
 import { NFC } from '@ionic-native/nfc';
 import { BLE } from '@ionic-native/ble';
 import { SeancesProvider } from '../../providers/seances';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { FabContainer } from 'ionic-angular';
 import { NewPasswordPage } from '../new-password/new-password'
 
@@ -162,7 +161,7 @@ export class HomePage {
           () => {
             this.loadingGetMachineByID.dismiss()
               .then(() => {
-                let exoList = this.machine.Modele.ExoUsage_Liste;
+                let exoList = this.machine.ExoUsage_Liste;
                 if (exoList.length > 1)
                   this.navCtrl.setRoot(ExercicesListPage, { infoMachine: this.machine, exoList: exoList });
                 else

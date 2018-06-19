@@ -28,6 +28,7 @@
     "@ionic-native/core": "4.7.0",
     "@ionic-native/device-motion": "^4.7.0",
     "@ionic-native/gyroscope": "4.7.0",
+    "@ionic-native/in-app-browser": "^4.7.0",
     "@ionic-native/insomnia": "4.7.0",
     "@ionic-native/keyboard": "^4.7.0",
     "@ionic-native/nfc": "^4.7.0",
@@ -44,6 +45,7 @@
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-device-motion": "^2.0.1",
     "cordova-plugin-gyroscope": "^0.1.4",
+    "cordova-plugin-inappbrowser": "^3.0.0",
     "cordova-plugin-insomnia": "^4.3.0",
     "cordova-plugin-ionic-keyboard": "^2.0.5",
     "cordova-plugin-ionic-webview": "^1.2.1",
@@ -81,7 +83,8 @@
       "cordova-plugin-device-motion": {},
       "phonegap-nfc": {
         "NFC_USAGE_DESCRIPTION": "Read NFC Tags"
-      }
+      },
+      "cordova-plugin-inappbrowser": {}
     },
     "platforms": [
       "ios"

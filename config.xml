@@ -96,4 +96,5 @@
         <variable name="NFC_USAGE_DESCRIPTION" value="Read NFC Tags" />
     </plugin>
     <engine name="ios" spec="4.5.4" />
+    <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
 </widget>

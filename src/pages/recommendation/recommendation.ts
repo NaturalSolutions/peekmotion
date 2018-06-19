@@ -20,6 +20,10 @@ import { MachinesProvider } from '../../providers/machines';
 })
 export class RecommendationPage {
     private regLabel = "regLabel";
+    rightColor;
+    leftColor;
+    couleur_Droite;
+    couleur_Gauche;
     private exercice;
     private exoID;
     private serieID;
@@ -78,7 +82,7 @@ export class RecommendationPage {
         console.log('ionViewDidLoad RecommendationPage');
         console.log("this.bleName", this.nfcService.bleName);
         this.newTime = Math.ceil(new Date().getTime() / 1000);
-        this.masseAppoint = this.machine.Modele.Masse_Appoint.MasseDetail_Liste;
+        this.masseAppoint = this.machine.Masse_Appoint.MasseDetail_Liste;
         _.map(this.masseAppoint, (value) => {
             if (value.Masse_kg == 0)
                 value.class = "round-button active"
@@ -90,7 +94,7 @@ export class RecommendationPage {
         if (this.exercice)
             this.exoID = this.exercice.Mac_L_ExoUsag_Id;
         else
-            this.exoID = this.machine.Modele.ExoUsage_Liste[0].Mac_L_ExoUsag_Id;
+            this.exoID = this.machine.ExoUsage_Liste[0].Mac_L_ExoUsag_Id;
         let loadingGetSerie = this.loadingCtrl.create(
             {
                 spinner: 'crescent',
@@ -269,47 +273,78 @@ export class RecommendationPage {
                     .then((data) => {
                         let color = Array.prototype.slice.call(new Uint8Array(data));
                         let colorSelect = _.chunk(color, 3);
-                        if (colorSelect[3] == 1)
-                            this.weightColor = {
-                                R: colorSelect[0][0],
-                                G: colorSelect[0][1],
-                                B: colorSelect[0][2]
-                            }
-                        if (colorSelect[3] == 2)
-                            this.weightColor = {
-                                R: colorSelect[1][0],
-                                G: colorSelect[1][1],
-                                B: colorSelect[1][2]
-                            }
-                        if (colorSelect[3] == 3)
-                            this.weightColor = {
-                                R: colorSelect[2][0],
-                                G: colorSelect[2][1],
-                                B: colorSelect[2][2]
-                            }
-                        if (colorSelect[3] == 0) {
-                            let R = Math.round((colorSelect[0][0] + colorSelect[1][0] + colorSelect[2][0]) / 3);
-                            let G = Math.round((colorSelect[0][1] + colorSelect[1][1] + colorSelect[2][1]) / 3);
-                            let B = Math.round((colorSelect[0][2] + colorSelect[1][2] + colorSelect[2][2]) / 3);
-                            this.weightColor = {
-                                R: R,
-                                G: G,
-                                B: B
+                        let leftColorSensor = Math.trunc(colorSelect[3] / 16);
+                        let rightColorSensor = colorSelect[3] % 16;
+                        this.leftColor = {
+                            R: colorSelect[leftColorSensor][0],
+                            G: colorSelect[leftColorSensor][1],
+                            B: colorSelect[leftColorSensor][2]
+                        }
+                        this.rightColor = {
+                            R: colorSelect[rightColorSensor][0],
+                            G: colorSelect[rightColorSensor][1],
+                            B: colorSelect[rightColorSensor][2]
+                        }
+                        let leftColorMax = Math.max(this.leftColor.R, this.leftColor.G, this.leftColor.B);
+                        let leftColorMin = Math.min(this.leftColor.R, this.leftColor.G, this.leftColor.B);
+                        let rightColorMax = Math.max(this.rightColor.R, this.rightColor.G, this.rightColor.B);
+                        let rightColorMin = Math.min(this.rightColor.R, this.rightColor.G, this.rightColor.B);
+
+                        let whiteThreshold = _.find(this.machine.EtiquettesRefCouleur, { "Mac_EtiqRefCoul_Libelle": "blanc" }).R
+                        let balckThreshold = _.find(this.machine.EtiquettesRefCouleur, { "Mac_EtiqRefCoul_Libelle": "noir" }).R
+
+                        if (leftColorMin > whiteThreshold) {
+                            this.couleur_Gauche = "blanc";
+                        }
+                        else if (leftColorMax < balckThreshold) {
+                            this.couleur_Gauche = "noir";
+                        }
+                        else {
+                            // Uniformisation
+                            let R_unif = this.leftColor.R * 100 / leftColorMax;
+                            let G_unif = this.leftColor.G * 100 / leftColorMax;
+                            let B_unif = this.leftColor.B * 100 / leftColorMax;
+                            // Comparaison
+                            let minDist = 1000000000;
+                            let etiquette = this.machine.EtiquettesRefCouleur;
+                            for (let index = 0; index < etiquette.length; index++) {
+                                if (etiquette[index].Mac_EtiqRefCoul_Libelle != "blanc" && etiquette[index].Mac_EtiqRefCoul_Libelle != "noir") {
+                                    let dist = (etiquette[index].R - R_unif) * (etiquette[index].R - R_unif) + (etiquette[index].B - B_unif) * (etiquette[index].B - B_unif) + (etiquette[index].G - G_unif) * (etiquette[index].G - G_unif);
+                                    if (dist < minDist) {
+                                        minDist = dist;
+                                        this.couleur_Gauche = etiquette[index].Mac_EtiqRefCoul_Libelle;
+                                    }
+                                }
                             }
                         }
-                        let etiquette = this.machine.Etiquette.EtiquetteDetail_Liste;
-                        let weightOrdre = etiquette[0].Ordre;
-                        let minDist = (etiquette[0].R - this.weightColor.R) * (etiquette[0].R - this.weightColor.R) + (etiquette[0].B - this.weightColor.B) * (etiquette[0].B - this.weightColor.B) + (etiquette[0].G - this.weightColor.G) * (etiquette[0].G - this.weightColor.G);
-                        for (let index = 0; index < etiquette.length; index++) {
-                            let dist = (etiquette[index].R - this.weightColor.R) * (etiquette[index].R - this.weightColor.R) + (etiquette[index].B - this.weightColor.B) * (etiquette[index].B - this.weightColor.B) + (etiquette[index].G - this.weightColor.G) * (etiquette[index].G - this.weightColor.G);
-                            if (dist < minDist) {
-                                minDist = dist;
-                                weightOrdre = etiquette[index].Ordre;
+                        if (rightColorMin > whiteThreshold) {
+                            this.couleur_Droite = "blanc";
+                        }
+                        else if (rightColorMax < balckThreshold) {
+                            this.couleur_Droite = "noir";
+                        }
+                        else {
+                            let R_unif = this.rightColor.R * 100 / rightColorMax;
+                            let G_unif = this.rightColor.G * 100 / rightColorMax;
+                            let B_unif = this.rightColor.B * 100 / rightColorMax;
+                            let minDist = 1000000000;
+                            let etiquette = this.machine.EtiquettesRefCouleur;
+                            for (let index = 0; index < etiquette.length; index++) {
+                                if (etiquette[index].Mac_EtiqRefCoul_Libelle != "blanc" && etiquette[index].Mac_EtiqRefCoul_Libelle != "noir") {
+                                    let dist = (etiquette[index].R - R_unif) * (etiquette[index].R - R_unif) + (etiquette[index].B - B_unif) * (etiquette[index].B - B_unif) + (etiquette[index].G - G_unif) * (etiquette[index].G - G_unif);
+                                    if (dist < minDist) {
+                                        minDist = dist;
+                                        this.couleur_Droite = etiquette[index].Mac_EtiqRefCoul_Libelle;
+                                    }
+                                }
                             }
-                        };
-                        let masseList = this.machine.Modele.Masse_Principal.MasseDetail_Liste;
-                        this.weightSelected = Number(_.find(masseList, { "Ordre": weightOrdre }).Masse_kg) + Number(this.addMasse);
-
+                        }
+                        let masseList = this.machine.Masse_Principal.MasseDetail_Liste;
+                        let weightSensor = _.find(masseList, { "Couleur_Droite": this.couleur_Droite, "Couleur_Gauche": this.couleur_Gauche })
+                        if (weightSensor)
+                            this.weightSelected = Number(weightSensor.Masse_kg) + Number(this.addMasse);
+                        else
+                            this.weightSelected = "--"
                     }, (error) => {
                         console.log('ble read error', error);
                     });

@@ -9,9 +9,11 @@ export class MachinesProvider {
   }
 
   getMachineByID(id) {
-    return this.http.get<any[]>(Conf.apiBaseUrl + 'machine/macPhysiqueBtId/' + id);
+    return this.http.get<any[]>(Conf.apiBaseUrlV2 + 'machine/macPhysiqueBtId/' + id);
 
   }
+
+ 
   getSerie(bleName, exerciceID) {
     return this.http.get<any[]>(Conf.apiBaseUrl + '/adherent/serie/macPhysiqueBtId/' + bleName + '/exerciceUsageId/' + exerciceID);
   }
