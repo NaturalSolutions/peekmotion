@@ -14,19 +14,12 @@ page-home {
     color: #48c0ff;
     background-color: #414141;
   }
-  button.button-block {
-    margin: 20px 0;
-    padding: 25px;
-    font-family: 'Montserrat';
-    font-weight: 600;
-    &.creat-account {
-      position: absolute;
-      bottom: 0;
-      margin: 0;
-      font-weight: 400;
-      font-size: 12px;
-    }
+  .seances-icons {
+    margin-left: 18px !important;
+    color: #48c0ff;
+    background-color: #414141;
   }
+
   .homeText{
     margin-top: 25%;
     padding: 15px;
@@ -39,5 +32,8 @@ page-home {
   }
 p{
   margin: 0px
+}
+.btn-group{
+  display: flex
 }
 }

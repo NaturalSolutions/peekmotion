@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController, Loading } from 'ionic-angular';
+import { NavController, NavParams, LoadingController, Loading, Alert } from 'ionic-angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController } from 'ionic-angular';
 import { LoginProvider } from '../../providers/loginService';
@@ -23,6 +23,7 @@ export class UserProfilPage {
   height = [{ options: [] }];
   profilTitle: string = "Votre Profil";
   profilButton: string = "Modifier vos informations";
+  loadingGetUser;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -33,20 +34,20 @@ export class UserProfilPage {
     public loadingCtrl: LoadingController) {
     this.nfcProvider.canDisconnect = false;
     this.firstConnexion = this.navParams.get("firstConnexion");
-    let loadingGetUser = this.loadingCtrl.create({
+    this.loadingGetUser = this.loadingCtrl.create({
       spinner: 'crescent',
       cssClass: 'loaderCustomCss',
     });
-    loadingGetUser.present();
+    this.loadingGetUser.present();
     this.loginProvider.getUser()
       .subscribe((user) => {
         this.currentUser = user
       },
         error => {
-          this.errorAlert()
+          this.serverError()
         },
         () => {
-          loadingGetUser.dismiss();
+          this.loadingGetUser.dismiss();
           this.profilForm = this.fb.group({
             Prenom: [this.currentUser.Prenom, Validators.required],
             Adh_Obj_Id: [this.currentUser.Adh_Obj_Id, Validators.required],
@@ -125,6 +126,18 @@ export class UserProfilPage {
   errorAlert() {
     let alert = this.alertCtrl.create({
       message: "Veuillez compléter le formulaire",
+      cssClass: 'alertCustomCss',
+      buttons: ['OK']
+    });
+    alert.present();
+  }
+
+  private serverError() {
+    this.loadingGetUser.dismiss()
+    let alert: Alert = this.alertCtrl.create({
+      title: 'Échec de connexion Internet',
+      subTitle: 'Assurez-vous que vous êtes bien connecté à internet ',
+      enableBackdropDismiss: false,
       cssClass: 'alertCustomCss',
       buttons: ['OK']
     });

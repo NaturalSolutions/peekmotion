@@ -192,7 +192,7 @@ export class RecommendationPage {
 
         this.readWeight();
         this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-            .subscribe((data) => {
+            .subscribe((data) => {          
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
                 if (this.firstRepetion[2] == 32) {
                     if (this.serieNumber > 1) {

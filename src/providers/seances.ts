@@ -1,4 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Conf } from '../conf';
+import 'rxjs/add/operator/map';
 
 @Injectable()
 export class SeancesProvider {
@@ -9,10 +12,16 @@ export class SeancesProvider {
   stopedTime: number=0;
   lastCounter: number;
 
-  constructor() {
+  constructor(public http: HttpClient) {
     console.log('Hello SeancesProvider Provider');
   }
 
+
+  
+  getSeances() {
+    return this.http.get<any[]>(Conf.apiBaseUrlV1 + 'adherent/choixSeance');
+
+  }
   public getBilanStatus() {
     return {
       bilanStatus: this.bilanStatus,

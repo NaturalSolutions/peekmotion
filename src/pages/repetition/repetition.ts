@@ -70,7 +70,7 @@ export class RepetitionPage {
     if (this.exercice)
       this.exoID = this.exercice.Mac_L_ExoUsag_Id;
     else
-      this.exoID = this.machine.Modele.ExoUsage_Liste[0].Mac_L_ExoUsag_Id;
+      this.exoID = this.machine.ExoUsage_Liste[0].Mac_L_ExoUsag_Id;
     this.options = {
       chart: {
         type: 'variablepie',
