@@ -10,8 +10,8 @@
         <ion-slide *ngIf="timeRest" class="recommandations startTimer">
           <div class="innerCounter">
             <h2 class="counter">{{countDown | async | formatTime}}</h2>
-            <h2 class="serie">Série</h2>
-            <h2 class="serie num">{{serieNumber}}</h2>
+            <h2 class="serie">{{serie.Mode}}</h2>
+            <h2 class="serie num">{{serie.Avancement}}</h2>
           </div>
           <round-progress *ngIf="serieLoaded" [current]="counter" [max]="recupTime_sec" [color]="'#EBD01F'"
            [background]="'#1d1d1d'" [stroke]="8"  [duration]="1000" [animation]="'linearEase'"
@@ -92,7 +92,7 @@
 <ion-footer padding *ngIf="!seriesNumberOK" >
   Pour commencer l'exercice, activez la machine !
 </ion-footer>
-<ion-footer padding *ngIf="seriesNumberOK" >
+<ion-footer padding *ngIf="seriesNumberOK" class="nbSerie-OK" >
   Vous avez réalisé le bon nombre de séries, vous pouvez changer d'exercice
 </ion-footer>
 

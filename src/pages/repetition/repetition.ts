@@ -116,14 +116,11 @@ export class RepetitionPage {
 
     this.ble.startNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
       .subscribe((notify) => {
-
         let data = (Array.prototype.slice.call(new Uint8Array(notify)));
-        console.log("data", data);
         if (data[2] == 32) {
           this.onRepetition(data);
         }
         if (data[2] == 33) {
-          console.log("this.serieToPost", this.serieToPost);
           if (this.repetionNumber < 4)
             this.navCtrl.setRoot(RecommendationPage, { timeRest: false, serie: this.serie, exercice: this.exercice, machine: this.machine })
           else {
@@ -144,7 +141,6 @@ export class RepetitionPage {
           console.log("error_bleRep", error);
         }
       );
-
   }
 
   onRepetition(data): void {
@@ -191,7 +187,6 @@ export class RepetitionPage {
 
   ionViewWillUnload() {
     clearInterval(this.blinkInterval);
-
 }
 
   saveInstance(chartInstance) {

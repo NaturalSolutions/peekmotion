@@ -21,7 +21,7 @@ page-home {
   }
 
   .homeText{
-    margin-top: 25%;
+    margin-top: 10%;
     padding: 15px;
     font-family: 'Montserrat';
     font-weight: 600;
@@ -34,7 +34,8 @@ p{
   margin: 0px
 }
 .btn-group{
-  display: flex
+  display: flex;
+  justify-content: space-between;
 }
 }
 button.button-block {
@@ -49,4 +50,5 @@ button.button-block {
     font-weight: 400;
     font-size: 12px;
   }
+  
 }

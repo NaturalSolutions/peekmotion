@@ -33,6 +33,7 @@ export class RecommendationPage {
     public countDown;
     private machine;
     private serie;
+    avencement;
     private readPooling;
     private firstRepetion;
     private weightColor = { R: 0, G: 0, B: 0 };
@@ -80,7 +81,6 @@ export class RecommendationPage {
 
     ionViewWillEnter() {
         console.log('ionViewDidLoad RecommendationPage');
-        console.log("this.bleName", this.nfcService.bleName);
         this.newTime = Math.ceil(new Date().getTime() / 1000);
         this.masseAppoint = this.machine.Masse_Appoint.MasseDetail_Liste;
         _.map(this.masseAppoint, (value) => {
@@ -106,11 +106,15 @@ export class RecommendationPage {
             .subscribe(
                 (serie) => {
                     this.serie = serie;
+                    this.avencement = this.serie.Avancement.split("/");
+                    console.log(" this.avencement",  this.avencement);
                 },
                 error => {
                     console.log("error_getSerie", error);
                 },
                 () => {
+                    let maxSeance=Number(this.avencement[1])
+                    console.log(" maxSeance",  maxSeance);
                     this.recupTime_sec = this.serie.Adh_ExerciceConseil.Recup_sec;
                     this.counter = this.recupTime_sec;
                     this.timeRest = this.navParams.get("timeRest");
@@ -156,7 +160,7 @@ export class RecommendationPage {
                     this.repetition = this.serie.Adh_ExerciceConseil.NbRep;
                     this.weight = this.serie.Adh_ExerciceConseil.IntensitePossible_kg;
                     this.serieNumber = this.serie.NumSerie;
-                    if (this.serieNumber > 5)
+                    if (this.serieNumber > maxSeance)
                         this.seriesNumberOK = true
                     this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.serie.LienVideo);
                     _.map(this.serie.ReglageConseil_Liste, (value) => {
@@ -180,7 +184,7 @@ export class RecommendationPage {
                     this.serieLoaded = true;
                     this.tagSubscribe = this.nfcService.getTagStatus().first(status => (status == "tag_disconnected")).subscribe(tagStatus => {
                         if (this.serieNumber > 1) {
-
+                            localStorage.setItem('currentSeance', "true");
                             let stopedTime = Math.ceil(new Date().getTime() / 1000);
                             this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
                         }
@@ -196,6 +200,7 @@ export class RecommendationPage {
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
                 if (this.firstRepetion[2] == 32) {
                     if (this.serieNumber > 1) {
+                        localStorage.setItem('currentSeance', "true");
                         let stopedTime = Math.ceil(new Date().getTime() / 1000);
                         this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
                     }

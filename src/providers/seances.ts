@@ -22,6 +22,14 @@ export class SeancesProvider {
     return this.http.get<any[]>(Conf.apiBaseUrlV1 + 'adherent/choixSeance');
 
   }
+
+
+  postSeanceID(seanceID) {
+    return this.http.post<any[]>(Conf.apiBaseUrl + 'adherent/choixSeance', seanceID);
+  }
+
+
+
   public getBilanStatus() {
     return {
       bilanStatus: this.bilanStatus,

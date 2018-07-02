@@ -2,8 +2,8 @@
   <div ion-fixed class="inner">
     <div class="innerCounter">
       <h2 class="counter" [@zoomAnimation]='state' [style.color]="serieColor">{{repetionNumber}}</h2>
-      <h2 class="serie">Série</h2>
-      <h2 class="serie num">{{serieNumber}}</h2>
+      <h2 class="serie">{{serie.Mode}}</h2>
+      <h2 class="serie num">{{serie.Avancement}}</h2>
     </div>
     <chart [options]="options" (load)="saveInstance($event.context)"></chart>
 

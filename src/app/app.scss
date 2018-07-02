@@ -38,6 +38,48 @@
   }
 }
 
+.alertSeancesList {
+  .alert-md .alert-button-group {
+    justify-content: center !important;
+  }
+  .alert-head {
+    padding: 10px
+  }
+  .alert-sub-title {
+    font-size: 14px;
+    text-align: center;
+    color: #dadada;
+    font-family: 'Montserrat';
+  }
+  .alert-title {
+    padding: 10px;
+    font-size: 16px;
+    color: #dadada;
+    text-align: center;
+    font-family: 'Montserrat';
+    font-weight: 600;
+  }
+  .alert-message {
+    color: #dadada;
+    text-align: center;
+    padding-bottom: 5px;
+    font-family: 'Montserrat';
+    font-weight: 400;
+    font-size: 14px
+  }
+  ;
+  .alert-wrapper {
+    width: 80%;
+    max-width: none;
+    border: 1px solid;
+    border-color: #409aca;
+    background-image: linear-gradient(60deg, #2b2b2b, #3c3c3c);
+  }
+  button {
+    color: #48c0ff;
+  }
+}
+
 .loaderCustomCss {
   .loading-wrapper {
     background: transparent;
@@ -57,21 +99,22 @@
   }
 }
 
-.platform-ios .content:not([no-bounce]) > .scroll-content::after {
+.platform-ios .content:not([no-bounce])>.scroll-content::after {
   top: -1px;
 }
-    
-.platform-ios .content:not([no-bounce]) > .scroll-content::before {
+
+.platform-ios .content:not([no-bounce])>.scroll-content::before {
   bottom: -1px;
 }
-    
-.platform-ios .content:not([no-bounce]) > .scroll-content::before,
-.platform-ios .content:not([no-bounce]) > .scroll-content::after {
+
+.platform-ios .content:not([no-bounce])>.scroll-content::before,
+.platform-ios .content:not([no-bounce])>.scroll-content::after {
   position: absolute;
   width: 1px;
   height: 1px;
   content: "";
 }
+
 .app-root {
   &.is-keyboard-open {
     .hidden-keyboard-open {
@@ -131,4 +174,26 @@ ion-footer {
 
 .highcharts-credits {
   display: none;
+}
+
+ion-modal {
+  ion-backdrop {
+    visibility: visible;
+    opacity: 0.75;
+    z-index: 0;
+  }
+  .modal-wrapper {
+    margin-top: 10%;
+    margin-left: 6%;
+    width: 88%;
+    height: 86%;
+    border: 1px solid;
+    border-color: #409aca;
+  }
+}
+
+
+ion-fab {
+  position: relative;
+  margin-left: auto;
 }

@@ -1,23 +1,26 @@
-<ion-content >
+<ion-content>
   <div ion-fixed class="inner">
-
-    <ion-fab right #fab>
-      <button class="settings-icons" ion-fab mini>
-        <ion-icon name="settings"></ion-icon>
+    <div class="btn-group">
+      <button *ngIf="changeSeance" class="seances-icons" ion-fab mini (click)="getSeanceInfo()">
+          <ion-icon name="md-clipboard"></ion-icon>
       </button>
-      <ion-fab-list>
-        <button class="settings-icons" ion-fab (click)="profil(fab)">
-          <ion-icon name="person"></ion-icon>
+      <ion-fab right #fab >
+        <button class="settings-icons" ion-fab mini>
+          <ion-icon name="settings"></ion-icon>
         </button>
-        <button class="settings-icons" ion-fab (click)="modifyPassword(fab)">
-          <ion-icon name="key"></ion-icon>
-        </button>
-        <button class="settings-icons" (click)="logOut(fab)" ion-fab>
-          <ion-icon name="log-out"></ion-icon>
-        </button>
-      </ion-fab-list>
-    </ion-fab>
-
+        <ion-fab-list>
+          <button class="settings-icons" ion-fab (click)="profil(fab)">
+            <ion-icon name="person"></ion-icon>
+          </button>
+          <button class="settings-icons" ion-fab (click)="modifyPassword(fab)">
+            <ion-icon name="key"></ion-icon>
+          </button>
+          <button class="settings-icons" (click)="logOut(fab)" ion-fab>
+            <ion-icon name="log-out"></ion-icon>
+          </button>
+        </ion-fab-list>
+      </ion-fab>
+    </div>
     <div class="homeText" showWhen="android">
       <p>Placez</p>
       <p>votre téléphone sur le socle</p>
@@ -33,4 +36,5 @@
 <ion-footer padding no-border>
   <button ion-button block large color="primary" (click)="activeNFC()" showWhen="ios" *ngIf="bleStatus == 'ready'">SCANNER</button>
   <button ion-button block color="secondary" (click)="bilan()" *ngIf="bilanButton">terminer la séance</button>
+  <button ion-button block color="primary" (click)="presentContactModal()" *ngIf="changeSeance && !bilanButton">changer de séance</button>
 </ion-footer>

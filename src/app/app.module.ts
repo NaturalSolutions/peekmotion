@@ -14,6 +14,7 @@ import { Insomnia } from '@ionic-native/insomnia';
 import { AndroidPermissions } from '@ionic-native/android-permissions';
 import { DeviceMotion } from '@ionic-native/device-motion';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
+
 //pages
 import { HomePage } from '../pages/home/home';
 import { LoginPage } from '../pages/login/login';
@@ -24,7 +25,8 @@ import { RepetitionPage} from '../pages/repetition/repetition';
 import { CreatAccountPage} from '../pages/creat-account/creat-account';
 import { ForgotPasswordPage} from '../pages/forgot-password/forgot-password';
 import { BilanPage} from '../pages/bilan/bilan';
-import {NewPasswordPage} from '../pages/new-password/new-password'
+import {NewPasswordPage} from '../pages/new-password/new-password';
+import {ModalSeancesPage} from '../pages/modal-seances/modal-seances'
 //pipe
 import {FormatTimePipe } from '../pipes/format-time';
 //providers
@@ -64,6 +66,7 @@ export function highchartsFactory() {
     BilanPage,
     NewPasswordPage,
     FormatTimePipe,
+    ModalSeancesPage
   ],
   imports: [
     BrowserModule,
@@ -88,7 +91,8 @@ export function highchartsFactory() {
     CreatAccountPage,
     ForgotPasswordPage,
     BilanPage,
-    NewPasswordPage
+    NewPasswordPage,
+    ModalSeancesPage
   ],
   providers: [
     StatusBar,

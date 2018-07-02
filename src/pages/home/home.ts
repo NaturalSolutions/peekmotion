@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, Alert, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, Alert, ModalController, LoadingController } from 'ionic-angular';
 import { NfcProvider } from '../../providers/nfc';
 import { Platform } from 'ionic-angular';
 import { ExercicesListPage } from '../exercices-list/exercices-list';
@@ -13,7 +13,10 @@ import { NFC } from '@ionic-native/nfc';
 import { BLE } from '@ionic-native/ble';
 import { SeancesProvider } from '../../providers/seances';
 import { FabContainer } from 'ionic-angular';
-import { NewPasswordPage } from '../new-password/new-password'
+import { NewPasswordPage } from '../new-password/new-password';
+import { ModalSeancesPage } from '../modal-seances/modal-seances';
+import { InAppBrowser } from '@ionic-native/in-app-browser';
+
 
 @Component({
   selector: 'page-home',
@@ -21,12 +24,16 @@ import { NewPasswordPage } from '../new-password/new-password'
 })
 export class HomePage {
 
+  private seancesList;
   private machine;
-  public bilanButton: boolean;
+  public bilanButton: boolean = false;
   public homeText: string;
-  private seaance;
+  private seance;
+  currentSeance;
   private bleStatus: string;
   loadingGetMachineByID;
+  seanceUrl: string;
+  changeSeance: boolean = false;
 
   constructor(
     public navCtrl: NavController,
@@ -38,7 +45,9 @@ export class HomePage {
     private ble: BLE,
     private alertCtrl: AlertController,
     public loadingCtrl: LoadingController,
-    private seancesProvider: SeancesProvider
+    private seancesProvider: SeancesProvider,
+    public modalCtrl: ModalController,
+    private iab: InAppBrowser
   ) {
     this.nfcService.canDisconnect = false;
     if (this.plt.is('android'))
@@ -50,9 +59,25 @@ export class HomePage {
   }
 
   ionViewWillEnter() {
-    this.seaance = this.seancesProvider.getBilanStatus();
-    this.bilanButton = this.seaance.bilanStatus;
-    this.homeText = this.seaance.homeText;
+    this.seance = this.seancesProvider.getBilanStatus();
+    this.currentSeance = localStorage.getItem('currentSeance');
+    this.seanceUrl = localStorage.getItem('seanceUrl');
+    if (this.seanceUrl)
+      this.changeSeance = true;
+    console.log("this.seanceUrl", this.seanceUrl);
+    console.log(" this.currentSeance", this.currentSeance);
+
+    if (!this.seanceUrl && (!this.currentSeance || this.currentSeance == "false")) {
+      this.presentContactModal()
+    }
+
+    if (this.currentSeance && this.currentSeance == "true")
+      this.bilanButton = true;
+    else
+      this.bilanButton = false;
+    this.homeText = this.seance.homeText;
+    console.log("this.seance", this.seance);
+
   }
 
   ionViewDidEnter() {
@@ -106,7 +131,8 @@ export class HomePage {
   private activeNFC() {
     this.nfc.enabled()
       .then((status) => {
-        this.nfcInit();
+        if (this.seanceUrl || this.currentSeance || this.currentSeance == "true")
+          this.nfcInit();
       }, (error) => {
         this.openDisabledNfc();
       })
@@ -215,7 +241,7 @@ export class HomePage {
     let alert: Alert = this.alertCtrl.create({
       subTitle: 'Êtes-vous sûr de vouloir terminer la séance ?',
       enableBackdropDismiss: false,
-      cssClass: 'alertCustomCss',
+      cssClass: 'alertSeancesList ',
       buttons: [
         {
           text: 'OUI',
@@ -241,5 +267,41 @@ export class HomePage {
     fab.close();
     this.navCtrl.push(NewPasswordPage)
   };
+
+
+  getSeanceInfo() {
+    this.iab.create(this.seanceUrl, "_self", { zoom: 'no' });
+
+  }
+
+  presentContactModal() {
+    this.seancesProvider.getSeances()
+      .subscribe(
+        (seances) => {
+          this.seancesList = seances;
+          console.log("seances", seances)
+        },
+        (error) => {
+          this.serverError();
+          console.log("error_getMachine", error);
+          this.nfcInit()
+        },
+        () => {
+          let seancestModal = this.modalCtrl.create(ModalSeancesPage, { seancesList: this.seancesList }, { enableBackdropDismiss: false });
+          seancestModal.onDidDismiss(data => {
+            this.nfcInit()
+            if (data) {
+              this.seanceUrl = data;
+              this.changeSeance = true;
+            }
+            else
+              this.changeSeance = false;
+          });
+          seancestModal.present();
+        }
+      )
+
+
+  }
 
 }

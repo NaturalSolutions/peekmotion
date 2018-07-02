@@ -20,14 +20,17 @@ export class MyApp {
     return this.keyboard.isOpen();
   };
 
-  constructor(private platform: Platform,
+  constructor(
+    private platform: Platform,
     statusBar: StatusBar,
     splashScreen: SplashScreen,
     private insomnia: Insomnia,
     private androidPermissions: AndroidPermissions,
     private nfc: NFC,
-    private keyboard: Keyboard) {
-   
+    private keyboard: Keyboard
+            ) 
+  {
+    this.platform.registerBackButtonAction(null)
     platform.ready().then(() => {
       this.insomnia.keepAwake()
         .then(
@@ -38,14 +41,14 @@ export class MyApp {
       splashScreen.hide();
 
       if (this.platform.is('android'))
-      this.nfc.addNdefListener((e) => {
-        console.log('successfully attached ndef listener appp', e);
-      }, (err) => {
-        console.log('error attaching ndef listener appp', err);
-      })
-        .subscribe(event => {
-          console.log("nfcListener in appp: ", event);
+        this.nfc.addNdefListener((e) => {
+          console.log('successfully attached ndef listener appp', e);
+        }, (err) => {
+          console.log('error attaching ndef listener appp', err);
         })
+          .subscribe(event => {
+            console.log("nfcListener in appp: ", event);
+          })
 
       this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.ACCESS_COARSE_LOCATION);
       const token = JSON.parse(localStorage.getItem("peekmotionCurrentUser"));

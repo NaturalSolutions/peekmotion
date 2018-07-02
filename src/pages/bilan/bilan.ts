@@ -9,7 +9,7 @@ import { SeancesProvider } from '../../providers/seances';
   templateUrl: 'bilan.html',
 })
 export class BilanPage {
-  exoText: string= "exercice";
+  exoText: string = "exercice";
   private muscles: any[] = [];
   public timeSeance;
   private seance;
@@ -42,6 +42,8 @@ export class BilanPage {
   ionViewDidLoad() {
     console.log('ionViewDidLoad BilanPage');
     this.seancesProvider.setBilanStatus(false, "démarrer");
+    localStorage.setItem('currentSeance', "false");
+    localStorage.removeItem('seanceUrl');
     let loadingGetBilan = this.loadingCtrl.create(
       {
         spinner: 'crescent',

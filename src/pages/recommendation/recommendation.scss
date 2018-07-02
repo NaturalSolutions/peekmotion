@@ -209,10 +209,10 @@ page-recommendation {
       color: #dadada;
       font-family: 'Montserrat';
       font-weight: 400;
-      font-size: 25px;
+      font-size: 24px;
       text-transform: uppercase;
       &.num {
-        font-size: 40px;
+        font-size: 36px;
         font-weight: 600;
         margin-top: 0
       }
@@ -269,5 +269,9 @@ page-recommendation {
       background-color: #409aca;
       color: #262626;
     }
+  }
+  .nbSerie-OK{
+    background-color: #eb561f
+
   }
 }

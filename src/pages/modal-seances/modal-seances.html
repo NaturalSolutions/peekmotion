@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-navbar>
+      <ion-icon class="icon-seance" name="md-clipboard"></ion-icon>
+    <ion-title>Quelle séance <br>
+       souhaitez-vous démarrer</ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content padding>
+    <ion-list no-lines>
+        <div class="seancesList" *ngFor="let seance of seancesList" (click)="selectSeance(seance)" >
+            <ion-item> 
+                <ion-thumbnail item-right>
+                    <button class="info-icons" ion-fab mini (click)="getSeanceInfo($event,seance)">
+                        <ion-icon name="information"></ion-icon>
+                    </button>
+                </ion-thumbnail>
+                <h2 class="select-text">{{ seance.Nom }}</h2>
+                <p class="details">{{ seance.Duree_min }} min - {{seance.Duree_min}} exercices - {{seance.Duree_min}} Kcal</p>
+              </ion-item>
+        </div>
+      </ion-list>
+      <button ion-button block large color="primary" (click)="unrestrictedSeance()" >Faire une séance libre</button>
+</ion-content>
