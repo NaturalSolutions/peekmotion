@@ -42,6 +42,7 @@ export class BilanPage {
   ionViewDidLoad() {
     console.log('ionViewDidLoad BilanPage');
     this.seancesProvider.setBilanStatus(false, "démarrer");
+    this.seancesProvider.setChangeBtnStatus(false);
     localStorage.setItem('currentSeance', "false");
     localStorage.removeItem('seanceUrl');
     let loadingGetBilan = this.loadingCtrl.create(

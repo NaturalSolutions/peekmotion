@@ -52,6 +52,8 @@ export class RepetitionPage {
 
     this.serie = this.navParams.get("serie");
     this.weightSelected = this.navParams.get("weightSelected");
+    if (this.weightSelected == "--")
+      this.weightSelected = 0;
     this.serieToPost.MasseReelle_kg = this.weightSelected;
     this.repetition = this.serie.Adh_ExerciceConseil.NbRep;
     let chartData = [];
@@ -107,7 +109,6 @@ export class RepetitionPage {
   }
 
   ionViewDidLoad() {
-
     console.log('ionViewDidLoad RepetitionPage');
     this.repetionNumber = 0;
     this.serieNumber = this.serie.NumSerie;
@@ -133,7 +134,11 @@ export class RepetitionPage {
               .subscribe(() => {
                 loadingPostSerie.dismiss();
                 this.navCtrl.setRoot(RecommendationPage, { timeRest: true, serie: this.serie, exercice: this.exercice, machine: this.machine })
-              })
+              },
+                (err) => {
+                  console.log(err);
+                  loadingPostSerie.dismiss();
+                })
           }
         }
       },
@@ -187,7 +192,7 @@ export class RepetitionPage {
 
   ionViewWillUnload() {
     clearInterval(this.blinkInterval);
-}
+  }
 
   saveInstance(chartInstance) {
     this.chart = chartInstance;

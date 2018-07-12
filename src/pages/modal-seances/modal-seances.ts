@@ -22,6 +22,7 @@ export class ModalSeancesPage {
     console.log('ionViewDidLoad ModalSeancesPage', this.seancesList);
   }
   selectSeance(seance) {
+    this.seancesProvider.setChangeBtnStatus(true);
     localStorage.setItem('seanceUrl', seance.LienURL_webApp);
     this.seancesProvider.postSeanceID({'id' :seance.Id})
     .subscribe(
@@ -35,8 +36,10 @@ export class ModalSeancesPage {
     this.iab.create(seance.LienURL_webApp, "_self", { zoom: 'no' });
   }
   unrestrictedSeance() {
+    this.seancesProvider.setChangeBtnStatus(true);
     this.viewCtrl.dismiss();
     localStorage.removeItem('seanceUrl');
+   
   }
 
 }

@@ -1,8 +1,8 @@
 <ion-header>
   <ion-navbar>
-      <ion-icon class="icon-seance" name="md-clipboard"></ion-icon>
+    <img class="seance-icon" src="./assets/icon/seance-white.png" alt="">
     <ion-title>Quelle séance <br>
-       souhaitez-vous démarrer</ion-title>
+       souhaitez-vous démarrer ?</ion-title>
   </ion-navbar>
 </ion-header>
 
@@ -17,9 +17,9 @@
                     </button>
                 </ion-thumbnail>
                 <h2 class="select-text">{{ seance.Nom }}</h2>
-                <p class="details">{{ seance.Duree_min }} min - {{seance.Duree_min}} exercices - {{seance.Duree_min}} Kcal</p>
+                <p class="details">{{ seance.Duree_min }} min - {{seance.NbExercice}} exercices - {{seance.DepenseCalorique_kcal}} Kcal</p>
               </ion-item>
         </div>
       </ion-list>
-      <button ion-button block large color="primary" (click)="unrestrictedSeance()" >Faire une séance libre</button>
+      <button ion-button block large class="btn-libreSeance" (click)="unrestrictedSeance()" >Faire une séance libre</button>
 </ion-content>

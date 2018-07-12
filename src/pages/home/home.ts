@@ -27,13 +27,16 @@ export class HomePage {
   private seancesList;
   private machine;
   public bilanButton: boolean = false;
+  public viewleave: boolean = false;
   public homeText: string;
   private seance;
   currentSeance;
   private bleStatus: string;
   loadingGetMachineByID;
   seanceUrl: string;
+  showSeanceBtn: boolean = false;
   changeSeance: boolean = false;
+  modalIsActive: boolean = false;
 
   constructor(
     public navCtrl: NavController,
@@ -49,6 +52,41 @@ export class HomePage {
     public modalCtrl: ModalController,
     private iab: InAppBrowser
   ) {
+
+  }
+
+  ionViewWillEnter() {
+    console.log("home ionViewwillEnter");
+    console.log("this.modalIsActive vien enter", this.modalIsActive);
+    this.currentSeance = localStorage.getItem('currentSeance');
+    this.seance = this.seancesProvider.getBilanStatus();
+    this.changeSeance = this.seancesProvider.getChangeBtnStatus();
+    if (this.currentSeance && this.currentSeance == "true")
+      this.bilanButton = true;
+    else
+      this.bilanButton = false;
+    this.homeText = this.seance.homeText;
+  }
+
+  ionViewDidEnter() {
+    console.log("home ionViewDidEnter");
+    if (this.plt.is('ios'))
+      this.ble.isEnabled()
+        .then(
+          (status) => { this.bleReady() },
+          (error) => this.openDisabledBle()
+        )
+    console.log("this.modalIsActive", this.modalIsActive);
+    this.seanceUrl = localStorage.getItem('seanceUrl');
+    console.log("this.currentSeance", this.currentSeance);
+    console.log("this.seanceUrl", this.seanceUrl);
+    console.log("changeSeance", this.changeSeance);
+    if (this.seanceUrl)
+      this.showSeanceBtn = true;
+    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance ) {
+      this.presentContactModal()
+    }
+
     this.nfcService.canDisconnect = false;
     if (this.plt.is('android'))
       this.ble.enable()
@@ -58,36 +96,6 @@ export class HomePage {
         )
   }
 
-  ionViewWillEnter() {
-    this.seance = this.seancesProvider.getBilanStatus();
-    this.currentSeance = localStorage.getItem('currentSeance');
-    this.seanceUrl = localStorage.getItem('seanceUrl');
-    if (this.seanceUrl)
-      this.changeSeance = true;
-    console.log("this.seanceUrl", this.seanceUrl);
-    console.log(" this.currentSeance", this.currentSeance);
-
-    if (!this.seanceUrl && (!this.currentSeance || this.currentSeance == "false")) {
-      this.presentContactModal()
-    }
-
-    if (this.currentSeance && this.currentSeance == "true")
-      this.bilanButton = true;
-    else
-      this.bilanButton = false;
-    this.homeText = this.seance.homeText;
-    console.log("this.seance", this.seance);
-
-  }
-
-  ionViewDidEnter() {
-    if (this.plt.is('ios'))
-      this.ble.isEnabled()
-        .then(
-          (status) => { this.bleReady() },
-          (error) => this.openDisabledBle()
-        )
-  }
 
   private openDisabledBle() {
     let alert: Alert = this.alertCtrl.create({
@@ -129,9 +137,11 @@ export class HomePage {
   }
 
   private activeNFC() {
+    console.log("activeNFC",this.modalIsActive);
+    
     this.nfc.enabled()
       .then((status) => {
-        if (this.seanceUrl || this.currentSeance || this.currentSeance == "true")
+        if (!this.modalIsActive)
           this.nfcInit();
       }, (error) => {
         this.openDisabledNfc();
@@ -246,6 +256,7 @@ export class HomePage {
         {
           text: 'OUI',
           handler: () => {
+            this.nfcService.nfcUnsubscribe()
             this.navCtrl.push(BilanPage)
             alert.dismiss();
           }
@@ -275,6 +286,7 @@ export class HomePage {
   }
 
   presentContactModal() {
+    this.modalIsActive = true;
     this.seancesProvider.getSeances()
       .subscribe(
         (seances) => {
@@ -289,13 +301,14 @@ export class HomePage {
         () => {
           let seancestModal = this.modalCtrl.create(ModalSeancesPage, { seancesList: this.seancesList }, { enableBackdropDismiss: false });
           seancestModal.onDidDismiss(data => {
+            this.modalIsActive = false;
             this.nfcInit()
             if (data) {
               this.seanceUrl = data;
-              this.changeSeance = true;
+              this.showSeanceBtn = true;
             }
             else
-              this.changeSeance = false;
+              this.showSeanceBtn = false;
           });
           seancestModal.present();
         }

@@ -106,6 +106,7 @@ export class RecommendationPage {
             .subscribe(
                 (serie) => {
                     this.serie = serie;
+                    console.log(" this.serie",  this.serie);
                     this.avencement = this.serie.Avancement.split("/");
                     console.log(" this.avencement",  this.avencement);
                 },
@@ -113,8 +114,9 @@ export class RecommendationPage {
                     console.log("error_getSerie", error);
                 },
                 () => {
-                    let maxSeance=Number(this.avencement[1])
-                    console.log(" maxSeance",  maxSeance);
+                    let maxSerie=Number(this.avencement[1]);
+                    let currentSerie=Number(this.avencement[0]);
+                    console.log(" currentSerie",  currentSerie);
                     this.recupTime_sec = this.serie.Adh_ExerciceConseil.Recup_sec;
                     this.counter = this.recupTime_sec;
                     this.timeRest = this.navParams.get("timeRest");
@@ -160,7 +162,8 @@ export class RecommendationPage {
                     this.repetition = this.serie.Adh_ExerciceConseil.NbRep;
                     this.weight = this.serie.Adh_ExerciceConseil.IntensitePossible_kg;
                     this.serieNumber = this.serie.NumSerie;
-                    if (this.serieNumber > maxSeance)
+                    console.log("this.serieNumber",this.serieNumber);
+                    if (currentSerie > maxSerie)
                         this.seriesNumberOK = true
                     this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.serie.LienVideo);
                     _.map(this.serie.ReglageConseil_Liste, (value) => {

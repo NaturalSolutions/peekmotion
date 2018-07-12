@@ -179,7 +179,7 @@ export class NfcProvider {
           this.loadingNfcConnect.present()
             .then(() => {
               setTimeout(() => {
-                this.ble.startScan([]).
+                let bleScanSub =this.ble.startScan([]).
                   timeout(9000).subscribe(device => {
                     if (_.get(device, 'name') == 'Peekmotionv2')
                       console.log('ble peek found', device);
@@ -200,6 +200,7 @@ export class NfcProvider {
                                 this.tagStatus.next('tag_connected');
                                 resolve();
                               });
+                              bleScanSub.unsubscribe()
                             }, error => {
                               console.log('ble connect error', error);
                             });
@@ -222,5 +223,11 @@ export class NfcProvider {
             console.log('event error', error);
           });
     })
+  }
+
+
+  nfcUnsubscribe()
+  {
+    this.sub.unsubscribe();
   }
 }

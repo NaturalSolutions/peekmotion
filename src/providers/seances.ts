@@ -11,6 +11,7 @@ export class SeancesProvider {
   serieID: number;
   stopedTime: number=0;
   lastCounter: number;
+  changeBtnStatus: boolean = false;
 
   constructor(public http: HttpClient) {
     console.log('Hello SeancesProvider Provider');
@@ -20,9 +21,14 @@ export class SeancesProvider {
   
   getSeances() {
     return this.http.get<any[]>(Conf.apiBaseUrlV1 + 'adherent/choixSeance');
-
   }
 
+  getChangeBtnStatus() :boolean {
+    return this.changeBtnStatus
+  }
+  setChangeBtnStatus(status :boolean) {
+    this.changeBtnStatus = status
+  }
 
   postSeanceID(seanceID) {
     return this.http.post<any[]>(Conf.apiBaseUrl + 'adherent/choixSeance', seanceID);

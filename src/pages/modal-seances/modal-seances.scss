@@ -15,14 +15,7 @@ page-modal-seances {
     text-transform: uppercase;
     font-style: normal
   }
-  .icon-seance {
-    text-align: center;
-    color: white;
-    font-size: 20px;
-    display: flex;
-    justify-content: center;
-    padding-top: 10px;
-  }
+
   ion-item {
     ion-thumbnail {
       min-width: 10px !important;
@@ -46,6 +39,18 @@ page-modal-seances {
     font-family: 'Montserrat';
     font-weight: 600;
     width: 80%;
-    font-size: 12px !important
+    font-size: 12px !important;
+  }
+  .btn-libreSeance{
+    background-image: linear-gradient(90deg, #47bffe, #127bb1) !important
+  }
+  .seance-icon{
+    padding-top: 10px;
+  }
+  ion-navbar > div.toolbar-content.toolbar-content-md{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+
   }
 }
