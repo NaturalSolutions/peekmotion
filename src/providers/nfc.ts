@@ -66,7 +66,7 @@ export class NfcProvider {
                   (error) => {
                     console.log('disco error', error);
                   });
-              }, 400)
+              }, 100)
             },
             () => {
               if (!this.platform.is('ios'))
@@ -179,7 +179,7 @@ export class NfcProvider {
           this.loadingNfcConnect.present()
             .then(() => {
               setTimeout(() => {
-                let bleScanSub =this.ble.startScan([]).
+                let bleScanSub = this.ble.startScan([]).
                   timeout(9000).subscribe(device => {
                     if (_.get(device, 'name') == 'Peekmotionv2')
                       console.log('ble peek found', device);
@@ -191,20 +191,21 @@ export class NfcProvider {
                           this.bleId = device.id;
                           this.ble.connect(device.id)
                             .retry(10)
-                            .subscribe(deviceData => {
-                              console.log('ble connected retry', deviceData);
-                              if (!deviceData)
-                                return;
-                              this.loadingNfcConnect.dismiss().then(() => {
-                                this.startWatch();
-                                this.tagStatus.next('tag_connected');
-                                resolve();
+                            .subscribe(
+                              deviceData => {
+                                console.log('ble connected retry', deviceData);
+                                this.loadingNfcConnect.dismiss().then(() => {
+                                  this.startWatch();
+                                  this.tagStatus.next('tag_connected');
+                                  resolve();
+                                });
+                                bleScanSub.unsubscribe()
+                              },
+                              error => {
+                                console.log('ble connect error', error);
+                                bleScanSub.unsubscribe()
                               });
-                              bleScanSub.unsubscribe()
-                            }, error => {
-                              console.log('ble connect error', error);
-                            });
-                        }, 400);
+                        }, 10);
                       });
                     }
                   }, error => {
@@ -214,9 +215,9 @@ export class NfcProvider {
                     this.loadingNfcConnect.dismiss();
                     reject(error)
                   });
-              }, 400);
+              }, 10);
             });
-            this.iosNfcListener = 0;
+          this.iosNfcListener = 0;
           this.sub.unsubscribe();
         },
           error => {
@@ -226,8 +227,8 @@ export class NfcProvider {
   }
 
 
-  nfcUnsubscribe()
-  {
+  nfcUnsubscribe() {
+    if (this.sub)
     this.sub.unsubscribe();
   }
 }

@@ -106,18 +106,16 @@ export class RecommendationPage {
             .subscribe(
                 (serie) => {
                     this.serie = serie;
-                    console.log(" this.serie",  this.serie);
+                    console.log("serie", this.serie);
                     this.avencement = this.serie.Avancement.split("/");
-                    console.log(" this.avencement",  this.avencement);
                 },
                 error => {
                     console.log("error_getSerie", error);
                 },
                 () => {
-                    let maxSerie=Number(this.avencement[1]);
-                    let currentSerie=Number(this.avencement[0]);
-                    console.log(" currentSerie",  currentSerie);
-                    this.recupTime_sec = this.serie.Adh_ExerciceConseil.Recup_sec;
+                    let maxSerie = Number(this.avencement[1]);
+                    let currentSerie = Number(this.avencement[0]);
+                    this.recupTime_sec = localStorage.getItem('previousTimer');
                     this.counter = this.recupTime_sec;
                     this.timeRest = this.navParams.get("timeRest");
                     if (!this.timeRest) {
@@ -162,7 +160,7 @@ export class RecommendationPage {
                     this.repetition = this.serie.Adh_ExerciceConseil.NbRep;
                     this.weight = this.serie.Adh_ExerciceConseil.IntensitePossible_kg;
                     this.serieNumber = this.serie.NumSerie;
-                    console.log("this.serieNumber",this.serieNumber);
+                    console.log("this.serieNumber", this.serieNumber);
                     if (currentSerie > maxSerie)
                         this.seriesNumberOK = true
                     this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.serie.LienVideo);
@@ -199,7 +197,7 @@ export class RecommendationPage {
 
         this.readWeight();
         this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-            .subscribe((data) => {          
+            .subscribe((data) => {
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
                 if (this.firstRepetion[2] == 32) {
                     if (this.serieNumber > 1) {
@@ -227,6 +225,7 @@ export class RecommendationPage {
         if (this.tagSubscribe)
             this.tagSubscribe.unsubscribe();
         console.log("ionViewWillUnload RecommendationPage");
+        localStorage.setItem('previousTimer', this.serie.Adh_ExerciceConseil.Recup_sec)
     }
 
     handleIFrameLoadEvent(): void {

@@ -34,7 +34,7 @@
   </div>
 </ion-content>
 <ion-footer padding no-border>
-  <button ion-button block large color="primary" (click)="activeNFC()" showWhen="ios" *ngIf="bleStatus == 'ready'">SCANNER</button>
+  <button ion-button block large class="btn-primary" (click)="activeNFC()" showWhen="ios" *ngIf="bleStatus == 'ready'">SCANNER</button>
   <button ion-button block color="secondary" (click)="bilan()" *ngIf="bilanButton">terminer la séance</button>
-  <button ion-button block color="primary" (click)="presentContactModal()" *ngIf="changeSeance && !bilanButton">changer de séance</button>
+  <button ion-button block class="btn-primary" (click)="presentSeancesModal()" *ngIf="changeSeance && !bilanButton">changer de séance</button>
 </ion-footer>

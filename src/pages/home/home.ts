@@ -56,8 +56,6 @@ export class HomePage {
   }
 
   ionViewWillEnter() {
-    console.log("home ionViewwillEnter");
-    console.log("this.modalIsActive vien enter", this.modalIsActive);
     this.currentSeance = localStorage.getItem('currentSeance');
     this.seance = this.seancesProvider.getBilanStatus();
     this.changeSeance = this.seancesProvider.getChangeBtnStatus();
@@ -69,22 +67,17 @@ export class HomePage {
   }
 
   ionViewDidEnter() {
-    console.log("home ionViewDidEnter");
     if (this.plt.is('ios'))
       this.ble.isEnabled()
         .then(
           (status) => { this.bleReady() },
           (error) => this.openDisabledBle()
         )
-    console.log("this.modalIsActive", this.modalIsActive);
     this.seanceUrl = localStorage.getItem('seanceUrl');
-    console.log("this.currentSeance", this.currentSeance);
-    console.log("this.seanceUrl", this.seanceUrl);
-    console.log("changeSeance", this.changeSeance);
     if (this.seanceUrl)
       this.showSeanceBtn = true;
-    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance ) {
-      this.presentContactModal()
+    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
+      this.presentSeancesModal()
     }
 
     this.nfcService.canDisconnect = false;
@@ -95,7 +88,6 @@ export class HomePage {
           (error) => this.openDisabledBle()
         )
   }
-
 
   private openDisabledBle() {
     let alert: Alert = this.alertCtrl.create({
@@ -137,8 +129,6 @@ export class HomePage {
   }
 
   private activeNFC() {
-    console.log("activeNFC",this.modalIsActive);
-    
     this.nfc.enabled()
       .then((status) => {
         if (!this.modalIsActive)
@@ -236,13 +226,14 @@ export class HomePage {
     alert.present();
   }
 
-
   public profil(fab: FabContainer) {
+    this.nfcService.nfcUnsubscribe();
     fab.close();
     this.navCtrl.push(UserProfilPage, { firstConnexion: false })
   };
 
   public logOut(fab: FabContainer) {
+    this.nfcService.nfcUnsubscribe();
     fab.close();
     localStorage.removeItem('peekmotionCurrentUser');
     this.navCtrl.setRoot(LoginPage)
@@ -270,22 +261,19 @@ export class HomePage {
       ]
     });
     alert.present();
-
-
   };
 
   public modifyPassword(fab: FabContainer) {
+    this.nfcService.nfcUnsubscribe()
     fab.close();
     this.navCtrl.push(NewPasswordPage)
   };
 
-
   getSeanceInfo() {
     this.iab.create(this.seanceUrl, "_self", { zoom: 'no' });
-
   }
 
-  presentContactModal() {
+  presentSeancesModal() {
     this.modalIsActive = true;
     this.seancesProvider.getSeances()
       .subscribe(
@@ -301,6 +289,8 @@ export class HomePage {
         () => {
           let seancestModal = this.modalCtrl.create(ModalSeancesPage, { seancesList: this.seancesList }, { enableBackdropDismiss: false });
           seancestModal.onDidDismiss(data => {
+            this.changeSeance = this.seancesProvider.getChangeBtnStatus();
+            this.nfcService.nfcUnsubscribe();
             this.modalIsActive = false;
             this.nfcInit()
             if (data) {
@@ -313,8 +303,6 @@ export class HomePage {
           seancestModal.present();
         }
       )
-
-
   }
 
 }

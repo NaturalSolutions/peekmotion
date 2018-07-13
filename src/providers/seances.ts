@@ -34,8 +34,6 @@ export class SeancesProvider {
     return this.http.post<any[]>(Conf.apiBaseUrl + 'adherent/choixSeance', seanceID);
   }
 
-
-
   public getBilanStatus() {
     return {
       bilanStatus: this.bilanStatus,
@@ -52,8 +50,5 @@ export class SeancesProvider {
     this.serieID = serieID;
     this.stopedTime=stopedTime;
      this.lastCounter=lastCounter;
-
-    console.log("serieID", this.serieID);
-
   }
 }
