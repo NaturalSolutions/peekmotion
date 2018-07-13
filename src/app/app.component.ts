@@ -53,12 +53,14 @@ export class MyApp {
 
       this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.ACCESS_COARSE_LOCATION);
       const token = JSON.parse(localStorage.getItem("peekmotionCurrentUser"));
-      if (!token) {
+      
+      if (this.platform.is('android'))
         this.intSub.unsubscribe();
+
+      if (!token) {
         this.rootPage = LoginPage
       }
       else {
-        this.intSub.unsubscribe();
         let jwtHelperService: JwtHelperService = new JwtHelperService({});
         if (!jwtHelperService.isTokenExpired(token))
           this.rootPage = HomePage;
