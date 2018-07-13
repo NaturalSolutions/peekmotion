@@ -270,7 +270,7 @@ export class HomePage {
   };
 
   getSeanceInfo() {
-    this.iab.create(this.seanceUrl, "_self", { zoom: 'no' });
+    this.iab.create(this.seanceUrl, "_blank", { zoom: 'no' });
   }
 
   presentSeancesModal() {
@@ -284,6 +284,7 @@ export class HomePage {
         (error) => {
           this.serverError();
           console.log("error_getMachine", error);
+          if (this.plt.is('android'))
           this.nfcInit()
         },
         () => {
@@ -292,6 +293,7 @@ export class HomePage {
             this.changeSeance = this.seancesProvider.getChangeBtnStatus();
             this.nfcService.nfcUnsubscribe();
             this.modalIsActive = false;
+            if (this.plt.is('android'))
             this.nfcInit()
             if (data) {
               this.seanceUrl = data;
