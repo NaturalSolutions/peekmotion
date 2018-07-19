@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { NavParams, Slides, Loading, LoadingController, NavController } from 'ionic-angular';
+import { NavParams, Slides, Loading, LoadingController, NavController, AlertController, Alert } from 'ionic-angular';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { NfcProvider } from '../../providers/nfc';
 import { SeancesProvider } from '../../providers/seances';
@@ -36,7 +36,6 @@ export class RecommendationPage {
     avencement;
     private readPooling;
     private firstRepetion;
-    private weightColor = { R: 0, G: 0, B: 0 };
     public serieLoaded: boolean = false;
     public weight;
     private weightSelected;
@@ -63,6 +62,7 @@ export class RecommendationPage {
     public exerciceName: string;
     public seriesNumberOK: boolean = false;
     public imgGroupMuscu: any = {};
+    belErrSub: any;
 
     constructor(
         public navParams: NavParams,
@@ -72,7 +72,8 @@ export class RecommendationPage {
         private machinesProvider: MachinesProvider,
         private seancesProvider: SeancesProvider,
         private nfcService: NfcProvider,
-        private ble: BLE
+        private ble: BLE,
+        private alertCtrl: AlertController,
     ) {
         this.exercice = this.navParams.get("exercice");
         this.machine = this.navParams.get("machine");
@@ -81,6 +82,10 @@ export class RecommendationPage {
 
     ionViewWillEnter() {
         console.log('ionViewDidLoad RecommendationPage');
+        this.belErrSub=this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
+            if (bleStatus === "bleErr")
+                this.bleError()
+        });
         this.newTime = Math.ceil(new Date().getTime() / 1000);
         this.masseAppoint = this.machine.Masse_Appoint.MasseDetail_Liste;
         _.map(this.masseAppoint, (value) => {
@@ -106,16 +111,17 @@ export class RecommendationPage {
             .subscribe(
                 (serie) => {
                     this.serie = serie;
-                    console.log("serie", this.serie);
                     this.avencement = this.serie.Avancement.split("/");
                 },
                 error => {
                     console.log("error_getSerie", error);
+                    loadingGetSerie.dismiss();
+                    this.serverError()
                 },
                 () => {
                     let maxSerie = Number(this.avencement[1]);
                     let currentSerie = Number(this.avencement[0]);
-                    this.recupTime_sec = localStorage.getItem('previousTimer');
+                    this.recupTime_sec = this.seancesProvider.getPreviousTimer();
                     this.counter = this.recupTime_sec;
                     this.timeRest = this.navParams.get("timeRest");
                     if (!this.timeRest) {
@@ -160,7 +166,6 @@ export class RecommendationPage {
                     this.repetition = this.serie.Adh_ExerciceConseil.NbRep;
                     this.weight = this.serie.Adh_ExerciceConseil.IntensitePossible_kg;
                     this.serieNumber = this.serie.NumSerie;
-                    console.log("this.serieNumber", this.serieNumber);
                     if (currentSerie > maxSerie)
                         this.seriesNumberOK = true
                     this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.serie.LienVideo);
@@ -183,6 +188,7 @@ export class RecommendationPage {
                         this.imgHeight = "120px";
                     }
                     this.serieLoaded = true;
+
                     this.tagSubscribe = this.nfcService.getTagStatus().first(status => (status == "tag_disconnected")).subscribe(tagStatus => {
                         if (this.serieNumber > 1) {
                             localStorage.setItem('currentSeance', "true");
@@ -218,14 +224,14 @@ export class RecommendationPage {
                     console.log("error_bleRepRecomandation", error);
                 }
             );
-
     }
     ionViewWillUnload() {
+        this.belErrSub.unsubscribe();
         clearInterval(this.readPooling);
         if (this.tagSubscribe)
             this.tagSubscribe.unsubscribe();
         console.log("ionViewWillUnload RecommendationPage");
-        localStorage.setItem('previousTimer', this.serie.Adh_ExerciceConseil.Recup_sec)
+        this.seancesProvider.setPreviousTimer(this.serie.Adh_ExerciceConseil.Recup_sec)
     }
 
     handleIFrameLoadEvent(): void {
@@ -359,4 +365,41 @@ export class RecommendationPage {
             )
         }, 1000)
     }
+
+
+    private bleError() {
+        console.log(" recomandation ble err");
+        let alert: Alert = this.alertCtrl.create({
+            title: 'Échec de connexion Bluetooth',
+            subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
+            enableBackdropDismiss: false,
+            cssClass: 'alertCustomCss',
+            buttons: [{
+                text: 'OK',
+                handler: () => {
+                    alert.dismiss().then(() =>
+                        this.navCtrl.setRoot(HomePage))
+                }
+            }]
+        });
+        alert.present();
+    }
+
+
+    private serverError() {
+        let alert: Alert = this.alertCtrl.create({
+          title: 'Échec de connexion Internet',
+          subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
+          enableBackdropDismiss: false,
+          cssClass: 'alertCustomCss',
+          buttons: [{
+            text: 'OK',
+            handler: () => {
+                alert.dismiss().then(() =>
+                    this.navCtrl.setRoot(HomePage))
+            }
+        }]
+        });
+        alert.present();
+      }
 }

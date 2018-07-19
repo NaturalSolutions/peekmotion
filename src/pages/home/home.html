@@ -2,7 +2,7 @@
   <div ion-fixed class="inner">
     <div class="btn-group">
       <button *ngIf="showSeanceBtn" class="seances-icons" ion-fab mini (click)="getSeanceInfo()">
-         <img class="seance-icon" src="./assets/icon/seance.png" alt="">
+         <img class="seance-icon" src="./assets/icon/seance.svg" alt="">
       </button>
       <ion-fab right #fab >
         <button class="settings-icons" ion-fab mini>
@@ -36,5 +36,5 @@
 <ion-footer padding no-border>
   <button ion-button block large class="btn-scan" (click)="activeNFC()" showWhen="ios" *ngIf="bleStatus == 'ready'">SCANNER</button>
   <button ion-button block color="secondary" (click)="bilan()" *ngIf="bilanButton">terminer la séance</button>
-  <button ion-button block class="btn-primary" (click)="presentSeancesModal()" *ngIf="changeSeance && !bilanButton">changer de séance</button>
+  <button ion-button block class="btn-primary" (click)="presentSeancesModal()" *ngIf="(changeSeance || showSeanceBtn) && !bilanButton">changer de séance</button>
 </ion-footer>

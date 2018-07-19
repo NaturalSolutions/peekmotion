@@ -1,11 +1,11 @@
 import { Component, NgZone } from '@angular/core';
-import { NavController, NavParams, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, LoadingController, AlertController, Alert } from 'ionic-angular';
 import { NfcProvider } from '../../providers/nfc';
 import { RecommendationPage } from '../Recommendation/Recommendation';
 import { MachinesProvider } from '../../providers/machines';
 import { BLE } from '@ionic-native/ble';
 import { trigger, style, transition, animate, keyframes } from '@angular/animations';
-
+import { HomePage } from '../home/home';
 @Component({
   selector: 'page-repetition',
   templateUrl: 'repetition.html',
@@ -40,12 +40,15 @@ export class RepetitionPage {
   private repetionNumber = 0;
   private firstRepetion;
   private state: string = 'small';
+  belErrSub: any;
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
+    private alertCtrl: AlertController,
     private machinesProvider: MachinesProvider,
     private nfcProvider: NfcProvider,
     private zone: NgZone,
+    private nfcService: NfcProvider,
     public loadingCtrl: LoadingController,
     private ble: BLE
   ) {
@@ -110,12 +113,16 @@ export class RepetitionPage {
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad RepetitionPage');
+    this.belErrSub=this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
+      if (bleStatus === "bleErr")
+          this.bleError()
+  });
     this.repetionNumber = 0;
     this.serieNumber = this.serie.NumSerie;
     this.onRepetition(this.firstRepetion);
     this.nfcProvider.canDisconnect = false;
 
-    this.ble.startNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
+   let bleSubNotification= this.ble.startNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
       .subscribe((notify) => {
         let data = (Array.prototype.slice.call(new Uint8Array(notify)));
         if (data[2] == 32) {
@@ -138,6 +145,8 @@ export class RepetitionPage {
                 (err) => {
                   console.log(err);
                   loadingPostSerie.dismiss();
+                  bleSubNotification.unsubscribe()
+                  this.serverError() 
                 })
           }
         }
@@ -192,6 +201,7 @@ export class RepetitionPage {
 
   ionViewWillUnload() {
     clearInterval(this.blinkInterval);
+    this.belErrSub.unsubscribe();
   }
 
   saveInstance(chartInstance) {
@@ -208,6 +218,41 @@ export class RepetitionPage {
         color: "#5b6570"
       });
     this.flag = !this.flag
+  }
+
+  private bleError() {
+    console.log(" rep ble err");
+    
+        let alert: Alert = this.alertCtrl.create({
+            title: 'Échec de connexion Bluetooth',
+            subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
+            enableBackdropDismiss: false,
+            cssClass: 'alertCustomCss',
+            buttons: [{
+                text: 'OK',
+                handler: () => {
+                    alert.dismiss().then(() =>
+                        this.navCtrl.setRoot(HomePage))
+                }
+            }]
+        });
+        alert.present();
+    }
+  private serverError() {
+    let alert: Alert = this.alertCtrl.create({
+      title: 'Échec de connexion Internet',
+      subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: [{
+        text: 'OK',
+        handler: () => {
+            alert.dismiss().then(() =>
+                this.navCtrl.setRoot(HomePage))
+        }
+    }]
+    });
+    alert.present();
   }
 }
 

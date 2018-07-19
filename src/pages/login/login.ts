@@ -33,7 +33,6 @@ export class LoginPage {
   }
 
   login(loginForm) {
-    console.log(" this.user", loginForm.value);
     this.user = loginForm.value;
     let loading: Loading = this.loadingCtrl.create({
       spinner: 'crescent',
@@ -49,7 +48,10 @@ export class LoginPage {
         },
         error => {
           loading.dismiss();
-          this.errorAlert()
+          if (error.status == 400)
+            this.errorAlert()
+          if (error.status == 0)
+            this.serverError()
         })
   }
 
@@ -66,6 +68,16 @@ export class LoginPage {
   }
   forgotPassword() {
     this.navCtrl.push(ForgotPasswordPage)
+  }
+  private serverError() {
+    let alert = this.alertCtrl.create({
+      title: 'Échec de connexion Internet',
+      subTitle: 'Assurez-vous que vous êtes bien connecté à internet',
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: ['OK']
+    });
+    alert.present();
   }
 
 }

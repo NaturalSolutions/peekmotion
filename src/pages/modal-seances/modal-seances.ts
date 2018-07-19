@@ -33,7 +33,7 @@ export class ModalSeancesPage {
 
   getSeanceInfo(event, seance) {
     event.stopPropagation()
-    this.iab.create(seance.LienURL_webApp, "_self", { zoom: 'no' });
+    this.iab.create(seance.LienURL_webApp, "_blank", { zoom: 'no' });
   }
   unrestrictedSeance() {
     this.seancesProvider.setChangeBtnStatus(true);

@@ -15,11 +15,13 @@ export class NfcProvider {
   public bleId: string;
   public bleName: string;
   private tagStatus: BehaviorSubject<any> = new BehaviorSubject('');
+  private bleStatus: BehaviorSubject<any> = new BehaviorSubject('');
   private accSubscribe: Subscription;
   private sub: Subscription
   public canDisconnect: boolean = true;
   private iosNfcListener: number = 0;
   loadingNfcConnect;
+
 
   constructor(private nfc: NFC,
     private ble: BLE,
@@ -47,7 +49,7 @@ export class NfcProvider {
                     if (!this.platform.is('ios'))
                       this.nfcListener().then(
                         (success) => resolve(),
-                        (error) => reject()
+                        (error) => reject(error)
                       );
                     else
                       this.nfc.beginSession()
@@ -57,7 +59,7 @@ export class NfcProvider {
                             this.nfcListener().
                               then(
                                 (success) => resolve(),
-                                (error) => reject()
+                                (error) => reject(error)
                               );
                         }, (error) => {
                           console.log("beginSessionERR", error);
@@ -66,14 +68,14 @@ export class NfcProvider {
                   (error) => {
                     console.log('disco error', error);
                   });
-              }, 100)
+              }, 120)
             },
             () => {
               if (!this.platform.is('ios'))
                 this.nfcListener().
                   then(
                     (success) => resolve(),
-                    (error) => reject()
+                    (error) => reject(error)
                   );
               else
                 this.nfc.beginSession().subscribe((success) => {
@@ -81,7 +83,7 @@ export class NfcProvider {
                   if (this.iosNfcListener < 2)
                     this.nfcListener().then(
                       (success) => resolve(),
-                      (error) => reject()
+                      (error) => reject(error)
                     );
                 }, (error) => {
                   console.log("beginSessionERR2", error);
@@ -93,7 +95,7 @@ export class NfcProvider {
           this.nfcListener().
             then(
               (success) => resolve(),
-              (error) => reject()
+              (error) => reject(error)
             );
         else
           this.nfc.beginSession().subscribe((success) => {
@@ -101,7 +103,7 @@ export class NfcProvider {
             if (this.iosNfcListener < 2)
               this.nfcListener().then(
                 (success) => resolve(),
-                (error) => reject()
+                (error) => reject(error)
               );
           }, (error) => {
             console.log("beginSessionERR3", error);
@@ -155,6 +157,9 @@ export class NfcProvider {
     return this.tagStatus.asObservable();
   }
 
+  getBleError(): Observable<any> {
+    return this.bleStatus.asObservable();
+  }
 
   private nfcListener(): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -170,6 +175,7 @@ export class NfcProvider {
           let tagBytes = event.tag.ndefMessage[0]["payload"];
           this.bleName = this.nfc.bytesToString(tagBytes.slice(3));
           console.log('tag read success', this.bleName);
+
           this.loadingNfcConnect = this.loadingCtrl.create(
             {
               spinner: 'crescent',
@@ -179,43 +185,63 @@ export class NfcProvider {
           this.loadingNfcConnect.present()
             .then(() => {
               setTimeout(() => {
-                let bleScanSub = this.ble.startScan([]).
-                  timeout(9000).subscribe(device => {
-                    if (_.get(device, 'name') == 'Peekmotionv2')
-                      console.log('ble peek found', device);
-                    if (_.get(device, 'advertising.kCBAdvDataLocalName') == this.bleName || device.id == this.bleName) {
-                      console.log('ble found', device);
-                      this.ble.stopScan().then(() => {
-                        console.log('scan stopped');
-                        setTimeout(() => {
-                          this.bleId = device.id;
-                          this.ble.connect(device.id)
-                            .retry(10)
-                            .subscribe(
-                              deviceData => {
-                                console.log('ble connected retry', deviceData);
-                                this.loadingNfcConnect.dismiss().then(() => {
-                                  this.startWatch();
-                                  this.tagStatus.next('tag_connected');
-                                  resolve();
-                                });
-                                bleScanSub.unsubscribe()
-                              },
-                              error => {
-                                console.log('ble connect error', error);
-                                bleScanSub.unsubscribe()
-                              });
-                        }, 10);
-                      });
-                    }
-                  }, error => {
-                    this.sub.unsubscribe();
-                    this.iosNfcListener = 0;
-                    console.log('startScan error', error);
-                    this.loadingNfcConnect.dismiss();
-                    reject(error)
-                  });
-              }, 10);
+                this.ble.isEnabled()
+                  .then(() => {
+                    setTimeout(() => {
+                      let bleScanSub = this.ble.startScan([]).
+                        timeout(8000).subscribe(device => {
+                          if (_.get(device, 'name') == 'Peekmotionv2')
+                            console.log('ble peek found', device);
+                          if (_.get(device, 'advertising.kCBAdvDataLocalName') == this.bleName || device.id == this.bleName) {
+                            console.log('ble found', device);
+                            bleScanSub.unsubscribe();
+                            this.ble.stopScan().then(() => {
+                              console.log('scan stopped');
+                              setTimeout(() => {
+                                this.bleId = device.id;
+                                let bleConnectSub = this.ble.connect(device.id)
+                                  .retry(3).subscribe(
+                                    (deviceData) => {
+                                      console.log('ble connected retry', deviceData);
+                                      this.loadingNfcConnect.dismiss().then(() => {
+                                        this.startWatch();
+                                        this.tagStatus.next('tag_connected');
+                                        this.bleStatus.next('bleOk');
+                                        resolve();
+                                      });
+                                    },
+                                    (error) => {
+                                      console.log('ble connect error', error);
+                                      this.loadingNfcConnect.dismiss().then(() => {
+                                        this.bleStatus.next('bleErr');
+                                        bleScanSub.unsubscribe();
+                                        bleConnectSub.unsubscribe();
+                                      })
+                                    });
+                              }, 20);
+                            });
+                          }
+                        }, error => {
+                          this.sub.unsubscribe();
+                          this.iosNfcListener = 0;
+                          console.log('startScan error', error);
+                          this.loadingNfcConnect.dismiss().then(() => {
+                            console.log("error dissmiss", error);
+
+                            reject(error)
+                          })
+                        });
+                    }, 20)
+                  },
+                    error => {
+                      this.sub.unsubscribe();
+                      this.iosNfcListener = 0;
+                      console.log('startScan error2', error);
+                      this.loadingNfcConnect.dismiss().then(() => {
+                        reject(error)
+                      })
+                    })
+              }, 20);
             });
           this.iosNfcListener = 0;
           this.sub.unsubscribe();
@@ -226,9 +252,8 @@ export class NfcProvider {
     })
   }
 
-
   nfcUnsubscribe() {
     if (this.sub)
-    this.sub.unsubscribe();
+      this.sub.unsubscribe();
   }
 }

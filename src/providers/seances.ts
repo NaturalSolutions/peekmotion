@@ -9,25 +9,31 @@ export class SeancesProvider {
   bilanStatus: boolean = false;
   homeText: string = "démarrer";
   serieID: number;
-  stopedTime: number=0;
+  stopedTime: number = 0;
   lastCounter: number;
   changeBtnStatus: boolean = false;
+  previousTimer: number = 0;
 
   constructor(public http: HttpClient) {
     console.log('Hello SeancesProvider Provider');
   }
 
-
-  
   getSeances() {
     return this.http.get<any[]>(Conf.apiBaseUrlV1 + 'adherent/choixSeance');
   }
 
-  getChangeBtnStatus() :boolean {
+  getChangeBtnStatus(): boolean {
     return this.changeBtnStatus
   }
-  setChangeBtnStatus(status :boolean) {
+  setChangeBtnStatus(status: boolean) {
     this.changeBtnStatus = status
+  }
+
+  getPreviousTimer(): number {
+    return this.previousTimer
+  }
+  setPreviousTimer(timer: number) {
+    this.previousTimer = timer
   }
 
   postSeanceID(seanceID) {
@@ -48,7 +54,7 @@ export class SeancesProvider {
     this.bilanStatus = status;
     this.homeText = homeText;
     this.serieID = serieID;
-    this.stopedTime=stopedTime;
-     this.lastCounter=lastCounter;
+    this.stopedTime = stopedTime;
+    this.lastCounter = lastCounter;
   }
 }

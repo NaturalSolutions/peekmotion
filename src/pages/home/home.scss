@@ -19,8 +19,7 @@ page-home {
     color: #48c0ff;
     background-color: #414141;
   }
-
-  .homeText{
+  .homeText {
     margin-top: 10%;
     padding: 15px;
     font-family: 'Montserrat';
@@ -30,14 +29,14 @@ page-home {
     text-transform: uppercase;
     text-align: center;
   }
-p{
-  margin: 0px
-}
-.btn-group{
-  display: flex;
-  justify-content: space-between;
-}
-}
+  p {
+    margin: 0px
+  }
+  .btn-group {
+    display: flex;
+    justify-content: space-between;
+  }
+
 button.button-block {
   margin: 20px 0;
   padding: 25px;
@@ -50,8 +49,10 @@ button.button-block {
     font-weight: 400;
     font-size: 12px;
   }
-  
-  .seance-icon{
-    max-width: 60%;
-  }
+}
+
+.seance-icon {
+  max-width: 70% ;
+}
+
 }

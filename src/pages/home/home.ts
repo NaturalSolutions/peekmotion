@@ -180,6 +180,7 @@ export class HomePage {
         .subscribe(
           res => this.machine = res,
           (error) => {
+            this.loadingGetMachineByID.dismiss()
             this.serverError();
             console.log("error_getMachine", error);
             this.nfcInit()
@@ -197,14 +198,16 @@ export class HomePage {
         );
     }, (err) => {
       console.log("NFCdisabled", err);
-      this.BleError();
+      if (err == "Bluetooth is disabled.")
+        this.openDisabledBle();
+      else
+        this.bleError();
       if (this.plt.is('android'))
         this.nfcInit()
     })
   };
 
   private serverError() {
-    this.loadingGetMachineByID.dismiss()
     let alert: Alert = this.alertCtrl.create({
       title: 'Échec de connexion Internet',
       subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
@@ -215,7 +218,9 @@ export class HomePage {
     alert.present();
   }
 
-  private BleError() {
+  private bleError() {
+    console.log("home ble err");
+    
     let alert: Alert = this.alertCtrl.create({
       title: 'Échec de connexion Bluetooth',
       subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
@@ -285,7 +290,7 @@ export class HomePage {
           this.serverError();
           console.log("error_getMachine", error);
           if (this.plt.is('android'))
-          this.nfcInit()
+            this.nfcInit()
         },
         () => {
           let seancestModal = this.modalCtrl.create(ModalSeancesPage, { seancesList: this.seancesList }, { enableBackdropDismiss: false });
@@ -294,7 +299,7 @@ export class HomePage {
             this.nfcService.nfcUnsubscribe();
             this.modalIsActive = false;
             if (this.plt.is('android'))
-            this.nfcInit()
+              this.nfcInit()
             if (data) {
               this.seanceUrl = data;
               this.showSeanceBtn = true;
