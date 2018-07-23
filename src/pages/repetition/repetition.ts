@@ -52,6 +52,8 @@ export class RepetitionPage {
 
     this.serie = this.navParams.get("serie");
     this.weightSelected = this.navParams.get("weightSelected");
+    if (this.weightSelected == "--")
+      this.weightSelected = 0;
     this.serieToPost.MasseReelle_kg = this.weightSelected;
     this.repetition = this.serie.Adh_ExerciceConseil.NbRep;
     let chartData = [];
@@ -192,7 +194,7 @@ export class RepetitionPage {
   ionViewWillUnload() {
     clearInterval(this.blinkInterval);
 
-}
+  }
 
   saveInstance(chartInstance) {
     this.chart = chartInstance;
