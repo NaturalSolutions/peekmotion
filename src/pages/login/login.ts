@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { NavController, LoadingController, Loading } from 'ionic-angular';
+import { NavController, LoadingController, Loading, AlertController } from 'ionic-angular';
 import { Keyboard } from 'ionic-angular';
 import { LoginProvider } from '../../providers/loginService';
-import { AlertController } from 'ionic-angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserProfilPage } from '../user-profil/user-profil';
 import { CreatAccountPage } from '../creat-account/creat-account';
@@ -40,7 +39,7 @@ export class LoginPage {
     });
     loading.present();
     this.loginProvider.login(this.user)
-      .subscribe(
+      .timeout(40000).subscribe(
         (token) => {
           loading.dismiss();
           localStorage.setItem('peekmotionCurrentUser', JSON.stringify(token));
@@ -50,7 +49,7 @@ export class LoginPage {
           loading.dismiss();
           if (error.status == 400)
             this.errorAlert()
-          if (error.status == 0)
+          else
             this.serverError()
         })
   }

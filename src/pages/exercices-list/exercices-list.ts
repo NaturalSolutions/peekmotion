@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams,AlertController } from 'ionic-angular';
 import { RecommendationPage } from '../Recommendation/Recommendation';
 import { HomePage } from '../home/home';
 import { NfcProvider } from '../../providers/nfc';
@@ -22,7 +22,8 @@ export class ExercicesListPage {
     public navCtrl: NavController,
     public navParams: NavParams,
     private nfcService: NfcProvider,
-    private loginProvider: LoginProvider
+    private loginProvider: LoginProvider,
+    private alertCtrl: AlertController,
   ) {
     this.machine = this.navParams.get("infoMachine");
     this.exoList = this.navParams.get("exoList");
@@ -40,7 +41,7 @@ export class ExercicesListPage {
     console.log('ionViewDidLoad ExercicesListPage');
     this.nfcService.canDisconnect = true;
     this.loginProvider.getUser()
-      .subscribe((user) => {
+    .timeout(40000).subscribe((user) => {
         this.currentUser = user;
       },
         error => {
@@ -79,5 +80,22 @@ export class ExercicesListPage {
     this.tagSubscribe.unsubscribe();
     this.navCtrl.push(RecommendationPage, { exercice: exercice, machine: this.machine })
   }
+  private serverError() {
+    let alert = this.alertCtrl.create({
+      title: 'Échec de connexion Internet',
+      subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: [{
+        text: 'OK',
+        handler: () => {
+            alert.dismiss().then(() =>
+                this.navCtrl.setRoot(HomePage))
+        }
+    }]
+    });
+    alert.present();
+  }
+
 
 }

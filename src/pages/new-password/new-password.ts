@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams,AlertController } from 'ionic-angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomFormValidator } from '../../shared/customFormValidator'
 import { LoginProvider } from '../../providers/loginService';
-
+import { HomePage } from '../home/home';
 @Component({
   selector: 'page-new-password',
   templateUrl: 'new-password.html',
@@ -14,6 +14,7 @@ export class NewPasswordPage {
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private fb: FormBuilder,
+    private alertCtrl: AlertController,
     private loginProvider: LoginProvider) {
     this.newPasswordForm = this.fb.group({
       MotDePasse: ['', CustomFormValidator.password],
@@ -38,5 +39,21 @@ export class NewPasswordPage {
     }
   }
 
+  private serverError() {
+    let alert = this.alertCtrl.create({
+      title: 'Échec de connexion Internet',
+      subTitle: 'Assurez-vous que vous êtes bien connecté à internet',
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: [{
+        text: 'OK',
+        handler: () => {
+          alert.dismiss().then(() =>
+            this.navCtrl.setRoot(HomePage))
+        }
+      }]
+    });
+    alert.present();
+  }
 
 }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams ,AlertController} from 'ionic-angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LoginProvider } from '../../providers/loginService';
 import { LoginPage } from '../login/login'
@@ -13,6 +13,7 @@ export class ForgotPasswordPage {
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private fb: FormBuilder,
+    private alertCtrl: AlertController,
     private loginProvider: LoginProvider,
   ) {
     this.passwordForgotForm = this.fb.group({
@@ -24,6 +25,26 @@ export class ForgotPasswordPage {
   }
 
   submitEmail(passwordForgotForm) {
-    this.loginProvider.forgotPassword(passwordForgotForm.value).subscribe((data) => this.navCtrl.setRoot(LoginPage))
+    this.loginProvider.forgotPassword(passwordForgotForm.value)
+      .timeout(40000)
+      .subscribe(
+        (data) => this.navCtrl.setRoot(LoginPage),
+        (error) => {
+          console.log("forgotPasswordErr", error);
+          this.serverError()
+        }
+      )
+  }
+
+
+  private serverError() {
+    let alert = this.alertCtrl.create({
+      title: 'Échec de connexion Internet',
+      subTitle: 'Assurez-vous que vous êtes bien connecté à internet',
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: ['OK']
+    });
+    alert.present();
   }
 }

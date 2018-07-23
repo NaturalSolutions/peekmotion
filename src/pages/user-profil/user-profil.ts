@@ -40,7 +40,7 @@ export class UserProfilPage {
     });
     this.loadingGetUser.present();
     this.loginProvider.getUser()
-      .subscribe((user) => {
+    .timeout(40000).subscribe((user) => {
         this.currentUser = user
       },
         error => {
@@ -109,14 +109,14 @@ export class UserProfilPage {
       });
       loading.present();
       this.loginProvider.updateProfil(profilForm.value)
-        .subscribe(
+      .timeout(40000).subscribe(
           () => {
             loading.dismiss();
             this.navCtrl.setRoot(HomePage);
           },
           (error) => {
             loading.dismiss(),
-            this.errorAlert()
+            this.serverError()
           })
     }
     else
@@ -139,7 +139,13 @@ export class UserProfilPage {
       subTitle: 'Assurez-vous que vous êtes bien connecté à internet ',
       enableBackdropDismiss: false,
       cssClass: 'alertCustomCss',
-      buttons: ['OK']
+      buttons: [{
+        text: 'OK',
+        handler: () => {
+          alert.dismiss().then(() =>
+            this.navCtrl.setRoot(HomePage))
+        }
+      }]
     });
     alert.present();
   }

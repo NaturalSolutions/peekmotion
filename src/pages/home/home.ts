@@ -77,6 +77,7 @@ export class HomePage {
     if (this.seanceUrl)
       this.showSeanceBtn = true;
     if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
+      this.modalIsActive = true;
       this.presentSeancesModal()
     }
 
@@ -131,6 +132,8 @@ export class HomePage {
   private activeNFC() {
     this.nfc.enabled()
       .then((status) => {
+        console.log("!this.modalIsActive", !this.modalIsActive);
+
         if (!this.modalIsActive)
           this.nfcInit();
       }, (error) => {
@@ -177,7 +180,7 @@ export class HomePage {
       );
       this.loadingGetMachineByID.present();
       this.machinesProvider.getMachineByID(this.nfcService.bleName)
-        .subscribe(
+        .timeout(40000).subscribe(
           res => this.machine = res,
           (error) => {
             this.loadingGetMachineByID.dismiss()
@@ -220,7 +223,7 @@ export class HomePage {
 
   private bleError() {
     console.log("home ble err");
-    
+
     let alert: Alert = this.alertCtrl.create({
       title: 'Échec de connexion Bluetooth',
       subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
@@ -253,8 +256,8 @@ export class HomePage {
           text: 'OUI',
           handler: () => {
             this.nfcService.nfcUnsubscribe()
-            this.navCtrl.push(BilanPage)
-            alert.dismiss();
+            alert.dismiss().then(() =>
+              this.navCtrl.push(BilanPage))
           }
         },
         {
@@ -279,9 +282,10 @@ export class HomePage {
   }
 
   presentSeancesModal() {
+    this.nfcService.nfcUnsubscribe();
     this.modalIsActive = true;
     this.seancesProvider.getSeances()
-      .subscribe(
+      .timeout(40000).subscribe(
         (seances) => {
           this.seancesList = seances;
           console.log("seances", seances)
@@ -296,7 +300,6 @@ export class HomePage {
           let seancestModal = this.modalCtrl.create(ModalSeancesPage, { seancesList: this.seancesList }, { enableBackdropDismiss: false });
           seancestModal.onDidDismiss(data => {
             this.changeSeance = this.seancesProvider.getChangeBtnStatus();
-            this.nfcService.nfcUnsubscribe();
             this.modalIsActive = false;
             if (this.plt.is('android'))
               this.nfcInit()

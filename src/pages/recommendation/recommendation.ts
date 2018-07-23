@@ -29,6 +29,7 @@ export class RecommendationPage {
     private serieID;
     private addMasse = 0;
     private tagSubscribe;
+    private subNotify;
     @ViewChild(Slides) slides: Slides;
     public countDown;
     private machine;
@@ -62,7 +63,7 @@ export class RecommendationPage {
     public exerciceName: string;
     public seriesNumberOK: boolean = false;
     public imgGroupMuscu: any = {};
-    belErrSub: any;
+    //belErrSub: any;
 
     constructor(
         public navParams: NavParams,
@@ -82,10 +83,10 @@ export class RecommendationPage {
 
     ionViewWillEnter() {
         console.log('ionViewDidLoad RecommendationPage');
-        this.belErrSub=this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
+        /*this.belErrSub=this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
             if (bleStatus === "bleErr")
                 this.bleError()
-        });
+        });*/
         this.newTime = Math.ceil(new Date().getTime() / 1000);
         this.masseAppoint = this.machine.Masse_Appoint.MasseDetail_Liste;
         _.map(this.masseAppoint, (value) => {
@@ -108,7 +109,7 @@ export class RecommendationPage {
         );
         loadingGetSerie.present();
         this.machinesProvider.getSerie(this.nfcService.bleName, this.exoID)
-            .subscribe(
+            .timeout(40000).subscribe(
                 (serie) => {
                     this.serie = serie;
                     this.avencement = this.serie.Avancement.split("/");
@@ -116,7 +117,7 @@ export class RecommendationPage {
                 error => {
                     console.log("error_getSerie", error);
                     loadingGetSerie.dismiss();
-                    this.serverError()
+                    this.serverError();
                 },
                 () => {
                     let maxSerie = Number(this.avencement[1]);
@@ -197,39 +198,20 @@ export class RecommendationPage {
                         }
                         if (tagStatus === "tag_disconnected")
                             this.navCtrl.setRoot(HomePage)
-                    })
+                    });
+                    this.readWeight();
+                    this.satrtNotifcation()
                 }
-            );
-
-        this.readWeight();
-        this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-            .subscribe((data) => {
-                this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
-                if (this.firstRepetion[2] == 32) {
-                    if (this.serieNumber > 1) {
-                        localStorage.setItem('currentSeance', "true");
-                        let stopedTime = Math.ceil(new Date().getTime() / 1000);
-                        this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
-                    }
-                    this.navCtrl.setRoot(RepetitionPage, {
-                        firstRepetion: this.firstRepetion,
-                        weightSelected: this.weightSelected,
-                        serie: this.serie,
-                        exercice: this.exercice,
-                        machine: this.machine
-                    })
-                }
-            },
-                (error) => {
-                    console.log("error_bleRepRecomandation", error);
-                }
-            );
+            )
     }
+
     ionViewWillUnload() {
-        this.belErrSub.unsubscribe();
+        //this.belErrSub.unsubscribe();
         clearInterval(this.readPooling);
         if (this.tagSubscribe)
             this.tagSubscribe.unsubscribe();
+        if (this.subNotify)
+            this.subNotify.unsubscribe()
         console.log("ionViewWillUnload RecommendationPage");
         this.seancesProvider.setPreviousTimer(this.serie.Adh_ExerciceConseil.Recup_sec)
     }
@@ -278,6 +260,37 @@ export class RecommendationPage {
             .takeWhile(() => this.counter >= 1)
             .map(() => --this.counter)
     };
+
+
+    satrtNotifcation() {
+        this.subNotify = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
+            .timeout(10000).subscribe((data) => {
+                this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
+                if (this.firstRepetion[2] == 32) {
+                    if (this.serieNumber > 1) {
+                        localStorage.setItem('currentSeance', "true");
+                        let stopedTime = Math.ceil(new Date().getTime() / 1000);
+                        this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
+                    }
+                    this.subNotify.unsubscribe()
+                    this.navCtrl.setRoot(RepetitionPage, {
+                        firstRepetion: this.firstRepetion,
+                        weightSelected: this.weightSelected,
+                        serie: this.serie,
+                        exercice: this.exercice,
+                        machine: this.machine
+                    })
+                }
+            },
+                (error) => {
+                    console.log("error_bleRepRecomandation", error);
+                    this.ble.disconnect(this.nfcService.bleId).then(
+                        () => this.bleError(),
+                        (err) => console.log("disconnect err", err)
+                    )
+                }
+            );
+    }
 
     readWeight() {
         this.readPooling = setInterval(() => {
@@ -366,8 +379,7 @@ export class RecommendationPage {
         }, 1000)
     }
 
-
-    private bleError() {
+    bleError() {
         console.log(" recomandation ble err");
         let alert: Alert = this.alertCtrl.create({
             title: 'Échec de connexion Bluetooth',
@@ -385,21 +397,20 @@ export class RecommendationPage {
         alert.present();
     }
 
-
-    private serverError() {
+    serverError() {
         let alert: Alert = this.alertCtrl.create({
-          title: 'Échec de connexion Internet',
-          subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
-          enableBackdropDismiss: false,
-          cssClass: 'alertCustomCss',
-          buttons: [{
-            text: 'OK',
-            handler: () => {
-                alert.dismiss().then(() =>
-                    this.navCtrl.setRoot(HomePage))
-            }
-        }]
+            title: 'Échec de connexion Internet',
+            subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
+            enableBackdropDismiss: false,
+            cssClass: 'alertCustomCss',
+            buttons: [{
+                text: 'OK',
+                handler: () => {
+                    alert.dismiss().then(() =>
+                        this.navCtrl.setRoot(HomePage))
+                }
+            }]
         });
         alert.present();
-      }
+    }
 }
