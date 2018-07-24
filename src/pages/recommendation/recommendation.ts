@@ -13,7 +13,7 @@ import 'rxjs/add/operator/take';
 import * as _ from "lodash";
 import { BLE } from '@ionic-native/ble';
 import { MachinesProvider } from '../../providers/machines';
-
+import { Network } from '@ionic-native/network';
 @Component({
     selector: 'page-recommendation',
     templateUrl: 'recommendation.html',
@@ -75,6 +75,7 @@ export class RecommendationPage {
         private nfcService: NfcProvider,
         private ble: BLE,
         private alertCtrl: AlertController,
+        private network: Network,
     ) {
         this.exercice = this.navParams.get("exercice");
         this.machine = this.navParams.get("machine");
@@ -216,7 +217,9 @@ export class RecommendationPage {
         this.seancesProvider.setPreviousTimer(this.serie.Adh_ExerciceConseil.Recup_sec)
     }
 
-    handleIFrameLoadEvent(): void {
+    handleIFrameLoadEvent(event): void {
+        console.log("video event", event);
+
         this.loadingVideo.dismiss();
     }
 
@@ -232,12 +235,16 @@ export class RecommendationPage {
     };
 
     playVideo() {
-        this.playClicked = true;
-        this.loadingVideo = this.loadingCtrl.create({
-            spinner: 'crescent',
-            cssClass: 'loaderCustomCss',
-        })
-        this.loadingVideo.present();
+        if (this.network.type == 'none')
+            this.serverError2()
+        else {
+            this.playClicked = true;
+            this.loadingVideo = this.loadingCtrl.create({
+                spinner: 'crescent',
+                cssClass: 'loaderCustomCss',
+            })
+            this.loadingVideo.present();
+        }
     };
 
     closeVideo() {
@@ -410,6 +417,16 @@ export class RecommendationPage {
                         this.navCtrl.setRoot(HomePage))
                 }
             }]
+        });
+        alert.present();
+    }
+    serverError2() {
+        let alert: Alert = this.alertCtrl.create({
+            title: 'Échec de connexion Internet',
+            subTitle: 'Assurez-vous que vous êtes bien connecté à internet',
+            enableBackdropDismiss: false,
+            cssClass: 'alertCustomCss',
+            buttons: ['OK']
         });
         alert.present();
     }

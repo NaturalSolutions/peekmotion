@@ -123,8 +123,8 @@ export class RepetitionPage {
     this.onRepetition(this.firstRepetion);
     this.nfcProvider.canDisconnect = false;
 
-   this.bleSubNotification= this.ble.startNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-   .timeout(16000).subscribe((notify) => {
+    this.bleSubNotification = this.ble.startNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
+      .timeout(16000).subscribe((notify) => {
         let data = (Array.prototype.slice.call(new Uint8Array(notify)));
         if (data[2] == 32) {
           this.onRepetition(data);
@@ -140,7 +140,7 @@ export class RepetitionPage {
             });
             loadingPostSerie.present();
             this.machinesProvider.postSerie(this.serieToPost, this.nfcProvider.bleName, this.exoID)
-            .timeout(40000).subscribe(() => {
+              .timeout(40000).subscribe(() => {
                 loadingPostSerie.dismiss();
                 this.bleSubNotification.unsubscribe();
                 this.navCtrl.setRoot(RecommendationPage, { timeRest: true, serie: this.serie, exercice: this.exercice, machine: this.machine })
@@ -149,7 +149,7 @@ export class RepetitionPage {
                   console.log(err);
                   loadingPostSerie.dismiss();
                   this.bleSubNotification.unsubscribe()
-                  this.serverError() 
+                  this.serverError()
                 })
           }
         }
@@ -158,8 +158,8 @@ export class RepetitionPage {
           console.log("error_bleRep", error);
           this.ble.disconnect(this.nfcService.bleId).then(
             () => this.bleError(),
-            (err) => console.log("disconnect err",err)
-        ) 
+            (err) => console.log("disconnect err", err)
+          )
         }
       );
   }
@@ -229,35 +229,57 @@ export class RepetitionPage {
 
   private bleError() {
     console.log(" rep ble err");
-    
-        let alert: Alert = this.alertCtrl.create({
-            title: 'Échec de connexion Bluetooth',
-            subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
-            enableBackdropDismiss: false,
-            cssClass: 'alertCustomCss',
-            buttons: [{
-                text: 'OK',
-                handler: () => {
-                    alert.dismiss().then(() =>
-                        this.navCtrl.setRoot(HomePage))
-                }
-            }]
-        });
-        alert.present();
-    }
-  private serverError() {
+
     let alert: Alert = this.alertCtrl.create({
-      title: 'Échec de connexion Internet',
-      subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
+      title: 'Échec de connexion Bluetooth',
+      subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
       enableBackdropDismiss: false,
       cssClass: 'alertCustomCss',
       buttons: [{
         text: 'OK',
         handler: () => {
-            alert.dismiss().then(() =>
-                this.navCtrl.setRoot(HomePage))
+          alert.dismiss().then(() =>
+            this.navCtrl.setRoot(HomePage))
         }
-    }]
+      }]
+    });
+    alert.present();
+  }
+  private serverError() {
+    let alert: Alert = this.alertCtrl.create({
+      title: 'Échec de connexion Internet',
+      subTitle: 'Assurez-vous que vous êtes bien connecté à internet',
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: [{
+        text: 'Réessayer',
+        handler: () => {
+          let loadingPostSerie = this.loadingCtrl.create({
+            spinner: 'crescent',
+            cssClass: 'loaderCustomCss',
+          });
+          loadingPostSerie.present();
+          this.machinesProvider.postSerie(this.serieToPost, this.nfcProvider.bleName, this.exoID)
+            .timeout(40000).subscribe(() => {
+              loadingPostSerie.dismiss();
+              this.bleSubNotification.unsubscribe();
+              this.navCtrl.setRoot(RecommendationPage, { timeRest: true, serie: this.serie, exercice: this.exercice, machine: this.machine })
+            },
+              (err) => {
+                console.log(err);
+                loadingPostSerie.dismiss();
+                this.bleSubNotification.unsubscribe()
+                this.serverError()
+              })
+        }
+      },
+      {
+        text: 'Annuler',
+        handler: () => {
+          alert.dismiss().then(() =>
+            this.navCtrl.setRoot(HomePage))
+        }
+      }]
     });
     alert.present();
   }

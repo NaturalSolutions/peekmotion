@@ -38,7 +38,7 @@
             </button>
           </div>
           <div style=" height: 100%; margin-top: 10px; position: relative;" *ngIf="playClicked">
-            <iframe width="100%" height="100%" [src]="videoUrl ? videoUrl : null" (load)="videoUrl ? handleIFrameLoadEvent() : null"
+            <iframe width="100%" height="100%" [src]="videoUrl ? videoUrl : null" (load)="videoUrl ? handleIFrameLoadEvent($event) : null"
               frameborder="0" allowfullscreen></iframe>
           </div>
           <p style=" color : #EBD01F ;text-transform: uppercase;" *ngIf="!playClicked">zones travaillées</p>
