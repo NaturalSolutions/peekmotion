@@ -67,20 +67,16 @@ export class HomePage {
   }
 
   ionViewDidEnter() {
+    this.seanceUrl = localStorage.getItem('seanceUrl');
+    if (this.seanceUrl)
+      this.showSeanceBtn = true;
+    
     if (this.plt.is('ios'))
       this.ble.isEnabled()
         .then(
           (status) => { this.bleReady() },
           (error) => this.openDisabledBle()
         )
-    this.seanceUrl = localStorage.getItem('seanceUrl');
-    if (this.seanceUrl)
-      this.showSeanceBtn = true;
-    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
-      this.modalIsActive = true;
-      this.presentSeancesModal()
-    }
-
     this.nfcService.canDisconnect = false;
     if (this.plt.is('android'))
       this.ble.enable()
@@ -124,6 +120,10 @@ export class HomePage {
   }
 
   private bleReady() {
+    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
+      this.modalIsActive = true;
+      this.presentSeancesModal()
+    }
     this.bleStatus = 'ready';
     if (this.plt.is('android'))
       this.activeNFC();
@@ -186,7 +186,8 @@ export class HomePage {
             this.loadingGetMachineByID.dismiss()
             this.serverError();
             console.log("error_getMachine", error);
-            this.nfcInit()
+            if (this.plt.is('android'))
+              this.nfcInit()
           },
           () => {
             this.loadingGetMachineByID.dismiss()
