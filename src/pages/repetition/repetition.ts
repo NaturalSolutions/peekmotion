@@ -134,23 +134,7 @@ export class RepetitionPage {
           if (this.repetionNumber < 4)
             this.navCtrl.setRoot(RecommendationPage, { timeRest: false, serie: this.serie, exercice: this.exercice, machine: this.machine })
           else {
-            let loadingPostSerie = this.loadingCtrl.create({
-              spinner: 'crescent',
-              cssClass: 'loaderCustomCss',
-            });
-            loadingPostSerie.present();
-            this.machinesProvider.postSerie(this.serieToPost, this.nfcProvider.bleName, this.exoID)
-              .timeout(40000).subscribe(() => {
-                loadingPostSerie.dismiss();
-                this.bleSubNotification.unsubscribe();
-                this.navCtrl.setRoot(RecommendationPage, { timeRest: true, serie: this.serie, exercice: this.exercice, machine: this.machine })
-              },
-                (err) => {
-                  console.log(err);
-                  loadingPostSerie.dismiss();
-                  this.bleSubNotification.unsubscribe()
-                  this.serverError()
-                })
+            this.postSeance()
           }
         }
       },
@@ -245,6 +229,26 @@ export class RepetitionPage {
     });
     alert.present();
   }
+  private postSeance() {
+    let loadingPostSerie = this.loadingCtrl.create({
+      spinner: 'crescent',
+      cssClass: 'loaderCustomCss',
+    });
+    loadingPostSerie.present();
+    this.machinesProvider.postSerie(this.serieToPost, this.nfcProvider.bleName, this.exoID)
+      .timeout(40000).subscribe(() => {
+        loadingPostSerie.dismiss();
+        this.bleSubNotification.unsubscribe();
+        this.navCtrl.setRoot(RecommendationPage, { timeRest: true, serie: this.serie, exercice: this.exercice, machine: this.machine })
+      },
+        (err) => {
+          console.log(err);
+          loadingPostSerie.dismiss();
+          this.bleSubNotification.unsubscribe()
+          this.serverError()
+        })
+
+  }
   private serverError() {
     let alert: Alert = this.alertCtrl.create({
       title: 'Échec de connexion Internet',
@@ -254,23 +258,8 @@ export class RepetitionPage {
       buttons: [{
         text: 'Réessayer',
         handler: () => {
-          let loadingPostSerie = this.loadingCtrl.create({
-            spinner: 'crescent',
-            cssClass: 'loaderCustomCss',
-          });
-          loadingPostSerie.present();
-          this.machinesProvider.postSerie(this.serieToPost, this.nfcProvider.bleName, this.exoID)
-            .timeout(40000).subscribe(() => {
-              loadingPostSerie.dismiss();
-              this.bleSubNotification.unsubscribe();
-              this.navCtrl.setRoot(RecommendationPage, { timeRest: true, serie: this.serie, exercice: this.exercice, machine: this.machine })
-            },
-              (err) => {
-                console.log(err);
-                loadingPostSerie.dismiss();
-                this.bleSubNotification.unsubscribe()
-                this.serverError()
-              })
+          this.postSeance()
+
         }
       },
       {

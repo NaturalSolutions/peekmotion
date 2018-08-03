@@ -26,7 +26,9 @@ import { CreatAccountPage} from '../pages/creat-account/creat-account';
 import { ForgotPasswordPage} from '../pages/forgot-password/forgot-password';
 import { BilanPage} from '../pages/bilan/bilan';
 import {NewPasswordPage} from '../pages/new-password/new-password';
-import {ModalSeancesPage} from '../pages/modal-seances/modal-seances'
+import {ModalSeancesPage} from '../pages/modal-seances/modal-seances';
+import {ModalUpdatePage} from '../pages/modal-update/modal-update';
+
 //pipe
 import {FormatTimePipe } from '../pipes/format-time';
 //providers
@@ -35,6 +37,8 @@ import { NfcProvider } from '../providers/nfc';
 import { AuthInterceptor } from '../providers/authinterceptor';
 import { LoginProvider } from '../providers/loginService';
 import { SeancesProvider } from '../providers/seances';
+
+import { ProgressBarComponent } from '../shared/progress-bar/progress-bar';
 
 //extraModule
 import {RoundProgressModule} from 'angular-svg-round-progressbar';
@@ -55,6 +59,7 @@ export function highchartsFactory() {
 @NgModule({
   declarations: [
     MyApp,
+    ProgressBarComponent,
     HomePage,
     LoginPage,
     ExercicesListPage,
@@ -66,7 +71,8 @@ export function highchartsFactory() {
     BilanPage,
     NewPasswordPage,
     FormatTimePipe,
-    ModalSeancesPage
+    ModalSeancesPage,
+    ModalUpdatePage,
   ],
   imports: [
     BrowserModule,
@@ -92,7 +98,8 @@ export function highchartsFactory() {
     ForgotPasswordPage,
     BilanPage,
     NewPasswordPage,
-    ModalSeancesPage
+    ModalSeancesPage,
+    ModalUpdatePage,
   ],
   providers: [
     StatusBar,

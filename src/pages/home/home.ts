@@ -298,7 +298,7 @@ export class HomePage {
             this.nfcInit()
         },
         () => {
-          let seancestModal = this.modalCtrl.create(ModalSeancesPage, { seancesList: this.seancesList }, { enableBackdropDismiss: false });
+          let seancestModal = this.modalCtrl.create(ModalSeancesPage, { seancesList: this.seancesList }, { cssClass:"seances-modal",enableBackdropDismiss: false });
           seancestModal.onDidDismiss(data => {
             this.changeSeance = this.seancesProvider.getChangeBtnStatus();
             this.modalIsActive = false;

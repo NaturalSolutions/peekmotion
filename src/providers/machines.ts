@@ -25,5 +25,10 @@ export class MachinesProvider {
   getBilan() {
     return this.http.get<any[]>(Conf.apiBaseUrl + 'adherent/seance/bilan');
   }
+
+  getNewVersion(exoID) {
+    return this.http.get<any[]>(Conf.apiBaseUrlV1 + 'ConfigPostProcessing/'+exoID);
+  }
+ 
 }
 

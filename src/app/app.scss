@@ -141,19 +141,6 @@ ion-footer {
   font-size: 12px
 }
 
-// App Global Sass
-// --------------------------------------------------
-// Put style rules here that you want to apply globally. These
-// styles are for the entire app and not just one component.
-// Additionally, this file can be also used as an entry point
-// to import other Sass files to be included in the output CSS.
-//
-// Shared Sass variables, which can be used to adjust Ionic's
-// default Sass variables, belong in "theme/variables.scss".
-//
-// To declare rules for a specific mode, create a child rule
-// for the .md, .ios, or .wp mode classes. The mode class is
-// automatically applied to the <body> element in the app.
 .header-md::after,
   {
   display: none;
@@ -182,25 +169,37 @@ ion-modal {
     opacity: 0.75;
     z-index: 0;
   }
-  .modal-wrapper {
-    margin-top: 10%;
-    margin-left: 6%;
-    width: 88%;
-    height: 86%;
-    border: 1px solid;
-    border-color: #409aca;
+  &.seances-modal {
+    .modal-wrapper {
+      margin-top: 10%;
+      margin-left: 6%;
+      width: 88%;
+      height: 86%;
+      border: 1px solid;
+      border-color: #409aca;
+    }
+  }
+  &.update-modal {
+    .modal-wrapper {
+      margin-top: 50%;
+      margin-left: 6%;
+      width: 88%;
+      height: 22%;
+      border: 1px solid;
+      border-color: #409aca;
+    }
   }
 }
-
 
 ion-fab {
   position: relative;
   margin-left: auto;
 }
 
-.btn-primary{
+.btn-primary {
   background-image: linear-gradient(90deg, #47bffe, #127bb1) !important
 }
+
 .btn-scan {
   background-image: linear-gradient(90deg, #818181, #626262) !important
 }

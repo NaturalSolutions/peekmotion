@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { NavParams, Slides, Loading, LoadingController, NavController, AlertController, Alert } from 'ionic-angular';
+import { NavParams, Slides, ModalController, Loading, LoadingController, NavController, AlertController, Alert } from 'ionic-angular';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { NfcProvider } from '../../providers/nfc';
 import { SeancesProvider } from '../../providers/seances';
@@ -14,12 +14,16 @@ import * as _ from "lodash";
 import { BLE } from '@ionic-native/ble';
 import { MachinesProvider } from '../../providers/machines';
 import { Network } from '@ionic-native/network';
+import { ModalUpdatePage } from '../modal-update/modal-update';
+
+
 @Component({
     selector: 'page-recommendation',
     templateUrl: 'recommendation.html',
 })
 export class RecommendationPage {
     private regLabel = "regLabel";
+    loadProgress = 0;
     rightColor;
     leftColor;
     couleur_Droite;
@@ -63,6 +67,7 @@ export class RecommendationPage {
     public exerciceName: string;
     public seriesNumberOK: boolean = false;
     public imgGroupMuscu: any = {};
+    versionTab;
     //belErrSub: any;
 
     constructor(
@@ -76,10 +81,11 @@ export class RecommendationPage {
         private ble: BLE,
         private alertCtrl: AlertController,
         private network: Network,
+        public modalCtrl: ModalController,
     ) {
         this.exercice = this.navParams.get("exercice");
         this.machine = this.navParams.get("machine");
-        this.nfcService.canDisconnect = true;
+        this.nfcService.canDisconnect = false;
     }
 
     ionViewWillEnter() {
@@ -121,6 +127,7 @@ export class RecommendationPage {
                     this.serverError();
                 },
                 () => {
+                    console.log("serie", this.serie);
                     let maxSerie = Number(this.avencement[1]);
                     let currentSerie = Number(this.avencement[0]);
                     this.recupTime_sec = this.seancesProvider.getPreviousTimer();
@@ -200,8 +207,7 @@ export class RecommendationPage {
                         if (tagStatus === "tag_disconnected")
                             this.navCtrl.setRoot(HomePage)
                     });
-                    this.readWeight();
-                    this.satrtNotifcation()
+                    this.getVersionDevice()
                 }
             )
     }
@@ -268,18 +274,21 @@ export class RecommendationPage {
             .map(() => --this.counter)
     };
 
-
     satrtNotifcation() {
+        this.nfcService.canDisconnect = true;
         this.subNotify = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-            .timeout(10000).subscribe((data) => {
+            .timeout(14000).subscribe((data) => {
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
+                console.log("notification", this.firstRepetion);
                 if (this.firstRepetion[2] == 32) {
                     if (this.serieNumber > 1) {
                         localStorage.setItem('currentSeance', "true");
                         let stopedTime = Math.ceil(new Date().getTime() / 1000);
                         this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
                     }
-                    this.subNotify.unsubscribe()
+
+                    this.subNotify.unsubscribe();
+                    console.log("unsubscribeunsubscribe");
                     this.navCtrl.setRoot(RepetitionPage, {
                         firstRepetion: this.firstRepetion,
                         weightSelected: this.weightSelected,
@@ -420,6 +429,7 @@ export class RecommendationPage {
         });
         alert.present();
     }
+    
     serverError2() {
         let alert: Alert = this.alertCtrl.create({
             title: 'Échec de connexion Internet',
@@ -430,4 +440,88 @@ export class RecommendationPage {
         });
         alert.present();
     }
+
+    getVersionDevice() {
+        let notify;
+        let subNotification = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
+            .subscribe((data) => {
+                notify = (Array.prototype.slice.call(new Uint8Array(data)));
+                console.log("notification", notify);
+                if (notify[2] == 48) {
+                    let deviceVersion = (notify[5] << 8) & 0x000ff00 | (notify[6] << 0) & 0x00000ff;
+                    // deviceVersion =32769;
+                    if (deviceVersion != this.serie.VersionPPConfig) {
+                        console.log("deviceVersion", deviceVersion);
+                        console.log("this.serie.VersionPPConfig", this.serie.VersionPPConfig);
+                        this.machinesProvider.getNewVersion(this.serie.Mac_ModExoUsag_Id)
+                            .subscribe(
+                                (data) => {
+                                    this.versionTab = data;
+                                    console.log("dataVersion", data);
+                                },
+                                error => {
+                                    console.log("error_getVersion", error);
+                                    this.serverError();
+                                },
+                                () => {
+                                    this.updateVersionDevice(this.versionTab);
+                                    subNotification.unsubscribe()
+                                }
+                            )
+                    }
+                    else {
+                        subNotification.unsubscribe();
+                        setTimeout(() => {
+                            this.satrtNotifcation();
+                            this.readWeight()
+                        }, 200);
+                    }
+                }
+            },
+                (error) => {
+                    console.log("error_bleRepRecomandation", error);
+                    this.ble.disconnect(this.nfcService.bleId).then(
+                        () => this.bleError(),
+                        (err) => console.log("disconnect err", err)
+                    )
+                }
+            );
+        let data = new Uint8Array(7);
+        data[0] = 0xFE;
+        data[1] = 0x00;
+        data[2] = 0x31;
+        data[3] = 0x00;
+        data[4] = 0x01;
+        data[5] = 0x00;
+        data[6] = 0xCE;
+        console.log("data.buffer", data.buffer);
+        console.log("this.seriethis.serie", this.serie.VersionPPConfig);
+        this.ble.write(this.nfcService.bleId, "f000da7a-0451-4000-b000-000000000000", "f000beff-0451-4000-b000-000000000000", data.buffer)
+            .then((response) => { console.log("write response", response) },
+                (error) => console.log("write err", error))
+    }
+
+    updateVersionDevice(dataVersion) {
+        let updateModal = this.modalCtrl.create(
+            ModalUpdatePage,
+            {
+                dataVersion: dataVersion,
+                bleId: this.nfcService.bleId
+            },
+            {
+                cssClass: "update-modal",
+                enableBackdropDismiss: false
+            }
+        );
+        updateModal.onDidDismiss(
+            () => {
+                this.getVersionDevice()
+            }
+        );
+        updateModal.present();
+
+
+    }
+
+
 }
