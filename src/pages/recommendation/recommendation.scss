@@ -225,14 +225,14 @@ page-recommendation {
     justify-content: center;
     padding-top: 0;
     .col {
-      padding-top: 0;
+      padding: 0;
+      padding-bottom: 0px;
     }
   }
   .row {
     margin: 0 30px
   }
   .img-circle {
-    //background-image: url("../assets/imgs/reglage.png");
     background-size: cover;
     border-radius: 100%;
     border: 1px solid;
@@ -275,4 +275,25 @@ page-recommendation {
     background-color: #eb561f;
 
   }
+  .label-md {
+    margin: 0;
+  }
+
+    ion-label {
+      margin: 0;
+      display: block;
+      white-space: unset !important;
+  }
+  .item-md {
+    padding: 0;
+    background-color: transparent;
+  }
+  .item-md.item-block .item-inner {
+    padding: 0;
+     border-bottom: 0
+}
+.input-wrapper {
+  
+  justify-content: center;
+}
 }

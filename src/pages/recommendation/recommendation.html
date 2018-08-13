@@ -1,11 +1,11 @@
 <ion-header>
   <ion-navbar>
-    <ion-title  *ngIf="serieLoaded"  [style.color]="titleColor">{{exerciceName}}</ion-title>
+    <ion-title *ngIf="serieLoaded" [style.color]="titleColor">{{exerciceName}}</ion-title>
   </ion-navbar>
 </ion-header>
 <ion-content>
-  <div ion-fixed  class="inner">
-    <div  class="slides-outer">
+  <div ion-fixed class="inner">
+    <div class="slides-outer">
       <ion-slides pager (ionSlideDidChange)="slideChanged($event)">
         <ion-slide *ngIf="timeRest" class="recommandations startTimer">
           <div class="innerCounter">
@@ -13,28 +13,45 @@
             <h2 class="serie">{{serie.Mode}}</h2>
             <h2 class="serie num">{{serie.Avancement}}</h2>
           </div>
-          <round-progress *ngIf="serieLoaded" [current]="counter" [max]="recupTime_sec" [color]="'#EBD01F'"
-           [background]="'#1d1d1d'" [stroke]="8"  [duration]="1000" [animation]="'linearEase'"
-            [responsive]="true"></round-progress>
+          <round-progress *ngIf="serieLoaded" [current]="counter" [max]="recupTime_sec" [color]="'#EBD01F'" [background]="'#1d1d1d'"
+            [stroke]="8" [duration]="1000" [animation]="'linearEase'" [responsive]="true"></round-progress>
         </ion-slide>
         <ion-slide>
           <p style=" color : #EBD01F ; margin-top:0 ;text-transform: uppercase;">les réglages de la machine</p>
-          <ion-grid *ngIf="serieLoaded" >
-            <ion-row class="gridRow" *ngFor="let row of gridSettings">
-              <ion-col *ngFor="let imgSetting of row">
-                <img class="img-circle" [style.background-image]= "imgSetting[0]" [style.width]="imgWidh" [style.height]="imgHeight">
-                <p   [ngClass]="imgSetting[2]" >{{imgSetting[1]}}</p>
-              </ion-col>
-            </ion-row>
+          <form  [formGroup]="pickerForm" (submit)="submit(pickerForm)">
+          <ion-grid *ngIf="serieLoaded">
+           
+              <ion-row class="gridRow" *ngFor="let row of gridSettings">
+                <ion-col *ngFor="let imgSetting of row">
+                  <img class="img-circle" [style.background-image]="imgSetting[0]" [style.width]="imgWidh" [style.height]="imgHeight">
+                  <ion-item>
+                    <ion-label>
+                      <p id="{{imgSetting[4]}}" [ngClass]="imgSetting[2]">{{imgSetting[1]}}
+                        <ion-icon name="create" style="font-size: 20px"></ion-icon>
+                      </p>
+                    </ion-label>
+                    <ion-multi-picker item-content formControlName="{{imgSetting[4]}}" [multiPickerColumns]="imgSetting[3]" doneText="OK" cancelText="Annuler">
+                    </ion-multi-picker>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+           
           </ion-grid>
+        </form>
         </ion-slide>
         <ion-slide class="recommandations">
           <div>
             <button ion-button class="play" (click)="playVideo()" *ngIf="!playClicked" round>
-              <div class="videoBtn"> <p>Voir la vidéo de l'exercice </p><img src='./assets/imgs/picto_play.png'></div>  
+              <div class="videoBtn">
+                <p>Voir la vidéo de l'exercice </p>
+                <img src='./assets/imgs/picto_play.png'>
+              </div>
             </button>
             <button ion-button class="play" (click)="closeVideo()" *ngIf="playClicked" round>
-               <div class="videoBtn"><p>Quitter la vidéo </p><ion-icon name="close-circle"></ion-icon></div> 
+              <div class="videoBtn">
+                <p>Quitter la vidéo </p>
+                <ion-icon name="close-circle"></ion-icon>
+              </div>
             </button>
           </div>
           <div style=" height: 100%; margin-top: 10px; position: relative;" *ngIf="playClicked">
@@ -54,8 +71,8 @@
             </div>
             <div class="conteneur">
               <img class="pic1" src="{{ imgModelFront }}">
-              <div *ngIf="imgGroupMuscu.isFront" >
-                <img  class="pic2" src="{{ imgGroupMuscu.img }}">
+              <div *ngIf="imgGroupMuscu.isFront">
+                <img class="pic2" src="{{ imgGroupMuscu.img }}">
               </div>
             </div>
           </div>
@@ -79,9 +96,8 @@
         </div>
       </div>
     </div>
-    <div class="weight-buttons">   
-      <button *ngFor="let item of masseAppoint" (click)="addWeight($event.target.value)" value={{item.Masse_kg}} 
-        [ngClass]="item.class"  >+{{item.Masse_kg}} KG</button>
+    <div class="weight-buttons">
+      <button *ngFor="let item of masseAppoint" (click)="addWeight($event.target.value)" value={{item.Masse_kg}} [ngClass]="item.class">+{{item.Masse_kg}} KG</button>
       <div class="innerweightSelected">
         <p class="pictoTitle">charge sélectionnée</p>
         <p class="weightSelected">{{weightSelected}} Kg</p>
@@ -89,12 +105,9 @@
     </div>
   </div>
 </ion-content>
-<ion-footer padding *ngIf="!seriesNumberOK" >
+<ion-footer padding *ngIf="!seriesNumberOK">
   Pour commencer l'exercice, activez la machine !
 </ion-footer>
-<ion-footer *ngIf="seriesNumberOK" class="nbSerie-OK" >
+<ion-footer *ngIf="seriesNumberOK" class="nbSerie-OK">
   Vous avez réalisé le bon nombre de séries, vous pouvez changer d'exercice
 </ion-footer>
-
-
-

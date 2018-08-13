@@ -32,8 +32,10 @@ export class ExercicesListPage {
   ionViewWillEnter() {
     this.tagSubscribe = this.nfcService.getTagStatus().first(status => (status == "tag_disconnected")).subscribe(tagStatus => {
       console.log('getTagStatus', tagStatus);
-      if (tagStatus === "tag_disconnected")
+      if (tagStatus === "tag_disconnected") {
+        this.tagSubscribe.unsubscribe();
         this.navCtrl.setRoot(HomePage)
+      }
     })
   }
 
@@ -41,11 +43,12 @@ export class ExercicesListPage {
     console.log('ionViewDidLoad ExercicesListPage');
     this.nfcService.canDisconnect = true;
     this.loginProvider.getUser()
-    .timeout(40000).subscribe((user) => {
+      .timeout(40000).subscribe((user) => {
         this.currentUser = user;
       },
         error => {
           console.log("getUserError");
+          this.serverError()
         },
         () => {
           let sex_Id = this.currentUser.Sex_Id
@@ -71,9 +74,7 @@ export class ExercicesListPage {
   }
 
   ionViewWillUnload() {
-    if (this.tagSubscribe) {
-      this.tagSubscribe.unsubscribe();
-    }
+    this.tagSubscribe.unsubscribe();
   }
 
   selectExercice(exercice) {
@@ -89,10 +90,10 @@ export class ExercicesListPage {
       buttons: [{
         text: 'OK',
         handler: () => {
-            alert.dismiss().then(() =>
-                this.navCtrl.setRoot(HomePage))
+          alert.dismiss().then(() =>
+            this.navCtrl.setRoot(HomePage))
         }
-    }]
+      }]
     });
     alert.present();
   }

@@ -52,10 +52,12 @@ export class HomePage {
     public modalCtrl: ModalController,
     private iab: InAppBrowser
   ) {
+    this.nfcService.canDisconnect = false;
 
   }
 
   ionViewWillEnter() {
+    this.nfcService.canDisconnect = false;
     this.currentSeance = localStorage.getItem('currentSeance');
     this.seance = this.seancesProvider.getBilanStatus();
     this.changeSeance = this.seancesProvider.getChangeBtnStatus();
@@ -67,17 +69,16 @@ export class HomePage {
   }
 
   ionViewDidEnter() {
+    this.nfcService.canDisconnect = false;
     this.seanceUrl = localStorage.getItem('seanceUrl');
     if (this.seanceUrl)
       this.showSeanceBtn = true;
-    
     if (this.plt.is('ios'))
       this.ble.isEnabled()
         .then(
           (status) => { this.bleReady() },
           (error) => this.openDisabledBle()
         )
-    this.nfcService.canDisconnect = false;
     if (this.plt.is('android'))
       this.ble.enable()
         .then(

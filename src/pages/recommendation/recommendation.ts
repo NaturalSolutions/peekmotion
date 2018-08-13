@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, Renderer2 } from '@angular/core';
 import { NavParams, Slides, ModalController, Loading, LoadingController, NavController, AlertController, Alert } from 'ionic-angular';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { NfcProvider } from '../../providers/nfc';
@@ -15,6 +15,7 @@ import { BLE } from '@ionic-native/ble';
 import { MachinesProvider } from '../../providers/machines';
 import { Network } from '@ionic-native/network';
 import { ModalUpdatePage } from '../modal-update/modal-update';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
 
 @Component({
@@ -68,9 +69,12 @@ export class RecommendationPage {
     public seriesNumberOK: boolean = false;
     public imgGroupMuscu: any = {};
     versionTab;
+    pickerForm: FormGroup;
     //belErrSub: any;
-
+    pickerData = [{ options: [] }];
+    pikerOptions = [];
     constructor(
+        private fb: FormBuilder,
         public navParams: NavParams,
         private domSanitizer: DomSanitizer,
         public loadingCtrl: LoadingController,
@@ -82,14 +86,17 @@ export class RecommendationPage {
         private alertCtrl: AlertController,
         private network: Network,
         public modalCtrl: ModalController,
+        private renderer: Renderer2,
     ) {
         this.exercice = this.navParams.get("exercice");
         this.machine = this.navParams.get("machine");
         this.nfcService.canDisconnect = false;
+        this.pickerForm = this.fb.group({})
     }
 
     ionViewWillEnter() {
         console.log('ionViewDidLoad RecommendationPage');
+        this.renderer.addClass(document.body, "custom-picker")
         /*this.belErrSub=this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
             if (bleStatus === "bleErr")
                 this.bleError()
@@ -183,7 +190,40 @@ export class RecommendationPage {
                             this.regLabel = "regLabelSmall";
                         else
                             this.regLabel = "regLabelLarge";
-                        this.settings.push(["url(" + this.settingsUrl + value.FichierImage + ")", value.Conseil, this.regLabel])
+                        this.pikerOptions = [];
+                        this.pickerData = [{ options: [] }];
+                        for (let index = 1; index <= value.NbPosition; index++) {
+                            let indexString = index.toString()
+                            this.pikerOptions.push({
+                                "text": indexString + '/' + value.NbPosition,
+                                "value": indexString + '/' + value.NbPosition,
+                            })
+                            this.pickerData[0].options = this.pikerOptions;
+                        }
+                        this.settings.push([
+                            "url(" + this.settingsUrl + value.FichierImage + ")",
+                            value.Conseil,
+                            this.regLabel,
+                            this.pickerData,
+                            "picker" + value.Ordre,
+                        value.Mac_ReglCons_Id]);
+                        this.pickerForm.addControl("picker" + value.Ordre, new FormControl(''));
+                        this.pickerForm.controls["picker" + value.Ordre].valueChanges.subscribe(
+                            (selectedValue) => {
+                                let picker = "picker" + value.Ordre;
+                                _.map(this.settings, (value) => {
+                                    if (value[4] == picker) {
+                                        value[1] = selectedValue;
+                                        value[2] = "regLabelLarge";
+                                        let postValue=selectedValue.split("/");
+                                        this.machinesProvider.postReglages(this.serie.Mac_ModExoUsag_Id,value[5],{              
+                                            "ConseilPersonnel_Valeur": postValue[0]
+                                          }).subscribe()
+                                    }
+                                });
+                                
+                            }
+                        );
                         return value
                     });
                     this.gridSettings = _.chunk(this.settings, 2);
@@ -204,28 +244,28 @@ export class RecommendationPage {
                             let stopedTime = Math.ceil(new Date().getTime() / 1000);
                             this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
                         }
-                        if (tagStatus === "tag_disconnected")
+                        if (tagStatus === "tag_disconnected") {
+                            this.tagSubscribe.unsubscribe();
                             this.navCtrl.setRoot(HomePage)
+                        }
                     });
-                    this.getVersionDevice()
+                    this.getVersionDevice();
+                    this.readWeight();
                 }
             )
     }
 
     ionViewWillUnload() {
+        this.renderer.removeClass(document.body, "custom-picker")
         //this.belErrSub.unsubscribe();
         clearInterval(this.readPooling);
-        if (this.tagSubscribe)
-            this.tagSubscribe.unsubscribe();
-        if (this.subNotify)
-            this.subNotify.unsubscribe()
+        this.tagSubscribe.unsubscribe();
+        this.subNotify.unsubscribe()
         console.log("ionViewWillUnload RecommendationPage");
         this.seancesProvider.setPreviousTimer(this.serie.Adh_ExerciceConseil.Recup_sec)
     }
 
     handleIFrameLoadEvent(event): void {
-        console.log("video event", event);
-
         this.loadingVideo.dismiss();
     }
 
@@ -279,7 +319,7 @@ export class RecommendationPage {
         this.subNotify = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
             .timeout(14000).subscribe((data) => {
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
-                console.log("notification", this.firstRepetion);
+                //console.log("notification", this.firstRepetion);
                 if (this.firstRepetion[2] == 32) {
                     if (this.serieNumber > 1) {
                         localStorage.setItem('currentSeance', "true");
@@ -288,7 +328,6 @@ export class RecommendationPage {
                     }
 
                     this.subNotify.unsubscribe();
-                    console.log("unsubscribeunsubscribe");
                     this.navCtrl.setRoot(RepetitionPage, {
                         firstRepetion: this.firstRepetion,
                         weightSelected: this.weightSelected,
@@ -429,7 +468,7 @@ export class RecommendationPage {
         });
         alert.present();
     }
-    
+
     serverError2() {
         let alert: Alert = this.alertCtrl.create({
             title: 'Échec de connexion Internet',
@@ -446,35 +485,29 @@ export class RecommendationPage {
         let subNotification = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
             .subscribe((data) => {
                 notify = (Array.prototype.slice.call(new Uint8Array(data)));
-                console.log("notification", notify);
                 if (notify[2] == 48) {
                     let deviceVersion = (notify[5] << 8) & 0x000ff00 | (notify[6] << 0) & 0x00000ff;
-                    // deviceVersion =32769;
                     if (deviceVersion != this.serie.VersionPPConfig) {
-                        console.log("deviceVersion", deviceVersion);
-                        console.log("this.serie.VersionPPConfig", this.serie.VersionPPConfig);
                         this.machinesProvider.getNewVersion(this.serie.Mac_ModExoUsag_Id)
                             .subscribe(
                                 (data) => {
                                     this.versionTab = data;
-                                    console.log("dataVersion", data);
                                 },
                                 error => {
                                     console.log("error_getVersion", error);
                                     this.serverError();
                                 },
                                 () => {
+                                    subNotification.unsubscribe();
                                     this.updateVersionDevice(this.versionTab);
-                                    subNotification.unsubscribe()
                                 }
                             )
                     }
                     else {
                         subNotification.unsubscribe();
                         setTimeout(() => {
-                            this.satrtNotifcation();
-                            this.readWeight()
-                        }, 200);
+                            this.satrtNotifcation()
+                        }, 250);
                     }
                 }
             },
@@ -494,7 +527,7 @@ export class RecommendationPage {
         data[4] = 0x01;
         data[5] = 0x00;
         data[6] = 0xCE;
-        console.log("data.buffer", data.buffer);
+        console.log("data.buffer1", data.buffer);
         console.log("this.seriethis.serie", this.serie.VersionPPConfig);
         this.ble.write(this.nfcService.bleId, "f000da7a-0451-4000-b000-000000000000", "f000beff-0451-4000-b000-000000000000", data.buffer)
             .then((response) => { console.log("write response", response) },
@@ -519,9 +552,8 @@ export class RecommendationPage {
             }
         );
         updateModal.present();
-
-
     }
+
 
 
 }

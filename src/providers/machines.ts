@@ -30,5 +30,12 @@ export class MachinesProvider {
     return this.http.get<any[]>(Conf.apiBaseUrlV1 + 'ConfigPostProcessing/'+exoID);
   }
  
+  postReglages(macModExoUsagId, macReglConsId,reglage) {
+    return this.http.post<any[]>(Conf.apiBaseUrl + 'adherent/reglageconseilperso/macModExoUsagId/' + macModExoUsagId + '/macReglConsId/' + macReglConsId, reglage);
+  }
+
+
+
+
 }
 

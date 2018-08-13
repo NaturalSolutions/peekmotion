@@ -1,3 +1,4 @@
+import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
@@ -28,7 +29,6 @@ import { BilanPage} from '../pages/bilan/bilan';
 import {NewPasswordPage} from '../pages/new-password/new-password';
 import {ModalSeancesPage} from '../pages/modal-seances/modal-seances';
 import {ModalUpdatePage} from '../pages/modal-update/modal-update';
-
 //pipe
 import {FormatTimePipe } from '../pipes/format-time';
 //providers
@@ -37,9 +37,7 @@ import { NfcProvider } from '../providers/nfc';
 import { AuthInterceptor } from '../providers/authinterceptor';
 import { LoginProvider } from '../providers/loginService';
 import { SeancesProvider } from '../providers/seances';
-
 import { ProgressBarComponent } from '../shared/progress-bar/progress-bar';
-
 //extraModule
 import {RoundProgressModule} from 'angular-svg-round-progressbar';
 import { MultiPickerModule } from 'ion-multi-picker';
@@ -74,7 +72,8 @@ export function highchartsFactory() {
     ModalSeancesPage,
     ModalUpdatePage,
   ],
-  imports: [
+  imports: [ 
+    FormsModule, 
     BrowserModule,
     HttpClientModule,
     IonicModule.forRoot(MyApp, {
