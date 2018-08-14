@@ -17,11 +17,10 @@
             [stroke]="8" [duration]="1000" [animation]="'linearEase'" [responsive]="true"></round-progress>
         </ion-slide>
         <ion-slide>
-          <p style=" color : #EBD01F ; margin-top:0 ;text-transform: uppercase;">les réglages de la machine</p>
           <form  [formGroup]="pickerForm" (submit)="submit(pickerForm)">
+              <p style=" color : #EBD01F ; margin-top:0 ;text-transform: uppercase;">les réglages de la machine</p>
           <ion-grid *ngIf="serieLoaded">
-           
-              <ion-row class="gridRow" *ngFor="let row of gridSettings">
+              <ion-row  class="gridRow" *ngFor="let row of gridSettings">
                 <ion-col *ngFor="let imgSetting of row">
                   <img class="img-circle" [style.background-image]="imgSetting[0]" [style.width]="imgWidh" [style.height]="imgHeight">
                   <ion-item>

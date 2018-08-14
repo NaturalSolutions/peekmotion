@@ -134,7 +134,6 @@ export class RecommendationPage {
                     this.serverError();
                 },
                 () => {
-                    console.log("serie", this.serie);
                     let maxSerie = Number(this.avencement[1]);
                     let currentSerie = Number(this.avencement[0]);
                     this.recupTime_sec = this.seancesProvider.getPreviousTimer();
@@ -206,24 +205,25 @@ export class RecommendationPage {
                             this.regLabel,
                             this.pickerData,
                             "picker" + value.Ordre,
-                        value.Mac_ReglCons_Id]);
+                            value.Mac_ReglCons_Id]);
                         this.pickerForm.addControl("picker" + value.Ordre, new FormControl(''));
-                        this.pickerForm.controls["picker" + value.Ordre].valueChanges.subscribe(
-                            (selectedValue) => {
-                                let picker = "picker" + value.Ordre;
-                                _.map(this.settings, (value) => {
-                                    if (value[4] == picker) {
-                                        value[1] = selectedValue;
-                                        value[2] = "regLabelLarge";
-                                        let postValue=selectedValue.split("/");
-                                        this.machinesProvider.postReglages(this.serie.Mac_ModExoUsag_Id,value[5],{              
-                                            "ConseilPersonnel_Valeur": postValue[0]
-                                          }).subscribe()
-                                    }
-                                });
-                                
-                            }
-                        );
+                        this.pickerForm.controls["picker" + value.Ordre].valueChanges
+                            .subscribe(
+                                (selectedValue) => {
+                                    let picker = "picker" + value.Ordre;
+                                    _.map(this.settings, (value) => {
+                                        if (value[4] == picker) {
+                                            value[1] = selectedValue;
+                                            value[2] = "regLabelLarge";
+                                            let postValue = selectedValue.split("/");
+                                            this.machinesProvider.postReglages(this.serie.Mac_ModExoUsag_Id, value[5], {
+                                                "ConseilPersonnel_Valeur": postValue[0]
+                                            }).subscribe()
+                                        }
+                                    });
+
+                                }
+                            );
                         return value
                     });
                     this.gridSettings = _.chunk(this.settings, 2);
@@ -237,18 +237,20 @@ export class RecommendationPage {
                         this.imgHeight = "120px";
                     }
                     this.serieLoaded = true;
-
-                    this.tagSubscribe = this.nfcService.getTagStatus().first(status => (status == "tag_disconnected")).subscribe(tagStatus => {
-                        if (this.serieNumber > 1) {
-                            localStorage.setItem('currentSeance', "true");
-                            let stopedTime = Math.ceil(new Date().getTime() / 1000);
-                            this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
-                        }
-                        if (tagStatus === "tag_disconnected") {
-                            this.tagSubscribe.unsubscribe();
-                            this.navCtrl.setRoot(HomePage)
-                        }
-                    });
+                    this.tagSubscribe = this.nfcService.getTagStatus()
+                        .first(status => (status == "tag_disconnected"))
+                        .subscribe(tagStatus => {
+                            console.log("tag disc", tagStatus);
+                            if (this.serieNumber > 1) {
+                                localStorage.setItem('currentSeance', "true");
+                                let stopedTime = Math.ceil(new Date().getTime() / 1000);
+                                this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
+                            }
+                            if (tagStatus === "tag_disconnected") {
+                                this.tagSubscribe.unsubscribe();
+                                this.navCtrl.setRoot(HomePage)
+                            }
+                        });
                     this.getVersionDevice();
                     this.readWeight();
                 }
@@ -319,7 +321,7 @@ export class RecommendationPage {
         this.subNotify = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
             .timeout(14000).subscribe((data) => {
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
-                //console.log("notification", this.firstRepetion);
+                console.log("notification", this.firstRepetion);
                 if (this.firstRepetion[2] == 32) {
                     if (this.serieNumber > 1) {
                         localStorage.setItem('currentSeance', "true");
@@ -527,11 +529,11 @@ export class RecommendationPage {
         data[4] = 0x01;
         data[5] = 0x00;
         data[6] = 0xCE;
-        console.log("data.buffer1", data.buffer);
-        console.log("this.seriethis.serie", this.serie.VersionPPConfig);
-        this.ble.write(this.nfcService.bleId, "f000da7a-0451-4000-b000-000000000000", "f000beff-0451-4000-b000-000000000000", data.buffer)
-            .then((response) => { console.log("write response", response) },
-                (error) => console.log("write err", error))
+        setTimeout(() => {
+            this.ble.write(this.nfcService.bleId, "f000da7a-0451-4000-b000-000000000000", "f000beff-0451-4000-b000-000000000000", data.buffer)
+                .then((response) => { console.log("write response", response) },
+                    (error) => console.log("write err", error))
+        }, 200);
     }
 
     updateVersionDevice(dataVersion) {

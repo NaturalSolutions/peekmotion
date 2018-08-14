@@ -17,7 +17,6 @@ import { NewPasswordPage } from '../new-password/new-password';
 import { ModalSeancesPage } from '../modal-seances/modal-seances';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 
-
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
@@ -121,10 +120,6 @@ export class HomePage {
   }
 
   private bleReady() {
-    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
-      this.modalIsActive = true;
-      this.presentSeancesModal()
-    }
     this.bleStatus = 'ready';
     if (this.plt.is('android'))
       this.activeNFC();
@@ -133,8 +128,10 @@ export class HomePage {
   private activeNFC() {
     this.nfc.enabled()
       .then((status) => {
-        console.log("!this.modalIsActive", !this.modalIsActive);
-
+        if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
+          this.modalIsActive = true;
+          this.presentSeancesModal()
+        }
         if (!this.modalIsActive)
           this.nfcInit();
       }, (error) => {
@@ -155,6 +152,10 @@ export class HomePage {
               let isEnnabled = setInterval(() => {
                 this.nfc.enabled()
                   .then(() => {
+                    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
+                      this.modalIsActive = true;
+                      this.presentSeancesModal()
+                    }
                     this.nfcInit();
                     alert.dismiss();
                     clearInterval(isEnnabled)
@@ -224,8 +225,6 @@ export class HomePage {
   }
 
   private bleError() {
-    console.log("home ble err");
-
     let alert: Alert = this.alertCtrl.create({
       title: 'Échec de connexion Bluetooth',
       subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
@@ -249,6 +248,7 @@ export class HomePage {
     this.navCtrl.setRoot(LoginPage)
   };
   public bilan() {
+    this.nfcService.nfcUnsubscribe();
     let alert: Alert = this.alertCtrl.create({
       subTitle: 'Êtes-vous sûr de vouloir terminer la séance ?',
       enableBackdropDismiss: false,
@@ -266,6 +266,8 @@ export class HomePage {
           text: 'NON',
           handler: () => {
             alert.dismiss();
+            if (this.plt.is('android'))
+            this.nfcInit()
           }
         }
       ]
@@ -290,7 +292,6 @@ export class HomePage {
       .timeout(40000).subscribe(
         (seances) => {
           this.seancesList = seances;
-          console.log("seances", seances)
         },
         (error) => {
           this.serverError();

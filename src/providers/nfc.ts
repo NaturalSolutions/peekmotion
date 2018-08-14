@@ -35,7 +35,6 @@ export class NfcProvider {
   public nfcInit(): Promise<string> {
     console.log('nfcInit');
     return new Promise((resolve, reject) => {
-
       console.log("this.bleId init", this.bleId);
       if (this.bleId)
         this.ble.isConnected(this.bleId)
@@ -142,7 +141,7 @@ export class NfcProvider {
                 (error) => {
                   console.log('disco error', error);
                 });
-            }, 500)
+            }, 200)
           }
         }
         else
@@ -163,7 +162,6 @@ export class NfcProvider {
 
   private nfcListener(): Promise<string> {
     return new Promise((resolve, reject) => {
-
       this.sub = this.nfc.addNdefListener((e) => {
         console.log('successfully attached ndef listener', e);
       }, (err) => {
@@ -175,7 +173,6 @@ export class NfcProvider {
           let tagBytes = event.tag.ndefMessage[0]["payload"];
           this.bleName = this.nfc.bytesToString(tagBytes.slice(3));
           console.log('tag read success', this.bleName);
-
           this.loadingNfcConnect = this.loadingCtrl.create(
             {
               spinner: 'crescent',
@@ -204,8 +201,8 @@ export class NfcProvider {
                                     (deviceData) => {
                                       console.log('ble connected retry', deviceData);
                                       this.loadingNfcConnect.dismiss().then(() => {
-                                        this.startWatch();
                                         this.tagStatus.next('tag_connected');
+                                        this.startWatch();
                                         //this.bleStatus.next('bleOk');
                                         resolve();
                                       });
@@ -227,7 +224,6 @@ export class NfcProvider {
                           console.log('startScan error', error);
                           this.loadingNfcConnect.dismiss().then(() => {
                             console.log("error dissmiss", error);
-
                             reject(error)
                           })
                         });
