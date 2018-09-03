@@ -17,8 +17,7 @@ export class NfcProvider {
   private tagStatus: BehaviorSubject<any> = new BehaviorSubject('');
   //private bleStatus: BehaviorSubject<any> = new BehaviorSubject('');
   private accSubscribe: Subscription;
-  private sub: Subscription
-  public canDisconnect: boolean = true;
+  private sub: Subscription;
   private iosNfcListener: number = 0;
   loadingNfcConnect;
 
@@ -111,7 +110,7 @@ export class NfcProvider {
     });
   }
 
-  private startWatch() {
+ startWatch() {
     let options = {
       frequency: 50
     };
@@ -120,8 +119,6 @@ export class NfcProvider {
     let lasJerkMean = 0;
     let motionCounter = 0;
     this.accSubscribe = this.deviceMotion.watchAcceleration(options).subscribe((acceleration: DeviceMotionAccelerationData) => {
-      if (!this.canDisconnect)
-        return;
       accZTable[curIndex % 10] = acceleration.z;
       if (curIndex > 10) {
         let jerkMean = (acceleration.z - accZTable[(curIndex + 1) % 10]) / 10;
@@ -130,7 +127,7 @@ export class NfcProvider {
         else if (Math.abs(jerkMean) > 0.1) {
           motionCounter++
           if (motionCounter > 3) {
-            console.log('vertically moved canDisconnect', this.canDisconnect);
+            console.log('vertically moved canDisconnect');
             this.accSubscribe.unsubscribe();
             setTimeout(() => {
               this.ble.disconnect(this.bleId).then(
@@ -139,6 +136,7 @@ export class NfcProvider {
                   this.tagStatus.next('tag_disconnected');
                 },
                 (error) => {
+                  this.accSubscribe.unsubscribe();
                   console.log('disco error', error);
                 });
             }, 200)
@@ -202,7 +200,6 @@ export class NfcProvider {
                                       console.log('ble connected retry', deviceData);
                                       this.loadingNfcConnect.dismiss().then(() => {
                                         this.tagStatus.next('tag_connected');
-                                        this.startWatch();
                                         //this.bleStatus.next('bleOk');
                                         resolve();
                                       });

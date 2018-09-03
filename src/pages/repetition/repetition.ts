@@ -121,7 +121,6 @@ export class RepetitionPage {
     this.repetionNumber = 0;
     this.serieNumber = this.serie.NumSerie;
     this.onRepetition(this.firstRepetion);
-    this.nfcProvider.canDisconnect = false;
 
     this.bleSubNotification = this.ble.startNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
       .timeout(16000).subscribe((notify) => {

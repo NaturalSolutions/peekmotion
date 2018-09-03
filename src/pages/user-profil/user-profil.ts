@@ -32,7 +32,6 @@ export class UserProfilPage {
     private fb: FormBuilder,
     private nfcProvider: NfcProvider,
     public loadingCtrl: LoadingController) {
-    this.nfcProvider.canDisconnect = false;
     this.firstConnexion = this.navParams.get("firstConnexion");
     this.loadingGetUser = this.loadingCtrl.create({
       spinner: 'crescent',

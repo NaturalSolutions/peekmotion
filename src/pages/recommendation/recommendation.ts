@@ -88,9 +88,10 @@ export class RecommendationPage {
         public modalCtrl: ModalController,
         private renderer: Renderer2,
     ) {
+        console.log('constructor RecommendationPage');
         this.exercice = this.navParams.get("exercice");
         this.machine = this.navParams.get("machine");
-        this.nfcService.canDisconnect = false;
+        this.nfcService.startWatch();
         this.pickerForm = this.fb.group({})
     }
 
@@ -125,6 +126,8 @@ export class RecommendationPage {
         this.machinesProvider.getSerie(this.nfcService.bleName, this.exoID)
             .timeout(40000).subscribe(
                 (serie) => {
+                    console.log("series",serie);
+                    
                     this.serie = serie;
                     this.avencement = this.serie.Avancement.split("/");
                 },
@@ -221,7 +224,6 @@ export class RecommendationPage {
                                             }).subscribe()
                                         }
                                     });
-
                                 }
                             );
                         return value
@@ -261,7 +263,8 @@ export class RecommendationPage {
         this.renderer.removeClass(document.body, "custom-picker")
         //this.belErrSub.unsubscribe();
         clearInterval(this.readPooling);
-        this.tagSubscribe.unsubscribe();
+        if (this.tagSubscribe)
+            this.tagSubscribe.unsubscribe();
         this.subNotify.unsubscribe()
         console.log("ionViewWillUnload RecommendationPage");
         this.seancesProvider.setPreviousTimer(this.serie.Adh_ExerciceConseil.Recup_sec)
@@ -317,7 +320,6 @@ export class RecommendationPage {
     };
 
     satrtNotifcation() {
-        this.nfcService.canDisconnect = true;
         this.subNotify = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
             .timeout(14000).subscribe((data) => {
                 this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));

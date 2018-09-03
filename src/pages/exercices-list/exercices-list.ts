@@ -27,6 +27,7 @@ export class ExercicesListPage {
   ) {
     this.machine = this.navParams.get("infoMachine");
     this.exoList = this.navParams.get("exoList");
+    this.nfcService.startWatch();
   }
 
   ionViewWillEnter() {
@@ -41,7 +42,6 @@ export class ExercicesListPage {
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad ExercicesListPage');
-    this.nfcService.canDisconnect = true;
     this.loginProvider.getUser()
       .timeout(40000).subscribe((user) => {
         this.currentUser = user;
