@@ -75,6 +75,7 @@ export class ExercicesListPage {
 
   ionViewWillUnload() {
     this.tagSubscribe.unsubscribe();
+    this.nfcService.accUnsubscribe();
   }
 
   selectExercice(exercice) {

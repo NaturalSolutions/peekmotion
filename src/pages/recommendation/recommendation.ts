@@ -34,7 +34,7 @@ export class RecommendationPage {
     private serieID;
     private addMasse = 0;
     private tagSubscribe;
-    private subNotify;
+    private subNotification;
     @ViewChild(Slides) slides: Slides;
     public countDown;
     private machine;
@@ -43,6 +43,7 @@ export class RecommendationPage {
     private readPooling;
     private firstRepetion;
     public serieLoaded: boolean = false;
+    deviceIsUpdate: boolean = false;
     public weight;
     private weightSelected;
     public masseAppoint;
@@ -91,17 +92,18 @@ export class RecommendationPage {
         console.log('constructor RecommendationPage');
         this.exercice = this.navParams.get("exercice");
         this.machine = this.navParams.get("machine");
-        this.nfcService.startWatch();
         this.pickerForm = this.fb.group({})
     }
 
     ionViewWillEnter() {
         console.log('ionViewDidLoad RecommendationPage');
         this.renderer.addClass(document.body, "custom-picker")
-        /*this.belErrSub=this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
-            if (bleStatus === "bleErr")
-                this.bleError()
-        });*/
+        /* this.belErrSub = this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
+             if (bleStatus === "bleErr") {
+                 this.belErrSub.unsubscribe();
+                 this.bleError()
+             }
+         });*/
         this.newTime = Math.ceil(new Date().getTime() / 1000);
         this.masseAppoint = this.machine.Masse_Appoint.MasseDetail_Liste;
         _.map(this.masseAppoint, (value) => {
@@ -126,8 +128,8 @@ export class RecommendationPage {
         this.machinesProvider.getSerie(this.nfcService.bleName, this.exoID)
             .timeout(40000).subscribe(
                 (serie) => {
-                    console.log("series",serie);
-                    
+                    console.log("series", serie);
+
                     this.serie = serie;
                     this.avencement = this.serie.Avancement.split("/");
                 },
@@ -262,10 +264,12 @@ export class RecommendationPage {
     ionViewWillUnload() {
         this.renderer.removeClass(document.body, "custom-picker")
         //this.belErrSub.unsubscribe();
+        this.nfcService.accUnsubscribe();
+        if (this.subNotification)
+            this.subNotification.unsubscribe();
         clearInterval(this.readPooling);
         if (this.tagSubscribe)
             this.tagSubscribe.unsubscribe();
-        this.subNotify.unsubscribe()
         console.log("ionViewWillUnload RecommendationPage");
         this.seancesProvider.setPreviousTimer(this.serie.Adh_ExerciceConseil.Recup_sec)
     }
@@ -318,38 +322,6 @@ export class RecommendationPage {
             .takeWhile(() => this.counter >= 1)
             .map(() => --this.counter)
     };
-
-    satrtNotifcation() {
-        this.subNotify = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-            .timeout(14000).subscribe((data) => {
-                this.firstRepetion = (Array.prototype.slice.call(new Uint8Array(data)));
-                console.log("notification", this.firstRepetion);
-                if (this.firstRepetion[2] == 32) {
-                    if (this.serieNumber > 1) {
-                        localStorage.setItem('currentSeance', "true");
-                        let stopedTime = Math.ceil(new Date().getTime() / 1000);
-                        this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
-                    }
-
-                    this.subNotify.unsubscribe();
-                    this.navCtrl.setRoot(RepetitionPage, {
-                        firstRepetion: this.firstRepetion,
-                        weightSelected: this.weightSelected,
-                        serie: this.serie,
-                        exercice: this.exercice,
-                        machine: this.machine
-                    })
-                }
-            },
-                (error) => {
-                    console.log("error_bleRepRecomandation", error);
-                    this.ble.disconnect(this.nfcService.bleId).then(
-                        () => this.bleError(),
-                        (err) => console.log("disconnect err", err)
-                    )
-                }
-            );
-    }
 
     readWeight() {
         this.readPooling = setInterval(() => {
@@ -486,9 +458,10 @@ export class RecommendationPage {
 
     getVersionDevice() {
         let notify;
-        let subNotification = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-            .subscribe((data) => {
+        this.subNotification = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
+            .timeout(14000).subscribe((data) => {
                 notify = (Array.prototype.slice.call(new Uint8Array(data)));
+                console.log("notify", notify);
                 if (notify[2] == 48) {
                     let deviceVersion = (notify[5] << 8) & 0x000ff00 | (notify[6] << 0) & 0x00000ff;
                     if (deviceVersion != this.serie.VersionPPConfig) {
@@ -502,20 +475,36 @@ export class RecommendationPage {
                                     this.serverError();
                                 },
                                 () => {
-                                    subNotification.unsubscribe();
+                                    this.subNotification.unsubscribe();
                                     this.updateVersionDevice(this.versionTab);
                                 }
                             )
                     }
                     else {
-                        subNotification.unsubscribe();
-                        setTimeout(() => {
-                            this.satrtNotifcation()
-                        }, 250);
+                        this.deviceIsUpdate = true;
+                        this.nfcService.startWatch();
+                        console.log("device is update");
                     }
+                }
+                if (this.deviceIsUpdate && notify[2] == 32) {
+                    if (this.serieNumber > 1) {
+                        localStorage.setItem('currentSeance', "true");
+                        let stopedTime = Math.ceil(new Date().getTime() / 1000);
+                        this.seancesProvider.setBilanStatus(true, "continuer", this.serieID, stopedTime, this.counter);
+                    }
+
+                    this.subNotification.unsubscribe();
+                    this.navCtrl.setRoot(RepetitionPage, {
+                        firstRepetion: notify,
+                        weightSelected: this.weightSelected,
+                        serie: this.serie,
+                        exercice: this.exercice,
+                        machine: this.machine
+                    })
                 }
             },
                 (error) => {
+                    this.subNotification.unsubscribe();
                     console.log("error_bleRepRecomandation", error);
                     this.ble.disconnect(this.nfcService.bleId).then(
                         () => this.bleError(),

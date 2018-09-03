@@ -15,7 +15,7 @@ export class NfcProvider {
   public bleId: string;
   public bleName: string;
   private tagStatus: BehaviorSubject<any> = new BehaviorSubject('');
-  //private bleStatus: BehaviorSubject<any> = new BehaviorSubject('');
+ // private bleStatus: BehaviorSubject<any> = new BehaviorSubject('');
   private accSubscribe: Subscription;
   private sub: Subscription;
   private iosNfcListener: number = 0;
@@ -154,7 +154,7 @@ export class NfcProvider {
     return this.tagStatus.asObservable();
   }
 
-  /*getBleError(): Observable<any> {
+ /* getBleError(): Observable<any> {
     return this.bleStatus.asObservable();
   }*/
 
@@ -200,14 +200,14 @@ export class NfcProvider {
                                       console.log('ble connected retry', deviceData);
                                       this.loadingNfcConnect.dismiss().then(() => {
                                         this.tagStatus.next('tag_connected');
-                                        //this.bleStatus.next('bleOk');
+                                       // this.bleStatus.next('bleOk');
                                         resolve();
                                       });
                                     },
                                     (error) => {
                                       console.log('ble connect error', error);
                                       this.loadingNfcConnect.dismiss().then(() => {
-                                        //this.bleStatus.next('bleErr');
+                                       // this.bleStatus.next('bleErr');
                                         bleScanSub.unsubscribe();
                                         bleConnectSub.unsubscribe();
                                       })
@@ -248,5 +248,10 @@ export class NfcProvider {
   nfcUnsubscribe() {
     if (this.sub)
       this.sub.unsubscribe();
+  }
+
+  accUnsubscribe() {
+    if (this.accSubscribe)
+      this.accSubscribe.unsubscribe();
   }
 }
