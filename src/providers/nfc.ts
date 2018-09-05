@@ -201,12 +201,13 @@ export class NfcProvider {
                                         console.log('retry err')
                                       else {
                                         console.log('ble connected retry', deviceData);
-                                        this.loadingNfcConnect.dismiss().then(() => {
-                                          this.tagStatus.next('tag_connected');
-                                          // this.bleStatus.next('bleOk');
-                                          resolve();
-                                        }
-                                        );
+                                        this.loadingNfcConnect.dismiss().
+                                          then(() => {
+                                            this.tagStatus.next('tag_connected');
+                                            // this.bleStatus.next('bleOk');
+                                            resolve();
+                                          }
+                                          );
                                       }
                                     },
                                     (error) => {

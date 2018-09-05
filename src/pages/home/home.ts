@@ -122,7 +122,6 @@ export class HomePage {
       this.modalIsActive = true;
       this.presentSeancesModal()
     }
-    this.activeNFC();
     if (this.plt.is('android'))
       this.activeNFC();
   }
