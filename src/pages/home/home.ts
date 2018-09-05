@@ -154,10 +154,10 @@ export class HomePage {
                       this.modalIsActive = true;
                       this.presentSeancesModal()
                     }
-                    this.nfcInit();
-                    alert.dismiss();
+                    alert.dismiss().then(() => this.nfcInit());
                     clearInterval(isEnnabled)
-                  })
+                  },
+                  )
               }, 400)
             })
             .catch(error => {

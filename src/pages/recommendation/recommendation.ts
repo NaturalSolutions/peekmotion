@@ -101,7 +101,6 @@ export class RecommendationPage {
         this.belErrSub = this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
             if (bleStatus === "bleErr") {
                 this.belErrSub.unsubscribe();
-                this.bleError()
             }
         });
         this.newTime = Math.ceil(new Date().getTime() / 1000);

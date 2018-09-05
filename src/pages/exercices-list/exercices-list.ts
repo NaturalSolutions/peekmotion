@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams,AlertController } from 'ionic-angular';
+import { NavController, NavParams,AlertController, Alert } from 'ionic-angular';
 import { RecommendationPage } from '../Recommendation/Recommendation';
 import { HomePage } from '../home/home';
 import { NfcProvider } from '../../providers/nfc';
@@ -13,9 +13,11 @@ import { LoginProvider } from '../../providers/loginService';
 export class ExercicesListPage {
 
   userConnected: boolean = false;
+  bleErrDisc : boolean =false;
   private imgSrc: string = "./assets/imgs/";
   private exoList: [any];
   private machine;
+  belErrSub;
   currentUser;
   private tagSubscribe;
   constructor(
@@ -31,6 +33,13 @@ export class ExercicesListPage {
   }
 
   ionViewWillEnter() {
+    this.belErrSub = this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
+      if (bleStatus === "bleErr") {
+          this.belErrSub.unsubscribe();
+          this.bleErrDisc=true;
+          this.bleError()
+      }
+  });
     this.tagSubscribe = this.nfcService.getTagStatus().first(status => (status == "tag_disconnected")).subscribe(tagStatus => {
       console.log('getTagStatus', tagStatus);
       if (tagStatus === "tag_disconnected") {
@@ -80,6 +89,7 @@ export class ExercicesListPage {
 
   selectExercice(exercice) {
     this.tagSubscribe.unsubscribe();
+    if (!this.bleErrDisc)
     this.navCtrl.push(RecommendationPage, { exercice: exercice, machine: this.machine })
   }
   private serverError() {
@@ -99,5 +109,22 @@ export class ExercicesListPage {
     alert.present();
   }
 
-
+  bleError() {
+    console.log(" recomandation ble err");
+    this.nfcService.accUnsubscribe();
+    let alert: Alert = this.alertCtrl.create({
+        title: 'Échec de connexion Bluetooth',
+        subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
+        enableBackdropDismiss: false,
+        cssClass: 'alertCustomCss',
+        buttons: [{
+            text: 'OK',
+            handler: () => {
+                alert.dismiss().then(() =>
+                    this.navCtrl.setRoot(HomePage))
+            }
+        }]
+    });
+    alert.present();
+}
 }
