@@ -15,7 +15,7 @@ export class NfcProvider {
   public bleId: string;
   public bleName: string;
   private tagStatus: BehaviorSubject<any> = new BehaviorSubject('');
- // private bleStatus: BehaviorSubject<any> = new BehaviorSubject('');
+  // private bleStatus: BehaviorSubject<any> = new BehaviorSubject('');
   private accSubscribe: Subscription;
   private sub: Subscription;
   private iosNfcListener: number = 0;
@@ -110,7 +110,7 @@ export class NfcProvider {
     });
   }
 
- startWatch() {
+  startWatch() {
     let options = {
       frequency: 50
     };
@@ -154,9 +154,9 @@ export class NfcProvider {
     return this.tagStatus.asObservable();
   }
 
- /* getBleError(): Observable<any> {
-    return this.bleStatus.asObservable();
-  }*/
+  /* getBleError(): Observable<any> {
+     return this.bleStatus.asObservable();
+   }*/
 
   private nfcListener(): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -194,25 +194,31 @@ export class NfcProvider {
                               console.log('scan stopped');
                               setTimeout(() => {
                                 this.bleId = device.id;
-                                let bleConnectSub = this.ble.connect(device.id)
+                                let bleConnectSub = this.ble.connect(this.bleId)
                                   .retry(3).subscribe(
                                     (deviceData) => {
-                                      console.log('ble connected retry', deviceData);
-                                      this.loadingNfcConnect.dismiss().then(() => {
-                                        this.tagStatus.next('tag_connected');
-                                       // this.bleStatus.next('bleOk');
-                                        resolve();
-                                      });
+                                      if (deviceData === 'OK')
+                                        console.log('retry err')
+                                      else {
+                                        console.log('ble connected retry', deviceData);
+                                        this.loadingNfcConnect.dismiss().then(() => {
+                                          this.tagStatus.next('tag_connected');
+                                          // this.bleStatus.next('bleOk');
+                                          resolve();
+                                        }
+                                        );
+                                      }
                                     },
                                     (error) => {
                                       console.log('ble connect error', error);
                                       this.loadingNfcConnect.dismiss().then(() => {
-                                       // this.bleStatus.next('bleErr');
+                                        // this.bleStatus.next('bleErr');
                                         bleScanSub.unsubscribe();
                                         bleConnectSub.unsubscribe();
+                                        reject(error)
                                       })
                                     });
-                              }, 20);
+                              }, 100);
                             });
                           }
                         }, error => {
@@ -224,7 +230,7 @@ export class NfcProvider {
                             reject(error)
                           })
                         });
-                    }, 20)
+                    }, 100)
                   },
                     error => {
                       this.sub.unsubscribe();

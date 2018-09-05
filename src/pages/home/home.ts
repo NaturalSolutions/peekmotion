@@ -118,6 +118,11 @@ export class HomePage {
 
   private bleReady() {
     this.bleStatus = 'ready';
+    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
+      this.modalIsActive = true;
+      this.presentSeancesModal()
+    }
+    this.activeNFC();
     if (this.plt.is('android'))
       this.activeNFC();
   }
@@ -125,10 +130,6 @@ export class HomePage {
   private activeNFC() {
     this.nfc.enabled()
       .then((status) => {
-        if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
-          this.modalIsActive = true;
-          this.presentSeancesModal()
-        }
         if (!this.modalIsActive)
           this.nfcInit();
       }, (error) => {
@@ -264,7 +265,7 @@ export class HomePage {
           handler: () => {
             alert.dismiss();
             if (this.plt.is('android'))
-            this.nfcInit()
+              this.nfcInit()
           }
         }
       ]
@@ -297,7 +298,7 @@ export class HomePage {
             this.nfcInit()
         },
         () => {
-          let seancestModal = this.modalCtrl.create(ModalSeancesPage, { seancesList: this.seancesList }, { cssClass:"seances-modal",enableBackdropDismiss: false });
+          let seancestModal = this.modalCtrl.create(ModalSeancesPage, { seancesList: this.seancesList }, { cssClass: "seances-modal", enableBackdropDismiss: false });
           seancestModal.onDidDismiss(data => {
             this.changeSeance = this.seancesProvider.getChangeBtnStatus();
             this.modalIsActive = false;
