@@ -28,7 +28,7 @@
     "@ionic-native/core": "4.7.0",
     "@ionic-native/device-motion": "^4.7.0",
     "@ionic-native/gyroscope": "4.7.0",
-    "@ionic-native/in-app-browser": "^4.7.0",
+    "@ionic-native/in-app-browser": "^4.12.2",
     "@ionic-native/insomnia": "4.7.0",
     "@ionic-native/keyboard": "^4.7.0",
     "@ionic-native/network": "^4.10.0",

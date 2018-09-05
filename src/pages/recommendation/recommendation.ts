@@ -412,6 +412,7 @@ export class RecommendationPage {
 
     bleError() {
         console.log(" recomandation ble err");
+        this.nfcService.accUnsubscribe();
         let alert: Alert = this.alertCtrl.create({
             title: 'Échec de connexion Bluetooth',
             subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
@@ -429,6 +430,7 @@ export class RecommendationPage {
     }
 
     serverError() {
+        this.nfcService.accUnsubscribe();
         let alert: Alert = this.alertCtrl.create({
             title: 'Échec de connexion Internet',
             subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
@@ -446,6 +448,7 @@ export class RecommendationPage {
     }
 
     serverError2() {
+        this.nfcService.accUnsubscribe();
         let alert: Alert = this.alertCtrl.create({
             title: 'Échec de connexion Internet',
             subTitle: 'Assurez-vous que vous êtes bien connecté à internet',

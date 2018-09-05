@@ -199,6 +199,15 @@ export class NfcProvider {
                                     (deviceData) => {
                                       if (deviceData === 'OK')
                                         console.log('retry err')
+                                        else if (!deviceData )
+                                        {
+                                          console.log("retry null");
+                                          this.bleStatus.next('bleErr');
+                                          bleScanSub.unsubscribe();
+                                          bleConnectSub.unsubscribe();
+                                          reject()
+                                        
+                                      }
                                       else {
                                         console.log('ble connected retry', deviceData);
                                         this.loadingNfcConnect.dismiss().
