@@ -16,7 +16,7 @@ import { FabContainer } from 'ionic-angular';
 import { NewPasswordPage } from '../new-password/new-password';
 import { ModalSeancesPage } from '../modal-seances/modal-seances';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
-
+import { AndroidPermissions } from '@ionic-native/android-permissions';
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
@@ -49,7 +49,8 @@ export class HomePage {
     public loadingCtrl: LoadingController,
     private seancesProvider: SeancesProvider,
     public modalCtrl: ModalController,
-    private iab: InAppBrowser
+    private iab: InAppBrowser,
+    private androidPermissions: AndroidPermissions,
   ) {
 
   }
@@ -204,7 +205,10 @@ export class HomePage {
       if (err == "Bluetooth is disabled.")
         this.openDisabledBle();
       else
-        this.bleError();
+        if (err == "Location Services are disabled")
+          this.bleErrorLoc();
+        else
+          this.bleError();
       if (this.plt.is('android'))
         this.nfcInit()
     })
@@ -231,7 +235,27 @@ export class HomePage {
     });
     alert.present();
   }
-
+  private bleErrorLoc() {
+    let alert: Alert = this.alertCtrl.create({
+      title: 'Échec de connexion Bluetooth',
+      subTitle: "L'utilisation du BLE nécessite la permission d'accéder à votre localisation. Veuillez activer la position",
+      enableBackdropDismiss: false,
+      cssClass: 'alertCustomCss',
+      buttons: [
+        {
+          text: 'OK',
+          handler: () => {
+            alert.dismiss().then(() => {
+              console.log("requestPermission");
+              this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.ACCESS_COARSE_LOCATION)
+            }
+            )
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
   public profil(fab: FabContainer) {
     this.nfcService.nfcUnsubscribe();
     fab.close();
