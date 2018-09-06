@@ -71,6 +71,11 @@ export class HomePage {
     this.seanceUrl = localStorage.getItem('seanceUrl');
     if (this.seanceUrl)
       this.showSeanceBtn = true;
+
+      if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
+        this.modalIsActive = true;
+        this.presentSeancesModal()
+      }
     if (this.plt.is('ios'))
       this.ble.isEnabled()
         .then(
@@ -120,10 +125,6 @@ export class HomePage {
 
   private bleReady() {
     this.bleStatus = 'ready';
-    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
-      this.modalIsActive = true;
-      this.presentSeancesModal()
-    }
     if (this.plt.is('android'))
       this.activeNFC();
   }
@@ -151,10 +152,6 @@ export class HomePage {
               let isEnnabled = setInterval(() => {
                 this.nfc.enabled()
                   .then(() => {
-                    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
-                      this.modalIsActive = true;
-                      this.presentSeancesModal()
-                    }
                     alert.dismiss().then(() => this.nfcInit());
                     clearInterval(isEnnabled)
                   },
@@ -194,10 +191,10 @@ export class HomePage {
             this.loadingGetMachineByID.dismiss()
               .then(() => {
                 let exoList = this.machine.ExoUsage_Liste;
-                //if (exoList.length > 1)
+                if (exoList.length > 1)
                   this.navCtrl.setRoot(ExercicesListPage, { infoMachine: this.machine, exoList: exoList });
-                //else
-                 // this.navCtrl.setRoot(RecommendationPage, { machine: this.machine });
+                else
+                  this.navCtrl.setRoot(RecommendationPage, { machine: this.machine });
               });
           }
         );

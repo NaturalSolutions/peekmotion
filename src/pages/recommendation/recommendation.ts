@@ -16,7 +16,7 @@ import { MachinesProvider } from '../../providers/machines';
 import { Network } from '@ionic-native/network';
 import { ModalUpdatePage } from '../modal-update/modal-update';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-
+import { Platform } from 'ionic-angular';
 
 @Component({
     selector: 'page-recommendation',
@@ -88,6 +88,7 @@ export class RecommendationPage {
         private network: Network,
         public modalCtrl: ModalController,
         private renderer: Renderer2,
+        public plt: Platform,
     ) {
         console.log('constructor RecommendationPage');
         this.exercice = this.navParams.get("exercice");
@@ -101,6 +102,8 @@ export class RecommendationPage {
         this.belErrSub = this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
             if (bleStatus === "bleErr") {
                 this.belErrSub.unsubscribe();
+                if (this.plt.is('ios'))
+                this.bleError()
             }
         });
         this.newTime = Math.ceil(new Date().getTime() / 1000);
@@ -254,8 +257,11 @@ export class RecommendationPage {
                                 this.navCtrl.setRoot(HomePage)
                             }
                         });
-                    this.getVersionDevice();
-                    this.readWeight();
+                        setTimeout(() => {
+                            this.getVersionDevice();
+                            this.readWeight();
+                        }, 200);
+                   
                 }
             )
     }
@@ -478,7 +484,10 @@ export class RecommendationPage {
                                 },
                                 () => {
                                     this.subNotification.unsubscribe();
-                                    this.updateVersionDevice(this.versionTab);
+                                    setTimeout(() => {
+                                        this.updateVersionDevice(this.versionTab);
+                                    }, 200);
+                                   
                                 }
                             )
                     }
@@ -496,13 +505,16 @@ export class RecommendationPage {
                     }
 
                     this.subNotification.unsubscribe();
-                    this.navCtrl.setRoot(RepetitionPage, {
-                        firstRepetion: notify,
-                        weightSelected: this.weightSelected,
-                        serie: this.serie,
-                        exercice: this.exercice,
-                        machine: this.machine
-                    })
+                    setTimeout(() => {
+                        this.navCtrl.setRoot(RepetitionPage, {
+                            firstRepetion: notify,
+                            weightSelected: this.weightSelected,
+                            serie: this.serie,
+                            exercice: this.exercice,
+                            machine: this.machine
+                        })
+                    }, 200);
+                   
                 }
             },
                 (error) => {
