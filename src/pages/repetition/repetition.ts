@@ -41,7 +41,7 @@ export class RepetitionPage {
   private repetionNumber = 0;
   private firstRepetion;
   private state: string = 'small';
-  //belErrSub: any;
+  belErrSub: any;
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
@@ -114,16 +114,18 @@ export class RepetitionPage {
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad RepetitionPage');
-    /*this.belErrSub=this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
-      if (bleStatus === "bleErr")
+    this.belErrSub = this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
+      if (bleStatus === "bleErr") {
+          this.belErrSub.unsubscribe();
           this.bleError()
-  });*/
+      }
+  });
     this.repetionNumber = 0;
     this.serieNumber = this.serie.NumSerie;
     this.onRepetition(this.firstRepetion);
 
     this.bleSubNotification = this.ble.startNotification(this.nfcProvider.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-      .timeout(16000).subscribe((notify) => {
+      .subscribe((notify) => {
         let data = (Array.prototype.slice.call(new Uint8Array(notify)));
         if (data[2] == 32) {
           this.onRepetition(data);
@@ -191,7 +193,7 @@ export class RepetitionPage {
 
   ionViewWillUnload() {
     clearInterval(this.blinkInterval);
-    //this.belErrSub.unsubscribe();
+    this.belErrSub.unsubscribe();
   }
 
   saveInstance(chartInstance) {

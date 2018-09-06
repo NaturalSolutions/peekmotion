@@ -71,7 +71,7 @@ export class RecommendationPage {
     public imgGroupMuscu: any = {};
     versionTab;
     pickerForm: FormGroup;
-    //belErrSub: any;
+    belErrSub: any;
     pickerData = [{ options: [] }];
     pikerOptions = [];
     constructor(
@@ -98,12 +98,11 @@ export class RecommendationPage {
     ionViewWillEnter() {
         console.log('ionViewDidLoad RecommendationPage');
         this.renderer.addClass(document.body, "custom-picker")
-        /* this.belErrSub = this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
-             if (bleStatus === "bleErr") {
-                 this.belErrSub.unsubscribe();
-                 this.bleError()
-             }
-         });*/
+        this.belErrSub = this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
+            if (bleStatus === "bleErr") {
+                this.belErrSub.unsubscribe();
+            }
+        });
         this.newTime = Math.ceil(new Date().getTime() / 1000);
         this.masseAppoint = this.machine.Masse_Appoint.MasseDetail_Liste;
         _.map(this.masseAppoint, (value) => {
@@ -263,7 +262,7 @@ export class RecommendationPage {
 
     ionViewWillUnload() {
         this.renderer.removeClass(document.body, "custom-picker")
-        //this.belErrSub.unsubscribe();
+        this.belErrSub.unsubscribe();
         this.nfcService.accUnsubscribe();
         if (this.subNotification)
             this.subNotification.unsubscribe();
@@ -412,6 +411,7 @@ export class RecommendationPage {
 
     bleError() {
         console.log(" recomandation ble err");
+        this.nfcService.accUnsubscribe();
         let alert: Alert = this.alertCtrl.create({
             title: 'Échec de connexion Bluetooth',
             subTitle: 'Assurez-vous que le sélectionneur de charge est allumé et à portée et reposez le téléphone sur le socle',
@@ -429,6 +429,7 @@ export class RecommendationPage {
     }
 
     serverError() {
+        this.nfcService.accUnsubscribe();
         let alert: Alert = this.alertCtrl.create({
             title: 'Échec de connexion Internet',
             subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
@@ -446,6 +447,7 @@ export class RecommendationPage {
     }
 
     serverError2() {
+        this.nfcService.accUnsubscribe();
         let alert: Alert = this.alertCtrl.create({
             title: 'Échec de connexion Internet',
             subTitle: 'Assurez-vous que vous êtes bien connecté à internet',
@@ -459,7 +461,7 @@ export class RecommendationPage {
     getVersionDevice() {
         let notify;
         this.subNotification = this.ble.startNotification(this.nfcService.bleId, 'f000da7a-0451-4000-b000-000000000000', 'f000beef-0451-4000-b000-000000000000')
-            .timeout(14000).subscribe((data) => {
+            .subscribe((data) => {
                 notify = (Array.prototype.slice.call(new Uint8Array(data)));
                 console.log("notify", notify);
                 if (notify[2] == 48) {
@@ -546,7 +548,4 @@ export class RecommendationPage {
         );
         updateModal.present();
     }
-
-
-
 }

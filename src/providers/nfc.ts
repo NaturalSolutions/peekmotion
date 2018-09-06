@@ -15,7 +15,7 @@ export class NfcProvider {
   public bleId: string;
   public bleName: string;
   private tagStatus: BehaviorSubject<any> = new BehaviorSubject('');
-  // private bleStatus: BehaviorSubject<any> = new BehaviorSubject('');
+   private bleStatus: BehaviorSubject<any> = new BehaviorSubject('');
   private accSubscribe: Subscription;
   private sub: Subscription;
   private iosNfcListener: number = 0;
@@ -154,9 +154,9 @@ export class NfcProvider {
     return this.tagStatus.asObservable();
   }
 
-  /* getBleError(): Observable<any> {
+   getBleError(): Observable<any> {
      return this.bleStatus.asObservable();
-   }*/
+   }
 
   private nfcListener(): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -199,20 +199,30 @@ export class NfcProvider {
                                     (deviceData) => {
                                       if (deviceData === 'OK')
                                         console.log('retry err')
+                                        else if (!deviceData )
+                                        {
+                                          console.log("retry null");
+                                          this.bleStatus.next('bleErr');
+                                          bleScanSub.unsubscribe();
+                                          bleConnectSub.unsubscribe();
+                                          reject()
+                                        
+                                      }
                                       else {
                                         console.log('ble connected retry', deviceData);
-                                        this.loadingNfcConnect.dismiss().then(() => {
-                                          this.tagStatus.next('tag_connected');
-                                          // this.bleStatus.next('bleOk');
-                                          resolve();
-                                        }
-                                        );
+                                        this.loadingNfcConnect.dismiss().
+                                          then(() => {
+                                            this.tagStatus.next('tag_connected');
+                                             this.bleStatus.next('bleOk');
+                                            resolve();
+                                          }
+                                          );
                                       }
                                     },
                                     (error) => {
                                       console.log('ble connect error', error);
                                       this.loadingNfcConnect.dismiss().then(() => {
-                                        // this.bleStatus.next('bleErr');
+                                         this.bleStatus.next('bleErr');
                                         bleScanSub.unsubscribe();
                                         bleConnectSub.unsubscribe();
                                         reject(error)
