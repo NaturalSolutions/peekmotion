@@ -16,6 +16,7 @@ import { AndroidPermissions } from '@ionic-native/android-permissions';
 import { DeviceMotion } from '@ionic-native/device-motion';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { Network } from '@ionic-native/network';
+
 //pages
 import { HomePage } from '../pages/home/home';
 import { LoginPage } from '../pages/login/login';

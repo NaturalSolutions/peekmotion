@@ -89,6 +89,7 @@ export class ExercicesListPage {
 
   selectExercice(exercice) {
     this.tagSubscribe.unsubscribe();
+    this.nfcService.accUnsubscribe();
     if (!this.bleErrDisc)
     this.navCtrl.push(RecommendationPage, { exercice: exercice, machine: this.machine })
   }

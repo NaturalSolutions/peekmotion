@@ -17,6 +17,7 @@ import { NewPasswordPage } from '../new-password/new-password';
 import { ModalSeancesPage } from '../modal-seances/modal-seances';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { AndroidPermissions } from '@ionic-native/android-permissions';
+
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
@@ -193,10 +194,10 @@ export class HomePage {
             this.loadingGetMachineByID.dismiss()
               .then(() => {
                 let exoList = this.machine.ExoUsage_Liste;
-                if (exoList.length > 1)
+                //if (exoList.length > 1)
                   this.navCtrl.setRoot(ExercicesListPage, { infoMachine: this.machine, exoList: exoList });
-                else
-                  this.navCtrl.setRoot(RecommendationPage, { machine: this.machine });
+                //else
+                 // this.navCtrl.setRoot(RecommendationPage, { machine: this.machine });
               });
           }
         );
