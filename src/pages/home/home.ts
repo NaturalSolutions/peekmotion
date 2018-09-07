@@ -219,7 +219,17 @@ export class HomePage {
       subTitle: 'Assurez-vous que vous êtes bien connecté à internet et reposez le téléphone sur le socle',
       enableBackdropDismiss: false,
       cssClass: 'alertCustomCss',
-      buttons: ['OK']
+      buttons: [
+        {
+          text: 'OK',
+          handler: () => {
+            alert.dismiss().then(() => {
+              this.presentSeancesModal()
+            }
+            )
+          }
+        }
+      ]
     });
     alert.present();
   }
