@@ -89,6 +89,7 @@ export class NfcProvider {
             }
           )
       else {
+        console.log(' ble isConnected false');
         if (!this.platform.is('ios'))
           this.nfcListener().
             then(

@@ -25,7 +25,7 @@
     "@auth0/angular-jwt": "^1.1.0",
     "@ionic-native/android-permissions": "4.7.0",
     "@ionic-native/background-geolocation": "^4.12.2",
-    "@ionic-native/ble": "^4.12.2",
+    "@ionic-native/ble": "^4.7.0",
     "@ionic-native/core": "4.7.0",
     "@ionic-native/device-motion": "^4.7.0",
     "@ionic-native/gyroscope": "4.7.0",

@@ -72,10 +72,7 @@ export class HomePage {
     if (this.seanceUrl)
       this.showSeanceBtn = true;
 
-      if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
-        this.modalIsActive = true;
-        this.presentSeancesModal()
-      }
+     
     if (this.plt.is('ios'))
       this.ble.isEnabled()
         .then(
@@ -124,6 +121,10 @@ export class HomePage {
   }
 
   private bleReady() {
+    if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
+      this.modalIsActive = true;
+      this.presentSeancesModal()
+    }
     this.bleStatus = 'ready';
     if (this.plt.is('android'))
       this.activeNFC();

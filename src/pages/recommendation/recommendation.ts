@@ -444,8 +444,20 @@ export class RecommendationPage {
             buttons: [{
                 text: 'OK',
                 handler: () => {
-                    alert.dismiss().then(() =>
-                        this.navCtrl.setRoot(HomePage))
+                    alert.dismiss().then(() => {
+                        if (this.plt.is('ios'))
+                          this.ble.disconnect(this.nfcService.bleId).then(
+                            () => {
+                              console.log('disc ok ble ios');
+                              this.navCtrl.setRoot(HomePage)
+                            },
+                            (error) => {
+                              console.log('disco error', error);
+                            })
+                        else
+                          this.navCtrl.setRoot(HomePage)
+                      }
+                      )
                 }
             }]
         });

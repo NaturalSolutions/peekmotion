@@ -6,6 +6,7 @@ import { MachinesProvider } from '../../providers/machines';
 import { BLE } from '@ionic-native/ble';
 import { trigger, style, transition, animate, keyframes } from '@angular/animations';
 import { HomePage } from '../home/home';
+import { Platform } from 'ionic-angular';
 @Component({
   selector: 'page-repetition',
   templateUrl: 'repetition.html',
@@ -51,7 +52,8 @@ export class RepetitionPage {
     private zone: NgZone,
     private nfcService: NfcProvider,
     public loadingCtrl: LoadingController,
-    private ble: BLE
+    private ble: BLE,
+    public plt: Platform,
   ) {
 
     this.serie = this.navParams.get("serie");
@@ -116,10 +118,10 @@ export class RepetitionPage {
     console.log('ionViewDidLoad RepetitionPage');
     this.belErrSub = this.nfcService.getBleError().first(status => (status == "bleErr")).subscribe(bleStatus => {
       if (bleStatus === "bleErr") {
-          this.belErrSub.unsubscribe();
-          this.bleError()
+        this.belErrSub.unsubscribe();
+        this.bleError()
       }
-  });
+    });
     this.repetionNumber = 0;
     this.serieNumber = this.serie.NumSerie;
     this.onRepetition(this.firstRepetion);
@@ -266,8 +268,20 @@ export class RepetitionPage {
       {
         text: 'Annuler',
         handler: () => {
-          alert.dismiss().then(() =>
-            this.navCtrl.setRoot(HomePage))
+          alert.dismiss().then(() => {
+            if (this.plt.is('ios'))
+              this.ble.disconnect(this.nfcService.bleId).then(
+                () => {
+                  console.log('disc ok ble ios');
+                  this.navCtrl.setRoot(HomePage)
+                },
+                (error) => {
+                  console.log('disco error', error);
+                })
+            else
+              this.navCtrl.setRoot(HomePage)
+          }
+          )
         }
       }]
     });
