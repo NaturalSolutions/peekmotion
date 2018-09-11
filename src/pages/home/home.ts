@@ -71,8 +71,6 @@ export class HomePage {
     this.seanceUrl = localStorage.getItem('seanceUrl');
     if (this.seanceUrl)
       this.showSeanceBtn = true;
-
-     
     if (this.plt.is('ios'))
       this.ble.isEnabled()
         .then(
@@ -121,13 +119,14 @@ export class HomePage {
   }
 
   private bleReady() {
+    this.bleStatus = 'ready';
     if ((!this.seanceUrl && !this.bilanButton) && !this.changeSeance) {
       this.modalIsActive = true;
       this.presentSeancesModal()
     }
-    this.bleStatus = 'ready';
-    if (this.plt.is('android'))
-      this.activeNFC();
+    else
+      if (this.plt.is('android'))
+        this.activeNFC();
   }
 
   private activeNFC() {
@@ -326,8 +325,6 @@ export class HomePage {
         (error) => {
           this.serverError();
           console.log("error_getMachine", error);
-          if (this.plt.is('android'))
-            this.nfcInit()
         },
         () => {
           let seancestModal = this.modalCtrl.create(ModalSeancesPage, { seancesList: this.seancesList }, { cssClass: "seances-modal", enableBackdropDismiss: false });
@@ -335,7 +332,7 @@ export class HomePage {
             this.changeSeance = this.seancesProvider.getChangeBtnStatus();
             this.modalIsActive = false;
             if (this.plt.is('android'))
-              this.nfcInit()
+              this.activeNFC();
             if (data) {
               this.seanceUrl = data;
               this.showSeanceBtn = true;
