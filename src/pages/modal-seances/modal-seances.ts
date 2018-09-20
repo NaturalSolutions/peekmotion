@@ -9,7 +9,7 @@ import { SeancesProvider } from '../../providers/seances';
 })
 export class ModalSeancesPage {
   seancesList;
-
+  
   constructor(public navCtrl: NavController,
     public viewCtrl: ViewController,
     public navParams: NavParams,
@@ -18,15 +18,18 @@ export class ModalSeancesPage {
   }
 
   ionViewDidLoad() {
+    
     this.seancesList = this.navParams.get('seancesList').dAdhSeance_Liste;
     console.log('ionViewDidLoad ModalSeancesPage', this.seancesList);
   }
   selectSeance(seance) {
     this.seancesProvider.setChangeBtnStatus(true);
     localStorage.setItem('seanceUrl', seance.LienURL_webApp);
-    this.seancesProvider.postSeanceID({'id' :seance.Id})
-    .subscribe(
-        () =>this.viewCtrl.dismiss(seance.LienURL_webApp),
+    this.seancesProvider.postSeanceID({ 'Id': seance.Id })
+      .subscribe(
+        () => {
+          this.viewCtrl.dismiss(seance.LienURL_webApp)
+        },
         (err) => console.log('post ID seance err', err)
       )
   }
@@ -37,9 +40,14 @@ export class ModalSeancesPage {
   }
   unrestrictedSeance() {
     this.seancesProvider.setChangeBtnStatus(true);
-    this.viewCtrl.dismiss();
+    this.seancesProvider.postSeanceID({ 'Id': 0})
+      .subscribe(
+        () => {
+          this.viewCtrl.dismiss()
+        },
+        (err) => console.log('post ID seance err', err)
+      )
     localStorage.removeItem('seanceUrl');
-   
   }
 
 }
